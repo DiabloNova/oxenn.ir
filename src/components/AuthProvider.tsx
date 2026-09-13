@@ -6,8 +6,8 @@ import { loginAction, logoutAction, getServerSessionAction, registerAction } fro
 
 interface AuthContextType {
   session: Session;
-  login: (email: string, password?: string) => Promise<void>;
-  register: (name: string, email: string, password?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   hasPermission: (requiredRole: UserRole) => boolean;
 }
@@ -49,12 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
   }, []);
 
-  const login = async (email: string, password?: string) => {
+  const login = async (email: string, password: string) => {
     setSession((prev) => ({ ...prev, status: "loading" }));
-
-    // Prepare for future backend API integration here
-    // e.g. const res = await fetch("/api/v1/auth/login", { ... })
-    await new Promise((resolve) => setTimeout(resolve, 800));
 
     // Secure server-side login strictly on the server to prevent client-controlled spoofing
     const user = await loginAction(email, password);
@@ -66,12 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const register = async (name: string, email: string, password?: string) => {
+  const register = async (name: string, email: string, password: string) => {
     setSession((prev) => ({ ...prev, status: "loading" }));
-
-    // Prepare for future backend API integration here
-    // e.g. const res = await fetch("/api/v1/auth/register", { ... })
-    await new Promise((resolve) => setTimeout(resolve, 800));
 
     // Secure server-side registration strictly on the server to prevent client-controlled spoofing
     const user = await registerAction(name, email, password);
@@ -85,8 +77,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     setSession((prev) => ({ ...prev, status: "loading" }));
-    await new Promise((resolve) => setTimeout(resolve, 400));
-
     // Clear secure server-side cookies
     await logoutAction();
 

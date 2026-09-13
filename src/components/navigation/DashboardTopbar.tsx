@@ -69,18 +69,13 @@ export default function DashboardTopbar({
     }
   };
 
-  // --- Workspaces ---
-  const workspaces: Workspace[] = [
-    { id: "ws-tehran", name: isRtl ? "دفتر تهران (شعبه مرکزی)" : "Tehran HQ Workspace", role: "workspace_admin" },
-    { id: "ws-isfahan", name: isRtl ? "فضای خلاق اصفهان" : "Isfahan Creative Lab", role: "viewer" },
-    { id: "ws-sandbox", name: isRtl ? "محیط تستی برند سازمانی" : "Enterprise SEO Sandbox", role: "super_admin" }
-  ];
-
-  // Derive active workspace directly from the authenticated user session (prevents setState sync issue in useEffect)
+  // Workspace identity and role come exclusively from the authoritative server session.
+  const workspaces: Workspace[] = session.user
+    ? [{ id: session.user.workspaceId, name: session.user.workspaceId, role: session.user.role }]
+    : [];
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(null);
-
-  const activeWorkspaceId = selectedWorkspaceId || session.user?.workspaceId || "ws-tehran";
-  const activeWorkspace = workspaces.find((w) => w.id === activeWorkspaceId) || workspaces[0];
+  const activeWorkspaceId = selectedWorkspaceId || session.user?.workspaceId || null;
+  const activeWorkspace = workspaces.find((w) => w.id === activeWorkspaceId) ?? null;
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
@@ -219,7 +214,7 @@ export default function DashboardTopbar({
               aria-label={isRtl ? "انتخاب فضای کاری" : "Select workspace"}
             >
               <div className="w-2 h-2 rounded-full bg-[var(--sky-blue-500)] shrink-0" />
-              <span className="max-w-[120px] sm:max-w-[200px] truncate">{activeWorkspace.name}</span>
+              <span className="max-w-[120px] sm:max-w-[200px] truncate">{activeWorkspace?.name ?? (isRtl ? "بدون فضای کاری" : "No workspace")}</span>
               <ChevronDown size={12} className="text-[var(--text-muted)] shrink-0" />
             </button>
 
@@ -241,12 +236,12 @@ export default function DashboardTopbar({
                       <button
                         onClick={() => handleSwitchWorkspace(ws)}
                         className={`w-full text-start px-4 py-2.5 text-xs font-bold transition-all duration-150 flex items-center justify-between cursor-pointer
-                          ${activeWorkspace.id === ws.id
+                          ${activeWorkspace?.id === ws.id
                             ? "text-[var(--sky-blue-500)] bg-[var(--muted-surface)]/40"
                             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--muted-surface)]"
                           }`}
                         role="option"
-                        aria-selected={activeWorkspace.id === ws.id}
+                        aria-selected={activeWorkspace?.id === ws.id}
                       >
                         <span className="truncate">{ws.name}</span>
                         <span className="px-2 py-0.5 text-[8px] rounded-full bg-[var(--border)] font-black text-[var(--text-muted)] uppercase">
