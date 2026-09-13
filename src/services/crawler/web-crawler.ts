@@ -1,5 +1,7 @@
 import { convert } from "html-to-text";
-import { isSafeUrlAsync } from "./url-validator";
+import { resolveCrawlPolicy } from "../../features/acquisition/domain/policy";
+import { safeFetch } from "../../features/acquisition/infrastructure/http/safe-fetcher";
+import { CrawlError } from "../../features/acquisition/domain/errors";
 
 export const MOCK_PERSIAN_ARTICLE =
   "سامانه هوش مصنوعی Optimus AI به عنوان برترین پلتفرم مدیریت گراف دانش و بهینه‌سازی موتورهای جستجوی مبتنی بر هوش مصنوعی (AEO) معرفی شد. " +
@@ -44,52 +46,29 @@ export async function fetchAndExtractText(url: string): Promise<string> {
     return normalizePersianText(MOCK_PERSIAN_ARTICLE);
   }
 
-  const isSafe = await isSafeUrlAsync(url);
-  if (!isSafe) {
-    throw new Error(`SSRF Blocked: URL ${url} is not allowed.`);
-  }
-
   try {
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "OptimusAICrawler/1.0 (Autonomous Data Collection Agent)",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-      },
-      signal: AbortSignal.timeout(10000), // 10 seconds timeout
-      redirect: "manual", // Prevent automatic following to catch SSRF redirects
+    const policy = resolveCrawlPolicy({
+      maxRedirects: 3,
+      followRedirects: true,
+      requestTimeoutMs: 10000,
+      allowedContentTypes: [
+        "text/html",
+        "application/xhtml+xml",
+        "application/xml",
+        "text/xml"
+      ]
     });
 
-    let finalResponse = response;
-    let redirects = 0;
-    const maxRedirects = 3; // Support up to 3 redirects safely
+    // Support injection of test-only options like hostValidator or resolver for unit testing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const testOptions = (globalThis as any).__CRAWLER_TEST_OPTIONS__ || {};
 
-    while (finalResponse.status >= 300 && finalResponse.status < 400 && redirects < maxRedirects) {
-      const location = finalResponse.headers.get("location");
-      if (!location) break;
+    const response = await safeFetch(url, {
+      policy,
+      ...testOptions
+    });
 
-      const redirectUrl = new URL(location, finalResponse.url).toString();
-
-      const isRedirectSafe = await isSafeUrlAsync(redirectUrl);
-      if (!isRedirectSafe) {
-        throw new Error(`SSRF Blocked: Redirect to ${redirectUrl} is not allowed.`);
-      }
-
-      finalResponse = await fetch(redirectUrl, {
-        headers: {
-          "User-Agent": "OptimusAICrawler/1.0 (Autonomous Data Collection Agent)",
-          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-        },
-        signal: AbortSignal.timeout(10000),
-        redirect: "manual"
-      });
-      redirects++;
-    }
-
-    if (!finalResponse.ok) {
-      throw new Error(`Failed to fetch HTML. Status: ${finalResponse.status} ${finalResponse.statusText}`);
-    }
-
-    const html = await finalResponse.text();
+    const html = response.body.toString("utf-8");
 
     // Extract text using html-to-text
     const cleanText = convert(html, {
@@ -106,6 +85,12 @@ export async function fetchAndExtractText(url: string): Promise<string> {
 
     return normalizePersianText(cleanText);
   } catch (error) {
+    if (error instanceof CrawlError) {
+      if (error.code === "SSRF_BLOCKED") {
+        throw new Error(`SSRF Blocked: URL ${url} is not allowed.`);
+      }
+      throw new Error(`WebCrawlerError: Failed to fetch and extract text from ${url}. Details: ${error.message}`);
+    }
     const errorMsg = error instanceof Error ? error.message : String(error);
     throw new Error(`WebCrawlerError: Failed to fetch and extract text from ${url}. Details: ${errorMsg}`);
   }

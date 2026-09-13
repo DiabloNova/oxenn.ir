@@ -1,4 +1,7 @@
 import * as cheerio from "cheerio";
+import { resolveCrawlPolicy } from "../../features/acquisition/domain/policy";
+import { safeFetch } from "../../features/acquisition/infrastructure/http/safe-fetcher";
+import { CrawlError } from "../../features/acquisition/domain/errors";
 
 /**
  * Parses the HTML of a seed URL, extracts links, resolves relative paths,
@@ -32,19 +35,28 @@ export async function extractSeedLinks(
     const seedParsed = new URL(seedUrl);
     const seedHostname = seedParsed.hostname.toLowerCase();
 
-    const response = await fetch(seedUrl, {
-      headers: {
-        "User-Agent": "OptimusAICrawler/1.0 (Autonomous Data Collection Agent)",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-      },
-      signal: AbortSignal.timeout(10000) // 10 seconds timeout
+    const policy = resolveCrawlPolicy({
+      maxRedirects: 3,
+      followRedirects: true,
+      requestTimeoutMs: 10000,
+      allowedContentTypes: [
+        "text/html",
+        "application/xhtml+xml",
+        "application/xml",
+        "text/xml"
+      ]
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch seed URL. Status: ${response.status} ${response.statusText}`);
-    }
+    // Support injection of test-only options like hostValidator or resolver for unit testing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const testOptions = (globalThis as any).__CRAWLER_TEST_OPTIONS__ || {};
 
-    const html = await response.text();
+    const response = await safeFetch(seedUrl, {
+      policy,
+      ...testOptions
+    });
+
+    const html = response.body.toString("utf-8");
     const $ = cheerio.load(html);
     const discoveredUrlsSet = new Set<string>();
 
@@ -75,6 +87,12 @@ export async function extractSeedLinks(
 
     return Array.from(discoveredUrlsSet).slice(0, maxLinks);
   } catch (error) {
+    if (error instanceof CrawlError) {
+      if (error.code === "SSRF_BLOCKED") {
+        throw new Error(`SSRF Blocked: URL ${seedUrl} is not allowed.`);
+      }
+      throw new Error(`LinkDiscoveryError: Failed to extract links from ${seedUrl}. Details: ${error.message}`);
+    }
     const errorMsg = error instanceof Error ? error.message : String(error);
     throw new Error(`LinkDiscoveryError: Failed to extract links from ${seedUrl}. Details: ${errorMsg}`);
   }

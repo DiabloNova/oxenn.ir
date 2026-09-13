@@ -32,16 +32,31 @@ function calculateCosineDistance(a: number[], b: number[]): number {
 
 // Set up global pg.Pool query mock for offline test run
 const originalPoolQuery = (Pool.prototype as any).query;
+const originalPoolConnect = (Pool.prototype as any).connect;
 
 function setupPoolMock() {
+  (Pool.prototype as any).connect = async function() {
+    return {
+      query: (Pool.prototype as any).query.bind(this),
+      release: () => {}
+    };
+  };
   (Pool.prototype as any).query = async function(sql: string, params: unknown[] = []) {
     const normalizedSql = sql.toLowerCase();
+
+    // Prevent pg from trying to connect to real db
+    if (sql === "BEGIN" || sql === "COMMIT" || sql === "ROLLBACK") return { rowCount: 0, rows: [] };
 
     // Intercept document_embeddings insert queries
     if (normalizedSql.includes("insert into document_embeddings")) {
       const [id, tenantId, contentChunk, metadataJson, embeddingStr, createdAt] = params as any[];
       // Parse embedding string e.g. "[1.2, 2.3]"
-      const embedding = JSON.parse(embeddingStr);
+      let embedding = [];
+      try {
+        embedding = typeof embeddingStr === "string" && embeddingStr.startsWith("[") ? JSON.parse(embeddingStr) : embeddingStr;
+      } catch {
+        // Ignore parse error
+      }
       const metadata = typeof metadataJson === "string" ? JSON.parse(metadataJson) : metadataJson;
 
       const newRecord = {
@@ -60,6 +75,7 @@ function setupPoolMock() {
       };
     }
 
+    // Default mock response to bypass any other random DB checks safely
     // Intercept document_embeddings similarity search queries
     if (normalizedSql.includes("select") && normalizedSql.includes("document_embeddings")) {
       const [tenantId, queryEmbeddingStr, limit] = params as any[];
@@ -94,6 +110,7 @@ function setupPoolMock() {
 
 function restorePoolMock() {
   (Pool.prototype as any).query = originalPoolQuery;
+  (Pool.prototype as any).connect = originalPoolConnect;
 }
 
 // Mock HTML pages database for HTTP fetch interception
@@ -140,42 +157,73 @@ const MOCK_HTML_PAGES: Record<string, string> = {
   "https://test-site.com/ignored-footer": "Not Found"
 };
 
-// Global Fetch Interceptor Mock
-const originalFetch = globalThis.fetch;
+import { createServer, type Server } from "node:http";
 
-function setupFetchMock() {
-  globalThis.fetch = async (input: RequestInfo | URL, _init?: RequestInit): Promise<Response> => {
-    const urlString = input.toString();
-
-    if (MOCK_HTML_PAGES[urlString] && MOCK_HTML_PAGES[urlString] !== "Not Found") {
-      return {
-        ok: true,
-        status: 200,
-        statusText: "OK",
-        text: async () => MOCK_HTML_PAGES[urlString],
-        headers: new Headers({ "content-type": "text/html" })
-      } as Response;
-    }
-
-    return {
-      ok: false,
-      status: 404,
-      statusText: "Not Found",
-      text: async () => "Not Found"
-    } as Response;
-  };
-}
-
-function restoreFetchMock() {
-  globalThis.fetch = originalFetch;
+function listen(server: Server, host: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, host, () => {
+      const address = server.address();
+      if (address && typeof address !== "string") {
+        resolve(address.port);
+      } else {
+        reject(new Error("server did not bind"));
+      }
+    });
+  });
 }
 
 export async function testWebCrawlerSuite() {
   console.log("▶ Running Web Crawler & Data Extraction Service Tests...");
-  setupFetchMock();
+
+  const server = createServer((request, response) => {
+    let urlString = `http://test-site.com${request.url}`;
+    // Strip port from host header if present to match MOCK_HTML_PAGES
+    if (request.headers.host) {
+       urlString = `http://${request.headers.host.split(":")[0]}${request.url}`;
+    }
+
+    if (request.url === "/ssrf-redirect") {
+      response.writeHead(302, { location: "http://169.254.169.254/latest/meta-data/" }).end();
+      return;
+    }
+
+    // MOCK_HTML_PAGES uses https:// by default in its keys.
+    const httpsUrlString = urlString.replace(/^http:/, "https:");
+
+    if (MOCK_HTML_PAGES[httpsUrlString] && MOCK_HTML_PAGES[httpsUrlString] !== "Not Found") {
+      response.writeHead(200, { "content-type": "text/html" });
+      let bodyHtml = MOCK_HTML_PAGES[httpsUrlString];
+
+      // Rewrite the static hardcoded https://test-site.com links to the dynamic local test port
+      // so that safeFetch doesn't try to connect to 127.0.0.1:443 during orchestrator test.
+      bodyHtml = bodyHtml.replace(/https:\/\/test-site\.com/g, `http://test-site.com:${request.socket.localPort}`);
+
+      response.end(bodyHtml);
+      return;
+    }
+
+    response.writeHead(404, { "content-type": "text/plain" }).end("Not Found");
+  });
+
+  const port = await listen(server, "127.0.0.1");
+
+  // Provide test hooks via global variable for crawler to pick up test options
+  const defaultTestOptions = {
+    // Standard mock setup: allow the local IP for functional testing
+    hostValidator: async (host: string) => {
+      if (host === "test-site.com") return { ok: true, ips: ["127.0.0.1"] };
+      return { ok: false, rule: "test-reject", error: new Error("Test reject") };
+    },
+    resolver: async (host: string) => {
+      if (host === "test-site.com") return [{ address: "127.0.0.1", family: 4 }];
+      return [];
+    }
+  };
   setupPoolMock();
 
   try {
+    await withTestOptions(defaultTestOptions, async () => {
     // ----------------------------------------------------
     // 1. Test Persian Text Normalization & Cleaning
     // ----------------------------------------------------
@@ -218,13 +266,65 @@ export async function testWebCrawlerSuite() {
     console.log("    ✅ Successfully verified mock link discovery fallback.");
 
     // ----------------------------------------------------
+    // 2.5 Test SSRF Rejection and DNS TOCTOU boundary via SafeFetcher
+    // ----------------------------------------------------
+    console.log("  * Testing real SSRF boundary and DNS/redirect protections...");
+
+    // Clear the hostValidator hook so that the real resolveAndValidateHost SSRF guard runs
+    await withTestOptions({
+      resolver: async (host: string) => {
+         // Resolve to a blocked private IP to trigger SSRF_BLOCKED during DNS resolution validation
+         if (host === "evil.internal") return [{ address: "169.254.169.254", family: 4 }];
+         if (host === "test-site.com") return [{ address: "127.0.0.1", family: 4 }];
+         return [];
+      }
+    }, async () => {
+      let ssrfCaught = false;
+      try {
+        await fetchAndExtractText("http://evil.internal/");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error.message.includes("SSRF Blocked: URL http://evil.internal/ is not allowed")) {
+          ssrfCaught = true;
+        } else {
+          throw new Error(`Expected SSRF_BLOCKED but got: ${error.message}`);
+        }
+      }
+      if (!ssrfCaught) throw new Error("Security Failure: SSRF guard was bypassed.");
+    });
+
+    // Test Redirect to private IP (SSRF in redirect)
+    // We need to bypass the initial local check just to hit the local server to get the redirect,
+    // so we mock the first validation to pass if it's test-site.com, but pass to the real guard otherwise.
+    await withTestOptions({
+      hostValidator: async (host: string) => {
+         if (host === "test-site.com") return { ok: true, ips: ["127.0.0.1"] };
+         const { resolveAndValidateHost } = await import("../../../src/features/acquisition/infrastructure/security/ssrf-guard");
+         return resolveAndValidateHost(host);
+      }
+    }, async () => {
+      let redirectSsrfCaught = false;
+      try {
+        await fetchAndExtractText(`http://test-site.com:${port}/ssrf-redirect`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error.message.includes("SSRF Blocked: URL")) {
+          redirectSsrfCaught = true;
+        } else {
+          throw new Error(`Expected SSRF_BLOCKED on redirect but got: ${error.message}`);
+        }
+      }
+      if (!redirectSsrfCaught) throw new Error("Security Failure: Redirect SSRF guard was bypassed.");
+    });
+
+    // ----------------------------------------------------
     // 3. Test Link Discovery (Absolute resolution & Domain restrictions)
     // ----------------------------------------------------
     console.log("  * Testing link discovery with absolute resolution and domain filtering...");
-    const discovered = await extractSeedLinks("https://test-site.com/home");
+    const discovered = await extractSeedLinks(`http://test-site.com:${port}/home`);
 
-    const hasRelativeResolved1 = discovered.includes("https://test-site.com/news/1");
-    const hasRelativeResolved2 = discovered.includes("https://test-site.com/news/2");
+    const hasRelativeResolved1 = discovered.includes(`http://test-site.com:${port}/news/1`);
+    const hasRelativeResolved2 = discovered.includes(`http://test-site.com:${port}/news/2`);
     const hasExternalLeaked = discovered.some(url => url.includes("external-site.com"));
     const hasMailtoLeaked = discovered.some(url => url.startsWith("mailto:"));
 
@@ -247,7 +347,7 @@ export async function testWebCrawlerSuite() {
     const testTenantId = "org-test-crawler-001";
 
     const result = await orchestrator.runCrawlerCampaign(
-      ["https://test-site.com/home"],
+      [`http://test-site.com:${port}/home`],
       testTenantId,
       "user-crawler-test",
       "req-crawler-001"
@@ -257,8 +357,8 @@ export async function testWebCrawlerSuite() {
       throw new Error("Orchestration Failure: No target URLs were discovered.");
     }
 
-    const detailsNews1 = result.details.find(d => d.url === "https://test-site.com/news/1");
-    const detailsNews2 = result.details.find(d => d.url === "https://test-site.com/news/2");
+    const detailsNews1 = result.details.find(d => d.url === `http://test-site.com:${port}/news/1`);
+    const detailsNews2 = result.details.find(d => d.url === `http://test-site.com:${port}/news/2`);
 
     if (!detailsNews1 || detailsNews1.status !== "success") {
       throw new Error(`Orchestration Failure: /news/1 should be ingested successfully. Detail: ${JSON.stringify(detailsNews1)}`);
@@ -305,15 +405,93 @@ export async function testWebCrawlerSuite() {
     });
 
     console.log("✅ All Web Crawler & Extraction Service Tests Passed Successfully!");
+    });
   } finally {
-    restoreFetchMock();
+    await new Promise<void>(resolve => server.close(() => resolve()));
     restorePoolMock();
   }
 }
 
+// Test suite helper to safely manage global test options
+async function withTestOptions(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options: any,
+  testFn: () => Promise<void>
+) {
+  const hasPrevious = "__CRAWLER_TEST_OPTIONS__" in globalThis;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const previousValue = (globalThis as any).__CRAWLER_TEST_OPTIONS__;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).__CRAWLER_TEST_OPTIONS__ = options;
+
+  try {
+    await testFn();
+  } finally {
+    if (hasPrevious) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (globalThis as any).__CRAWLER_TEST_OPTIONS__ = previousValue;
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (globalThis as any).__CRAWLER_TEST_OPTIONS__;
+    }
+  }
+}
+
+// Ensure cleanup logic works correctly
+export async function testGlobalCleanupLogic() {
+  console.log("  * Testing __CRAWLER_TEST_OPTIONS__ global cleanup logic...");
+
+  // 1. Deletion of previously absent property
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  delete (globalThis as any).__CRAWLER_TEST_OPTIONS__;
+  await withTestOptions({ mock: true }, async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.mock) throw new Error("Options not set");
+  });
+  if ("__CRAWLER_TEST_OPTIONS__" in globalThis) {
+    throw new Error("Cleanup Failure: Previously absent property was not deleted.");
+  }
+
+  // 2. Restoration of existing previous value
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).__CRAWLER_TEST_OPTIONS__ = { existing: true };
+  await withTestOptions({ nested: true }, async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.nested) throw new Error("Options not set");
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.existing) {
+    throw new Error("Cleanup Failure: Previously existing property was not restored.");
+  }
+
+  // 3. Cleanup when test throws
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).__CRAWLER_TEST_OPTIONS__ = { existing2: true };
+  try {
+    await withTestOptions({ throwTest: true }, async () => {
+      throw new Error("Test exception");
+    });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
+    if (e.message !== "Test exception") throw e;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.existing2) {
+    throw new Error("Cleanup Failure: Property not restored when test body threw exception.");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  delete (globalThis as any).__CRAWLER_TEST_OPTIONS__;
+  console.log("    ✅ Successfully verified global test options cleanup.");
+}
+
 // Support executing directly
 if (require.main === module) {
-  testWebCrawlerSuite()
+  (async () => {
+    await testGlobalCleanupLogic();
+    await testWebCrawlerSuite();
+  })()
     .then(() => {
       console.log("Test finished with exit code 0.");
       process.exit(0);
