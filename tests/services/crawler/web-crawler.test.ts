@@ -220,12 +220,10 @@ export async function testWebCrawlerSuite() {
       return [];
     }
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (globalThis as any).__CRAWLER_TEST_OPTIONS__ = defaultTestOptions;
-
   setupPoolMock();
 
   try {
+    await withTestOptions(defaultTestOptions, async () => {
     // ----------------------------------------------------
     // 1. Test Persian Text Normalization & Cleaning
     // ----------------------------------------------------
@@ -271,58 +269,53 @@ export async function testWebCrawlerSuite() {
     // 2.5 Test SSRF Rejection and DNS TOCTOU boundary via SafeFetcher
     // ----------------------------------------------------
     console.log("  * Testing real SSRF boundary and DNS/redirect protections...");
+
     // Clear the hostValidator hook so that the real resolveAndValidateHost SSRF guard runs
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (globalThis as any).__CRAWLER_TEST_OPTIONS__ = {
+    await withTestOptions({
       resolver: async (host: string) => {
          // Resolve to a blocked private IP to trigger SSRF_BLOCKED during DNS resolution validation
          if (host === "evil.internal") return [{ address: "169.254.169.254", family: 4 }];
          if (host === "test-site.com") return [{ address: "127.0.0.1", family: 4 }];
          return [];
       }
-    };
-
-    let ssrfCaught = false;
-    try {
-      await fetchAndExtractText("http://evil.internal/");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error.message.includes("SSRF Blocked: URL http://evil.internal/ is not allowed")) {
-        ssrfCaught = true;
-      } else {
-        throw new Error(`Expected SSRF_BLOCKED but got: ${error.message}`);
+    }, async () => {
+      let ssrfCaught = false;
+      try {
+        await fetchAndExtractText("http://evil.internal/");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error.message.includes("SSRF Blocked: URL http://evil.internal/ is not allowed")) {
+          ssrfCaught = true;
+        } else {
+          throw new Error(`Expected SSRF_BLOCKED but got: ${error.message}`);
+        }
       }
-    }
-    if (!ssrfCaught) throw new Error("Security Failure: SSRF guard was bypassed.");
+      if (!ssrfCaught) throw new Error("Security Failure: SSRF guard was bypassed.");
+    });
 
     // Test Redirect to private IP (SSRF in redirect)
     // We need to bypass the initial local check just to hit the local server to get the redirect,
     // so we mock the first validation to pass if it's test-site.com, but pass to the real guard otherwise.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (globalThis as any).__CRAWLER_TEST_OPTIONS__ = {
+    await withTestOptions({
       hostValidator: async (host: string) => {
          if (host === "test-site.com") return { ok: true, ips: ["127.0.0.1"] };
          const { resolveAndValidateHost } = await import("../../../src/features/acquisition/infrastructure/security/ssrf-guard");
          return resolveAndValidateHost(host);
       }
-    };
-
-    let redirectSsrfCaught = false;
-    try {
-      await fetchAndExtractText(`http://test-site.com:${port}/ssrf-redirect`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error.message.includes("SSRF Blocked: URL")) {
-        redirectSsrfCaught = true;
-      } else {
-        throw new Error(`Expected SSRF_BLOCKED on redirect but got: ${error.message}`);
+    }, async () => {
+      let redirectSsrfCaught = false;
+      try {
+        await fetchAndExtractText(`http://test-site.com:${port}/ssrf-redirect`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error.message.includes("SSRF Blocked: URL")) {
+          redirectSsrfCaught = true;
+        } else {
+          throw new Error(`Expected SSRF_BLOCKED on redirect but got: ${error.message}`);
+        }
       }
-    }
-    if (!redirectSsrfCaught) throw new Error("Security Failure: Redirect SSRF guard was bypassed.");
-
-    // Restore functional test options for remaining tests
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (globalThis as any).__CRAWLER_TEST_OPTIONS__ = defaultTestOptions;
+      if (!redirectSsrfCaught) throw new Error("Security Failure: Redirect SSRF guard was bypassed.");
+    });
 
     // ----------------------------------------------------
     // 3. Test Link Discovery (Absolute resolution & Domain restrictions)
@@ -412,15 +405,93 @@ export async function testWebCrawlerSuite() {
     });
 
     console.log("✅ All Web Crawler & Extraction Service Tests Passed Successfully!");
+    });
   } finally {
     await new Promise<void>(resolve => server.close(() => resolve()));
     restorePoolMock();
   }
 }
 
+// Test suite helper to safely manage global test options
+async function withTestOptions(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options: any,
+  testFn: () => Promise<void>
+) {
+  const hasPrevious = "__CRAWLER_TEST_OPTIONS__" in globalThis;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const previousValue = (globalThis as any).__CRAWLER_TEST_OPTIONS__;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).__CRAWLER_TEST_OPTIONS__ = options;
+
+  try {
+    await testFn();
+  } finally {
+    if (hasPrevious) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (globalThis as any).__CRAWLER_TEST_OPTIONS__ = previousValue;
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (globalThis as any).__CRAWLER_TEST_OPTIONS__;
+    }
+  }
+}
+
+// Ensure cleanup logic works correctly
+export async function testGlobalCleanupLogic() {
+  console.log("  * Testing __CRAWLER_TEST_OPTIONS__ global cleanup logic...");
+
+  // 1. Deletion of previously absent property
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  delete (globalThis as any).__CRAWLER_TEST_OPTIONS__;
+  await withTestOptions({ mock: true }, async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.mock) throw new Error("Options not set");
+  });
+  if ("__CRAWLER_TEST_OPTIONS__" in globalThis) {
+    throw new Error("Cleanup Failure: Previously absent property was not deleted.");
+  }
+
+  // 2. Restoration of existing previous value
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).__CRAWLER_TEST_OPTIONS__ = { existing: true };
+  await withTestOptions({ nested: true }, async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.nested) throw new Error("Options not set");
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.existing) {
+    throw new Error("Cleanup Failure: Previously existing property was not restored.");
+  }
+
+  // 3. Cleanup when test throws
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).__CRAWLER_TEST_OPTIONS__ = { existing2: true };
+  try {
+    await withTestOptions({ throwTest: true }, async () => {
+      throw new Error("Test exception");
+    });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
+    if (e.message !== "Test exception") throw e;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.existing2) {
+    throw new Error("Cleanup Failure: Property not restored when test body threw exception.");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  delete (globalThis as any).__CRAWLER_TEST_OPTIONS__;
+  console.log("    ✅ Successfully verified global test options cleanup.");
+}
+
 // Support executing directly
 if (require.main === module) {
-  testWebCrawlerSuite()
+  (async () => {
+    await testGlobalCleanupLogic();
+    await testWebCrawlerSuite();
+  })()
     .then(() => {
       console.log("Test finished with exit code 0.");
       process.exit(0);
