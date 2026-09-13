@@ -44,7 +44,7 @@ async function getDummyHash(): Promise<string> {
 /**
  * Authenticates user, resolves identity/workspace strictly on the server, and establishes a secure signed session.
  */
-export async function loginAction(email: string, password?: string): Promise<User> {
+export async function loginAction(email: string, password: string): Promise<User> {
   const normalizedEmail = email.trim().toLowerCase();
   if (!password) {
     throw new Error("Password is required");
@@ -208,7 +208,7 @@ export async function requestPasswordResetAction(email: string): Promise<void> {
 /**
  * Registers user and resolves identity/workspace strictly on the server.
  */
-export async function registerAction(name: string, email: string, password?: string): Promise<User> {
+export async function registerAction(name: string, email: string, password: string): Promise<User> {
   const normalizedEmail = email.trim().toLowerCase();
   if (!password) {
     throw new Error("Password is required");
