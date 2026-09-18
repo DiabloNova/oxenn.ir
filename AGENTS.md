@@ -1,1624 +1,1132 @@
-# Seorchable Repository Engineering, Execution Control and Verification Contract
+# AGENTS.md
 
-# 1. /Authority and purpose/
+# Seorchable — Agent Operating Contract
 
-This file is the single authoritative repository contract for AI-assisted work on Seorchable.
+## jules-prompts Remote Procedure Source
 
-It applies to:
+For reusable engineering procedures, the canonical external source is:
 
-- Google Jules and other implementation agents.
-- Any independent Supervisor, verifier, reviewer, or execution-monitoring agent.
-- Any automated agent workflow operating against this repository.
+https://github.com/melbinjp/jules-prompts
 
-The task prompt defines what is requested for a specific task.
+The machine-readable prompt index is:
 
-This contract defines how that task must be investigated, planned, executed, controlled, validated, reported, and independently verified.
+https://jules-prompts.wecanuseai.com/prompts.json
 
-If the task prompt conflicts with this contract, this contract takes precedence. Stop and resolve the conflict explicitly before implementation.
+When a task requires a procedure from `jules-prompts`:
 
-The current repository implementation is the primary source of truth. Code, configuration, dependencies, routes, schemas, migrations, tests, and actual runtime behavior take precedence over documentation, comments, plans, roadmaps, audit reports, and agent narratives.
+1. Retrieve the current `prompts.json`.
+2. Identify the applicable prompt.
+3. Retrieve the actual prompt content from its canonical `url` or `source_path`.
+4. Read and follow the retrieved procedure.
+5. Do not rely on a stale local copy when the canonical remote source is available.
+6. Do not claim that a `jules-prompts` procedure was retrieved or applied unless the current remote source was actually accessed.
+7. If the canonical source cannot be accessed, explicitly report that retrieval failed. Do not silently substitute an assumed or remembered procedure.
 
-Do not invent architecture, infrastructure, security mechanisms, migration systems, abstractions, or cleanup mechanisms merely to make a task appear complete.
+When reporting use of a `jules-prompts` procedure, identify:
+- the prompt title;
+- its category;
+- its canonical source;
+- whether remote retrieval succeeded.
+  
+---
+# Goal:
 
-Security boundaries and tenant-isolation rules in this contract are permanent safeguards.
+This file defines mandatory instructions for AI coding agents working in this repository, including Google Jules.
 
-Task-specific requirements apply only when the relevant subsystem or security boundary is actually in scope.
+These instructions are repository-level operating rules. They apply before, during, and after every task unless a higher-priority instruction explicitly overrides them.
+
+The agent MUST follow these rules literally. The agent MUST NOT replace them with its own interpretation, preferred workflow, or assumptions about the repository.
 
 ---
 
-# /2. Operating model/
+## 1. Primary Objective
 
-AI-assisted repository work operates as a controlled execution system:
+The agent's primary objective is to produce a correct, minimal, verifiable change while preserving the existing repository and all pre-existing user work.
 
-                    ┌───────────────────────────┐
-                    │       AGENTS.md            │
-                    │ Authoritative Contract     │
-                    │ Permanent Guardrails      │
-                    └─────────────┬─────────────┘
-                                  │
-                                  ▼
-                    ┌───────────────────────────┐
-                    │       Task Prompt          │
-                    │ Scope / Objective / AC     │
-                    └─────────────┬─────────────┘
-                                  │
-                                  ▼
-                    ┌───────────────────────────┐
-                    │      Jules Execution       │
-                    │ Recon → Plan → Change      │
-                    └─────────────┬─────────────┘
-                                  │
-                         CONTROL CHECKPOINTS
-                                  │
-                                  ▼
-                    ┌───────────────────────────┐
-                    │   Independent Supervisor   │
-                    │ Path / Scope / Architecture│
-                    │ Security / Evidence        │
-                    └─────────────┬─────────────┘
-                                  │
-                     ┌────────────┴────────────┐
-                     │                         │
-                  ACCEPT                    INTERVENE
-                     │                         │
-                     ▼                         ▼
-                 CONTINUE                 STOP EXECUTION
-                                               │
-                                               ▼
-                                         CORRECT / REPLAN
-                                               │
-                                               ▼
-                                            RESUME
+The agent MUST prioritize:
 
-The system has four distinct responsibilities:
+1. Repository truth over assumptions.
+2. Direct inspection over summaries.
+3. Evidence over claims.
+4. Explicit authorization over initiative.
+5. Safety over speed.
+6. Minimal changes over opportunistic cleanup.
+7. Stopping safely over continuing through uncertainty.
 
-1. Contract — defines permanent rules.
-2. Jules — performs the requested implementation.
-3. Supervisor — independently controls and verifies execution.
-4. Evidence — establishes what is actually known.
+The agent MUST NOT optimize for merely producing a successful-looking patch.
 
-Jules is not the Supervisor.
-
-Jules is not allowed to approve its own implementation as independently verified.
+A patch is not considered successful unless the relevant requirements have been verified.
 
 ---
 
-# /3. Roles and authority/
+## 2. Repository Is the Source of Truth
 
-## 3.1 Jules — implementation agent
+The live repository is the authoritative source for determining the current state of the system.
 
-Jules is responsible for:
+The agent MUST inspect actual repository files before making factual claims about their contents or behavior.
 
-- reconnaissance;
-- architecture discovery;
-- convention discovery;
-- task planning;
-- scoped implementation;
-- applicable testing;
-- validation;
-- diff inspection;
-- evidence collection;
-- reporting blockers.
+The agent MUST NOT treat any of the following as a substitute for inspecting the actual relevant files:
 
-Jules must follow this contract throughout execution.
+- Previous agent reports.
+- Previous Jules session reports.
+- Chat messages.
+- Task descriptions from previous sessions.
+- Search-result snippets.
+- File names alone.
+- Directory listings alone.
+- Generated summaries.
+- Drizzle snapshots.
+- Generated migration metadata.
+- Build output.
+- Cached artifacts.
+- Documentation describing implementation.
+- An earlier plan.
+- An earlier statement that a phase was completed.
 
-Jules must not:
-
-- redefine repository architecture;
-- silently expand task scope;
-- override this contract;
-- convert uncertainty into fact;
-- bypass a security boundary;
-- bypass tenant isolation;
-- create speculative infrastructure;
-- declare its own work independently verified;
-- treat its own narrative as independent evidence.
-
-Jules may report:
-
-STATUS: BLOCKED
-
-Only the independent Supervisor may classify that blocker as:
-
-BLOCKED_CONFIRMED
+These sources may provide useful leads, but important conclusions MUST be verified against the appropriate live source.
 
 ---
 
-## 3.2 Supervisor — independent execution controller and verifier
+## 3. Mandatory Read-Only Inspection Before Modification
 
-The Supervisor is an independent role.
+Before modifying any file, the agent MUST first inspect the current repository state in read-only mode.
 
-The Supervisor must:
+At minimum, the agent MUST establish the following when relevant to the task:
 
-- inspect Jules' plan before material implementation when execution-time supervision is available;
-- inspect execution checkpoints during the task;
-- detect scope drift;
-- detect architecture drift;
-- detect security regression;
-- detect tenant-isolation violations;
-- detect unsupported assumptions;
-- detect speculative implementation;
-- challenge insufficient evidence;
-- stop or redirect execution when necessary;
-- independently reproduce important claims;
-- independently inspect the final diff;
-- independently classify blockers;
-- issue the final verdict.
+- Current Git branch.
+- Current Git commit.
+- Current Git working-tree status.
+- Repository structure.
+- Relevant source files.
+- Relevant configuration files.
+- `package.json`.
+- Package manager and available scripts.
+- Relevant tests.
+- Database configuration.
+- Database schema.
+- Database migrations.
+- Database migration journal.
+- Database snapshots and metadata.
+- Relevant documentation.
+- Existing `AGENTS.md` instructions.
+- Any other file that directly determines the behavior being changed.
 
-Jules' report is a set of claims to investigate.
+For repository-wide or audit tasks, inspection MUST be substantially broader than a targeted search.
 
-It is not independent evidence.
-
-The Supervisor must not silently become the implementation agent.
-
-If remediation is required, the Supervisor should identify the required correction and return control to Jules unless a separate task explicitly authorizes the Supervisor to modify the repository.
-
----
-
-# /4. Execution control principle/
-
-Repository work is not considered a linear instruction-following exercise.
-
-It is a controlled execution process.
-
-Jules must continuously verify that the current action remains consistent with:
-
-1. the task objective;
-2. the discovered repository architecture;
-3. established conventions;
-4. security boundaries;
-5. tenant isolation;
-6. declared scope;
-7. migration and infrastructure boundaries;
-8. available evidence.
-
-A previously valid plan does not authorize later actions that contradict newly discovered repository evidence.
-
-When new evidence invalidates the current plan:
-
-STOP → REASSESS → REPORT → CORRECT PLAN → RESUME
-
-Do not continue executing an obsolete plan merely because implementation has already started.
+The agent MUST NOT begin implementation merely because it has found a file that appears relevant.
 
 ---
 
-# /5. Mandatory execution checkpoints/
+## 4. Actual File Inspection Is Mandatory
 
-Every material task must pass the following control checkpoints.
+When a conclusion depends on file contents, the agent MUST read the actual file.
 
-## CP-0 — Contract and task intake
+The following are insufficient by themselves:
 
-Before investigation:
+- `grep` or search results.
+- A symbol index.
+- A generated snapshot.
+- A previous agent's description.
+- A file name.
+- A directory listing.
+- A partial excerpt that does not establish the relevant context.
 
-- Read this contract.
-- Read the task prompt.
-- Identify the requested objective.
-- Identify task-specific constraints.
-- Identify explicit acceptance criteria.
-- Identify potentially affected security and tenant boundaries.
+Search may be used to locate files and symbols.
 
-Do not begin implementation at CP-0.
+After locating a relevant file, the agent MUST inspect the actual source needed to establish the conclusion.
 
----
+The agent MUST NOT claim:
 
-## CP-1 — Reconnaissance
+> "I inspected the file"
 
-Before editing:
-
-- locate relevant files;
-- trace actual execution paths;
-- inspect consumers;
-- inspect related tests;
-- inspect configuration;
-- inspect dependencies;
-- inspect schema and migration architecture where applicable;
-- inspect existing abstractions;
-- identify security boundaries;
-- identify tenant boundaries;
-- determine whether the requested behavior already partially exists.
-
-The goal is not to find a filename matching the task description.
-
-The goal is to understand the actual execution path.
-
-### CP-1 gate
-
-Jules must not implement if:
-
-- the actual execution path is unknown;
-- a required architectural dependency is unresolved;
-- a security boundary is unclear;
-- a canonical persistence or migration path is unclear;
-- the requested change appears to conflict with existing architecture.
-
-The appropriate status is:
-
-STATUS: BLOCKED
-
-with evidence.
+when it only inspected a search result, index, snapshot, or summary.
 
 ---
 
-## CP-2 — Architecture and convention verification
+## 5. No Fabrication or Unverified Claims
 
-Before creating an abstraction, search for existing:
+The agent MUST NOT fabricate repository facts.
 
-- services;
-- repositories;
-- domain objects;
-- application services;
-- security utilities;
-- authentication mechanisms;
-- rate-limit mechanisms;
-- distributed state;
-- transaction helpers;
-- crypto utilities;
-- tenant-context mechanisms;
-- database factories;
-- migration tooling;
-- configuration;
-- test utilities;
-- existing integration patterns.
+The agent MUST NOT claim that:
 
-Prefer existing architecture over new architecture.
+- a file exists unless it has verified that it exists;
+- a file was inspected unless it actually inspected it;
+- a command succeeded unless it observed the result;
+- tests passed unless they were actually run or otherwise directly verified;
+- a migration is correct merely because Drizzle generated it;
+- a schema is correct merely because a snapshot appears correct;
+- a database is healthy merely because application code compiles;
+- a task is complete merely because files were modified;
+- the repository is clean without checking Git status;
+- a previous phase succeeded without independently verifying the relevant state.
 
-Forbidden shortcut
+When something cannot be verified, use one of these explicit states:
 
-The following reasoning is insufficient:
+- `NOT VERIFIED`
+- `NOT RUN`
+- `BLOCKED`
+- `UNKNOWN`
 
-"I could not immediately find X, therefore I will create X."
-
-The correct sequence is:
-
-SEARCH
-→ TRACE
-→ VERIFY
-→ DETERMINE ABSENCE OR UNCERTAINTY
-→ ONLY THEN DECIDE
-
-If the required architecture does not exist and introducing it requires an unresolved architectural or security decision:
-
-STOP
-→ STATUS: BLOCKED
-→ provide evidence
-→ do not invent the architecture
+Do not convert missing evidence into an assumption.
 
 ---
 
-## CP-3 — Scope gate
+## 6. Fact, Inference, Assumption, and Conflict
 
-Before implementation, Jules must establish:
+The agent MUST distinguish between different levels of certainty.
 
-- task scope;
-- allowed files;
-- expected changes;
-- security impact;
-- possible schema changes;
-- migration impact;
-- required tests;
-- required validation.
+Use these classifications when appropriate:
 
-Every changed file must have a direct task justification.
+### FACT
 
-If a required change falls outside the declared scope:
+Directly established from inspected repository state, command output, or other concrete evidence.
 
-STOP BEFORE EDITING
+### OBSERVATION
 
-Obtain authorization before continuing.
+Something directly observed but not necessarily interpreted.
 
-Do not silently expand scope.
+### INFERENCE
 
----
+A conclusion derived from observed evidence.
 
-## CP-4 — Implementation checkpoint
+### ASSUMPTION
 
-Before the first material code change, Jules must have a coherent implementation plan based on repository evidence.
+Something believed to be true but not established by evidence.
 
-The plan must identify:
+### CONFLICT
 
-- existing execution path;
-- existing abstraction to extend or reuse;
-- files expected to change;
-- expected security impact;
-- expected test strategy;
-- expected validation.
+Two or more relevant sources provide incompatible information.
 
-The plan is not permission to make unrelated changes.
+### UNRESOLVED
+
+A question remains unanswered because the available evidence is insufficient or contradictory.
+
+The agent MUST NOT present an inference or assumption as a fact.
 
 ---
 
-## CP-5 — Mid-execution control
+## 7. Contradiction Protocol
 
-After each material implementation step, Jules must reassess:
+If relevant repository sources disagree, the agent MUST NOT silently choose one interpretation.
 
-- Is the implementation still within scope?
-- Is the discovered architecture still being respected?
-- Has a new dependency appeared?
-- Has a new migration requirement appeared?
-- Has a security boundary changed?
-- Has tenant isolation changed?
-- Has the implementation begun duplicating existing infrastructure?
-- Has the original acceptance criterion changed unintentionally?
-- Has the implementation required an assumption that was not previously established?
+Examples include:
 
-If any answer indicates material divergence:
+- Schema versus migration.
+- Migration versus migration journal.
+- Schema versus snapshot.
+- Snapshot versus snapshot.
+- Configuration versus package scripts.
+- Implementation versus specification.
+- Tests versus implementation.
+- Documentation versus implementation.
+- Current branch versus task assumptions.
+- Current Git state versus a previous session report.
 
-STOP
-→ DO NOT CONTINUE THE CURRENT PATH
-→ REPORT THE NEW EVIDENCE
-→ REASSESS
+When a material contradiction is found, the agent MUST:
 
-Do not rationalize the divergence merely because the current implementation is partially complete.
+1. Identify the conflicting sources.
+2. Inspect the actual relevant files.
+3. Describe the exact contradiction.
+4. Explain the potential impact.
+5. Determine whether the active plan explicitly authorizes resolving it.
+6. Stop the affected operation if it cannot be safely resolved within the authorized scope.
 
----
+The agent MUST NOT "fix" a contradiction merely because one interpretation appears more convenient.
 
-# /6. Supervisor intervention protocol/
+Use this reporting format:
 
-When an independent Supervisor is available during execution, it acts as an active execution gate, not merely a final reviewer.
+    CONFLICT DETECTED
 
-At each material checkpoint, the Supervisor may issue:
+    Source A:
+    <path and relevant evidence>
 
-SUPERVISOR: CONTINUE
+    Source B:
+    <path and relevant evidence>
 
-or:
+    Observed difference:
+    <precise description>
 
-SUPERVISOR: STOP
-REASON:
-REQUIRED CORRECTION:
-EVIDENCE:
+    Potential impact:
+    <impact>
 
-or:
-
-SUPERVISOR: REPLAN
-REASON:
-CONFLICTING EVIDENCE:
-REQUIRED RECONNAISSANCE:
-
-or:
-
-SUPERVISOR: BLOCKED
-REASON:
-EVIDENCE:
-ARCHITECTURAL DECISION REQUIRED:
-
-When the Supervisor issues "STOP" or "REPLAN", Jules must not continue along the rejected path.
-
-The rejected path must be treated as invalid until explicitly cleared.
-
-The Supervisor must never approve an implementation merely because:
-
-- the code compiles;
-- tests pass;
-- the implementation looks reasonable;
-- the task appears complete;
-- Jules reports success.
+    Resolution:
+    <resolved / unresolved / requires explicit authorization>
 
 ---
 
-# /7. Hard stop conditions/
+## 8. Scope Is a Hard Boundary
 
-Jules must immediately stop implementation when any of the following occurs:
+The active task and approved `PLAN.md` define what the agent is authorized to change.
 
-Architecture
+The agent MUST NOT expand the scope because it discovers:
 
-- required architecture is unknown;
-- existing architecture contradicts the implementation plan;
-- implementation requires inventing a new subsystem without authorization;
-- two competing implementations of the same responsibility would be introduced;
-- a canonical repository convention cannot be established.
+- unrelated bugs;
+- technical debt;
+- inconsistent formatting;
+- architectural opportunities;
+- unrelated security improvements;
+- dependency updates;
+- migration problems outside the current phase;
+- failing tests unrelated to the current objective;
+- code that could be refactored;
+- documentation that could be improved.
 
-Scope
+Finding a problem does not authorize fixing it.
 
-- an unapproved file must be changed;
-- unrelated refactoring becomes necessary;
-- unrelated dependencies must be modified;
-- unrelated migrations must be changed;
-- task requirements expand beyond the declared scope.
-
-Security
-
-- a server-side security boundary would be bypassed;
-- client-controlled state would become authorization;
-- authentication would be weakened;
-- secrets could be exposed;
-- sensitive information could leak;
-- security state would be trusted without a verified boundary;
-- an attacker-controlled state mechanism lacks safe bounds.
-
-Tenant isolation
-
-- tenant identity can be supplied by an attacker;
-- tenant context becomes client-controlled;
-- RLS is weakened;
-- cross-tenant access becomes possible;
-- background execution loses tenant context.
-
-Database
-
-- canonical migration architecture is unclear;
-- a second migration system would be required;
-- production secrets would be required;
-- production migrations would need to run during build/deployment;
-- schema ownership or migration authority is unresolved.
-
-Evidence
-
-- a critical assumption cannot be established;
-- absence has been inferred from insufficient search;
-- a security property cannot be demonstrated;
-- concurrency behavior cannot be meaningfully validated;
-- runtime behavior is claimed without runtime evidence where runtime validation is required.
-
----
-
-# /8. Plan invalidation and recovery/
-
-When new evidence contradicts the current plan, Jules must not patch around the contradiction automatically.
+For an out-of-scope issue, record it without modifying it.
 
 Use:
 
-PLAN INVALIDATED
-CAUSE:
-NEW EVIDENCE:
-AFFECTED ASSUMPTION:
-CURRENT IMPLEMENTATION IMPACT:
-REQUIRED REASSESSMENT:
+    OUT-OF-SCOPE FINDING
 
-Then:
+    Location:
+    <path>
 
-1. stop;
-2. preserve useful evidence;
-3. inspect the conflicting architecture;
-4. determine whether an existing mechanism solves the issue;
-5. determine whether the task can continue within scope;
-6. otherwise report "BLOCKED".
+    Finding:
+    <fact>
 
-Do not continue simply because reverting or changing direction is inconvenient.
+    Relevance:
+    <why it may matter>
+
+    Action:
+    No modification performed.
 
 ---
 
-# /9. Engineering principles/
+## 9. No Opportunistic Refactoring
 
-Prefer, in this order:
+Unless explicitly authorized, the agent MUST NOT:
 
-1. existing architecture;
-2. existing abstractions and execution paths;
-3. existing security and tenant boundaries;
-4. existing infrastructure and conventions;
-5. minimal scoped changes;
-6. independently reproducible evidence.
+- Refactor unrelated code.
+- Rename unrelated symbols.
+- Reorganize directories.
+- Reformat unrelated files.
+- Upgrade dependencies.
+- Change package-manager configuration.
+- Change CI/CD configuration.
+- Change environment configuration.
+- Change unrelated APIs.
+- Change unrelated UI behavior.
+- Change unrelated database structures.
+- Rewrite historical migrations.
+- Regenerate unrelated snapshots.
+- Add speculative abstractions.
+- Remove code merely because it appears unused.
+- Perform general cleanup.
 
-Never prefer:
-
-- speculative architecture;
-- duplicated infrastructure;
-- ad-hoc security controls;
-- unrelated refactoring;
-- convenience over security;
-- assumptions over repository evidence.
-
-Do not invent product architecture, security architecture, migration systems, cleanup systems, or infrastructure merely to make a task appear complete.
-
----
-
-# /10. Scope discipline/
-
-Every task must maintain explicit scope.
-
-Before implementation record:
-
-- objective;
-- allowed files;
-- expected changes;
-- security impact;
-- migration impact;
-- required tests;
-- required validation.
-
-Every changed file must be directly justified.
-
-For every changed file record:
-
-File:
-Task relevance:
-Why it changed:
-Security impact:
-Verification:
-
-Any unrelated change is a failure.
-
-Do not:
-
-- refactor unrelated code;
-- rename unrelated symbols;
-- clean unrelated formatting;
-- upgrade unrelated dependencies;
-- modify unrelated migrations;
-- add unrelated features;
-- redesign architecture opportunistically.
+The phrase "while I was here" is not sufficient authorization for an additional change.
 
 ---
 
-# /11. Evidence model/
+## 10. Git Safety
 
-Every material claim must be supported by evidence.
+The agent MUST preserve the existing Git history and all pre-existing user work.
 
-Jules' narrative is not evidence.
+Before making changes, the agent MUST inspect:
 
-Maintain exactly three truth states:
+- Current branch.
+- Current commit.
+- Current working-tree status.
+- Relevant existing diffs when applicable.
 
-KNOWN_PRESENT
-KNOWN_ABSENT
-UNKNOWN / INSUFFICIENT_EVIDENCE
+The following commands are prohibited unless the active task explicitly authorizes the exact operation:
 
-Never convert:
+    git reset
+    git reset --hard
+    git checkout
+    git restore
+    git clean
+    git rebase
+    git revert
+    git commit --amend
 
-SEARCH_FOUND_NOTHING
+The agent MUST NOT:
 
-into:
+- Discard uncommitted work.
+- Rewrite Git history.
+- Reset the repository to make a task easier.
+- Restore files over user changes.
+- Delete unexpected files merely because they appear unfamiliar.
+- Switch branches without authorization.
+- Create commits without authorization.
+- Amend commits without authorization.
 
-KNOWN_ABSENT
+A dirty working tree is not permission to clean it.
 
-without sufficient architectural traversal.
-
-For every absence claim record:
-
-- claim;
-- search scope;
-- architecture entry points;
-- search terms;
-- files inspected;
-- commands executed;
-- actual output;
-- conclusion.
-
-Evidence strength, strongest first:
-
-1. direct runtime or database evidence;
-2. reproducible automated tests;
-3. direct source-code evidence;
-4. configuration or dependency evidence;
-5. repository search evidence;
-6. agent narrative.
-
-Stronger contradictory evidence prevails.
+Unexpected existing changes MUST be preserved.
 
 ---
 
-# /12. Repository and framework boundaries/
+## 11. Destructive Operations Require Explicit Authorization
 
-Respect the established repository boundaries.
+The agent MUST treat destructive or potentially irreversible operations as blocked unless explicitly authorized.
 
-Before relying on a:
+Examples include:
 
-- directory;
-- route;
-- module;
-- script;
-- dependency;
-- tool;
-- configuration convention;
+- Deleting files.
+- Deleting migrations.
+- Deleting snapshots.
+- Replacing directories.
+- Dropping database objects.
+- Truncating data.
+- Resetting a database.
+- Reinitializing migration history.
+- Rewriting historical migrations.
+- Bulk renaming.
+- Mass replacement.
+- Git history manipulation.
+- Overwriting existing user changes.
 
-inspect the current repository and relevant references.
+A tool recommendation, generated plan, migration prompt, or perceived necessity does not constitute authorization.
 
-This contract is not a permanent snapshot of repository filenames.
-
-The current repository remains authoritative.
-
-The repository uses Next.js.
-
-Before changing Next.js-specific code:
-
-- inspect the installed version;
-- inspect relevant documentation under "node_modules/next/dist/docs/";
-- follow supported APIs and deprecation guidance.
-
-Respect server/client boundaries.
-
-Server-only functionality must remain server-side.
-
-Never expose:
-
-- API keys;
-- database credentials;
-- private tokens;
-- secrets;
-- privileged operations
-
-to client code.
-
-Do not add "use client" unless required and its security and data-flow implications are understood.
+If a destructive operation appears necessary but is not explicitly authorized, STOP.
 
 ---
 
-# /13. Security baseline/
+## 12. Database Work Is High Risk
 
-Security boundaries must be enforced server-side.
+Database changes require a higher level of verification than ordinary application changes.
 
-Never trust attacker-controlled:
+The agent MUST treat the following as distinct artifacts:
 
-- form fields;
-- query parameters;
-- client flags;
-- arbitrary headers;
-- cookies without an established trusted boundary;
-- local storage;
-- client state;
-- hidden inputs;
-- route parameters
+- Database schema definitions.
+- Migration files.
+- Migration journal.
+- Migration snapshots.
+- Generated migration metadata.
+- Database configuration.
+- Actual database state.
+- Application queries.
+- Database-related tests.
 
-as authorization.
+One artifact MUST NOT be assumed to prove the correctness of another.
 
-UI restrictions are not authorization.
+Before making database changes, the agent MUST inspect the relevant layers.
 
-A value such as:
+The agent MUST NOT:
 
-challengePassed=true
-
-must never authenticate a user or bypass server-side security.
-
-Never bypass authentication or authorization for convenience.
-
-Preserve the existing authentication/session architecture unless the task explicitly requires changing it.
-
-Never expose sensitive authentication information.
-
----
-
-# /14. Authentication applicability/
-
-The detailed rules in this section apply to authentication and security-sensitive tasks.
-
-For unrelated tasks, perform and report only applicable security fields.
-
-Before changing authentication inspect:
-
-- actual login path;
-- user schema;
-- authentication service;
-- password storage;
-- password hashing;
-- dependencies;
-- migration system;
-- rate-limit/security state;
-- trusted-IP mechanism;
-- recovery/challenge mechanism;
-- continuation mechanism;
-- relevant tests.
-
-Do not invent missing security architecture.
-
-If safe password storage does not exist and introducing it requires an unresolved security decision:
-
-STATUS: BLOCKED
-
-with evidence.
+- Blindly regenerate migrations.
+- Delete migration history to make tooling succeed.
+- Rewrite historical migrations without authorization.
+- Modify snapshots merely to suppress a migration conflict.
+- Assume generated SQL is correct merely because a tool generated it.
+- Introduce a new baseline without explicit authorization.
+- Modify the migration journal as a side effect of unrelated work.
+- Run destructive operations against production databases.
 
 ---
 
-# /15. Password authentication/
+## 13. Migration Tool Conflicts Must Stop the Operation
 
-Where password authentication applies:
+If a migration tool reports or presents:
 
-- password input must reach the server;
-- verification must occur server-side;
-- verification must use the canonical password hash;
-- plaintext passwords must never be persisted;
-- plaintext passwords must never be logged;
-- email-only authentication is forbidden.
+- Table conflicts.
+- Column conflicts.
+- Rename prompts.
+- Mapping prompts.
+- Foreign-key conflicts.
+- Index conflicts.
+- Snapshot conflicts.
+- Journal inconsistencies.
+- Unexpected schema differences.
+- Unexpected generated SQL.
+- Any ambiguous migration operation.
 
-Where this contract requires password hashing, use:
+the agent MUST NOT automatically accept the proposed resolution.
 
-Argon2id
-memoryCost: 19456
-timeCost: 2
+The agent MUST inspect the relevant:
 
-Do not weaken or duplicate the established convention.
+- Schema.
+- Existing migration files.
+- Migration journal.
+- Snapshots.
+- Configuration.
+- Relevant historical migration state.
 
-Unknown or unusable accounts must not create an enumeration oracle.
+If the correct resolution is not explicitly established, the agent MUST stop.
 
-Where verification is reached, unknown or missing-hash paths must use a dummy Argon2id hash with the required parameters where applicable.
-
-Unknown accounts must not mutate a real user's progressive authentication state.
-
-External failures must have generic authentication semantics.
-
----
-
-# /16. Trusted IP and hard lock/
-
-Never blindly trust:
-
-- "X-Forwarded-For";
-- "X-Real-IP";
-- arbitrary client-controlled headers.
-
-Trust forwarded information only where the repository establishes the proxy or network boundary.
-
-If a required trusted-IP mechanism cannot be safely established:
-
-STATUS: BLOCKED
-
-only after sufficient evidence proves its absence.
-
-Hard lock and progressive authentication are separate mechanisms.
-
-Progressive authentication state must never be interpreted as hard-lock state.
-
-Where hard lock is required:
-
-Identity = normalized email + trusted source IP
-Threshold = five effective failures
-Duration = fifteen minutes
-
-It is not a global account lock.
-
-IP A must not lock a victim's account for IP B.
-
-Verify:
-
-- threshold;
-- scope;
-- expiration;
-- atomicity;
-- concurrency;
-- IP separation.
+A migration generator is a tool, not an authority that can independently decide the intended database history.
 
 ---
 
-# /17. Progressive authentication and challenge/
+## 14. Generated Artifacts
 
-Progressive state is server-side and distributed where required by the architecture.
+Generated artifacts are evidence, not automatically authoritative truth.
 
-It has a fifteen-minute inactivity TTL.
+Examples include:
 
-Only applicable authentication activity defined by the progressive state machine may refresh that TTL.
+- Drizzle snapshots.
+- Generated migrations.
+- Build output.
+- Generated clients.
+- Compiled files.
+- Caches.
+- Indexes.
+- Generated metadata.
 
-Challenge failures, invalid continuations, and unrelated requests must not advance progressive failure state or refresh it unless the established state machine explicitly defines them as applicable activity.
+If generated output conflicts with source definitions, the agent MUST investigate why.
 
-Successful authentication clears or resets the state.
+The agent MUST NOT modify authoritative source files merely to make generated output appear consistent.
 
-Use previous failure count consistently:
-
-Previous failure count| Required behavior
-0–2| No delay
-3| 20-second delay
-4| 5-minute delay
-5| 60-minute delay
-6| Enter challenge-required state
->6| Remain challenge-required
-
-A previous failure count of 6 means the next authentication attempt enters the challenge-required state before password verification or Argon2.
-
-Challenge completion permits password verification but does not authenticate the user.
-
-If the post-challenge password is wrong, that actual password-verification failure becomes the new failure recorded by the state machine.
-
-A failed challenge:
-
-- rejects authentication;
-- does not run Argon2;
-- does not itself advance progressive failure state.
-
-Challenge completion must never be convertible into authentication through a client-side flag.
-
-Do not use a client-side delay as a security control.
-
-Do not hold database or distributed locks while delaying.
+The agent MUST NOT modify generated artifacts merely to hide an underlying inconsistency.
 
 ---
 
-# /18. Continuation and attacker-controlled state/
+## 15. Phase Discipline
 
-Multi-step state must be:
+Work MUST be divided into explicit phases when the active plan defines phases.
 
-- server-controlled;
-- server-issued;
-- unpredictable where applicable;
-- bound to authentication context;
-- time-limited;
-- single-use or replay-protected;
-- non-forgeable;
-- non-authenticating by itself.
+Each phase MUST have:
 
-It must not encode:
+- Objective.
+- Preconditions.
+- Authorized actions.
+- Forbidden actions.
+- Expected result.
+- Verification.
+- Stop conditions.
+- Required evidence.
 
-- email;
-- user ID;
-- tenant ID;
-- failure count;
-- challenge-required state.
+The agent MUST complete the current phase before moving to the next phase.
 
-Verify:
+Successful execution of one phase does not automatically authorize the next phase.
 
-- valid continuation;
-- invalid continuation;
-- expired continuation;
-- replayed continuation;
-- context-mismatched continuation.
+The agent MUST NOT silently combine phases.
 
-Attacker-triggerable security state must have bounded:
-
-- TTL;
-- expiration;
-- cardinality;
-- storage;
-- resource consumption;
-- cleanup;
-- replay behavior;
-- invalid-state handling;
-- concurrency behavior.
-
-Never create indefinite persistent state keyed by arbitrary attacker-controlled identities.
-
-If safe bounds cannot be implemented with existing architecture:
-
-STATUS: BLOCKED
-
-Do not invent a cleanup subsystem solely to bypass the blocker.
+If a phase fails, the agent MUST stop unless the active plan explicitly defines a safe recovery procedure.
 
 ---
 
-# /19. Anti-enumeration verification/
+## 16. Stop Conditions
 
-For authentication changes compare:
+The agent MUST STOP rather than improvise when any of the following occurs:
 
-- unknown email;
-- known email + wrong password;
-- missing hash;
-- invalid hash;
-- invalid continuation;
-- expired continuation;
-- replayed continuation;
-- context-mismatched continuation;
-- failed challenge;
-- successful challenge + wrong password.
+- Unexpected repository state.
+- Unexpected pre-existing modification.
+- Contradictory source-of-truth evidence.
+- Migration conflict.
+- Schema conflict.
+- Snapshot conflict.
+- Unexpected generated diff.
+- Destructive operation is proposed.
+- Required file is missing.
+- Required configuration is missing.
+- Required dependency is unavailable.
+- Required command behaves unexpectedly.
+- A security-sensitive requirement is ambiguous.
+- Database behavior is ambiguous.
+- Scope is ambiguous.
+- Authorization is ambiguous.
+- A required verification cannot be performed.
+- The proposed change would require an unauthorized expansion of scope.
 
-Compare:
+When stopping, report:
 
-- status;
-- response shape;
-- codes;
-- messages;
-- redirects;
-- tokens;
-- client flags;
-- challenge indicators;
-- timing-sensitive branches;
-- database state;
-- rate-limit state;
-- progressive state;
-- security-state mutations.
+    STATUS: BLOCKED
 
-Do not reveal:
+    WHAT WAS EXPECTED:
+    <expected state>
 
-- account existence;
-- threshold state;
-- challenge requirement;
-- continuation validity;
-- privileged security branches.
+    WHAT WAS OBSERVED:
+    <actual state>
 
----
+    WHY IT MATTERS:
+    <impact>
 
-# /20. Concurrency and locks/
+    WHAT REMAINS UNRESOLVED:
+    <unresolved issue>
 
-Security state transitions must avoid:
-
-- lost updates;
-- double increments;
-- threshold bypass;
-- lock corruption;
-- TTL inconsistency;
-- authentication races;
-- replay races.
-
-Use established atomic operations.
-
-For PostgreSQL concurrency or lock-lifetime claims, use real database synchronization, deterministic barriers or latches, competing transactions, and "pg_locks" where relevant.
-
-The following do not prove concurrency correctness:
-
-- mocks;
-- sequential simulations;
-- unsynchronized "Promise.all()";
-- "sleep()";
-- elapsed-runtime assertions;
-- mocked transactions.
-
-Release locks before:
-
-- delays;
-- Argon2;
-- challenge interaction;
-- UI round trips;
-- redirects;
-- external calls.
+    NO FURTHER MODIFICATION PERFORMED.
 
 ---
 
-# /21. Tenant isolation/
+## 17. Verification Is Mandatory
 
-Tenant isolation is a security boundary.
+Changing files is not verification.
 
-Never rely on:
+For every phase, the agent MUST perform the verification required by the active plan.
 
-- client-provided tenant IDs;
-- UI state;
-- query parameters;
-- hidden fields;
-- client-controlled cookies;
-- route parameters
+Depending on the task, verification may include:
 
-alone for tenant authorization.
+- Direct file inspection.
+- Git diff.
+- Git status.
+- Type checking.
+- Linting.
+- Unit tests.
+- Integration tests.
+- Build.
+- Migration generation.
+- Migration inspection.
+- Database metadata inspection.
+- Runtime verification.
+- Security checks.
 
-Use established server-side tenant context and repository/database mechanisms.
+The agent MUST NOT report a check as passed unless it was actually performed.
 
-Evaluate every tenant-scoped operation for:
+Use only precise verification states:
 
-- authentication;
-- authorization;
-- tenant identity;
-- database/RLS enforcement;
-- cross-tenant leakage;
-- background-job context;
-- asynchronous execution context.
+    PASS
+    FAIL
+    NOT RUN
+    NOT VERIFIED
+    BLOCKED
 
-Client-controlled tenant IDs must not override server context.
+Avoid statements such as:
 
-Do not weaken RLS or tenant boundaries.
-
-Tenant A must not read or write Tenant B's data.
-
-Background work must carry the correct tenant context.
-
----
-
-# /22. Database and migrations/
-
-Determine canonical database architecture from current repository evidence.
-
-Inspect:
-
-- schema files;
-- migration directories;
-- metadata;
-- configuration;
-- ordering;
-- dependencies;
-- relevant documentation.
-
-Do not treat this contract as proof that a particular path or tool exists.
-
-Before a schema change inspect:
-
-- canonical schema;
-- relevant migrations;
-- migration metadata;
-- ordering;
-- dependencies;
-- tenant/RLS implications;
-- migration validation process.
-
-Modify or generate only canonical artifacts.
-
-Do not introduce a second migration system.
-
-Distinguish:
-
-missing required migration
-
-from:
-
-missing migration architecture
-
-Never run production migrations from a Vercel build.
-
-Never require production secrets for implementation or validation.
-
-Never expose environment values.
+- "Looks good."
+- "Should work."
+- "Probably fixed."
+- "Seems complete."
+- "Likely correct."
 
 ---
 
-# /23. Environment, dependencies and integrations/
+## 18. Verification Must Test the Requirement, Not Merely the Edit
 
-Never:
+The agent MUST verify the actual requirement being changed.
 
-- commit secrets;
-- hard-code credentials;
-- print secret values;
-- include secrets in reports;
-- paste ".env" contents;
-- expose server-only environment variables to client code.
+For example:
 
-Inspect variable names and usage without revealing values.
+- A migration file existing does not prove that the migration is correct.
+- A test compiling does not prove that the test passed.
+- A test passing does not prove that an uncovered security invariant is satisfied.
+- A schema compiling does not prove that migration history is consistent.
+- A successful build does not prove runtime behavior.
+- A generated snapshot does not prove the intended database design.
 
-Use the repository's declared package manager and lockfile.
-
-Before dependency or validation work inspect:
-
-- "package.json";
-- lockfile;
-- available scripts.
-
-Use only scripts actually defined in "package.json".
-
-Do not hard-code npm, pnpm, yarn, or another package manager unless repository policy and the inspected lockfile establish it.
-
-Before adding a dependency:
-
-1. search for an equivalent;
-2. inspect lockfile implications;
-3. justify it;
-4. assess security and maintenance impact;
-5. add it only if directly required.
-
-Do not upgrade dependencies for convenience.
-
-Before changing AI or external integrations inspect:
-
-- actual implementation;
-- contracts;
-- authentication;
-- validation;
-- error handling;
-- server/client boundaries.
-
-Do not assume providers or models exist merely because documentation mentions them.
-
-Do not introduce external services unless explicitly required.
+Verification MUST correspond to the acceptance criteria.
 
 ---
 
-# /24. SSRF and user-controlled URLs/
+## 19. Test Integrity
 
-Server-side fetching of user-provided URLs is security-sensitive.
+Tests are evidence, not unquestionable authority.
 
-Preserve protections against:
+The agent MUST NOT modify tests solely to make an implementation pass.
 
-- localhost;
-- loopback;
-- private networks;
-- metadata endpoints;
-- unsafe protocols;
-- dangerous redirects;
-- DNS rebinding and related DNS risks.
+Unless explicitly authorized, the agent MUST NOT:
 
-Never weaken SSRF protections to make a fetch succeed.
+- Delete a failing test.
+- Weaken an assertion.
+- Remove an edge case.
+- Mock away the behavior under test.
+- Change expected output solely to match the implementation.
+- Suppress a meaningful failure.
+- Claim coverage that the tests do not provide.
 
----
+If the implementation exposes a defect in an existing test, the agent MUST determine whether changing the test is within the authorized scope.
 
-# /25. Localization and UI boundaries/
-
-Preserve the current localization architecture.
-
-Where applicable verify:
-
-- English routes;
-- Persian routes;
-- Persian RTL;
-- English LTR;
-- responsive behavior;
-- themes;
-- accessibility;
-- design tokens;
-- translations.
-
-Inspect current routes and translations before modifying localization behavior.
+If not, report the issue separately.
 
 ---
 
-# /26. Testing and validation/
+## 20. Security-Sensitive Work
 
-Inspect "package.json" and the lockfile before running commands.
+The following areas require explicit security consideration:
 
-Run applicable:
+- Authentication.
+- Authorization.
+- Sessions.
+- Cookies.
+- Passwords.
+- Tokens.
+- Email verification.
+- Password reset.
+- Rate limiting.
+- Tenant isolation.
+- RBAC.
+- Secrets.
+- Cryptographic operations.
+- Payment processing.
+- Webhooks.
+- Database access control.
 
-- TypeScript checks;
-- tests;
-- lint;
-- build;
-- migration validation;
-- security validation;
-- runtime validation.
+The agent MUST NOT weaken a security property merely to:
 
-A command not defined or otherwise established by the repository must not be reported as available.
+- Make a test pass.
+- Make a build pass.
+- Make a migration generate.
+- Remove an error.
+- Simplify implementation.
+- Avoid an ambiguity.
 
-Tests must prove behavior.
-
-Security-sensitive tests should cover applicable:
-
-- password verification;
-- dummy Argon2;
-- unknown accounts;
-- hard-lock threshold;
-- hard-lock expiry;
-- IP separation;
-- progressive delays;
-- progressive TTL;
-- progressive reset;
-- count-6 challenge;
-- failed challenge;
-- successful challenge;
-- challenge non-authentication;
-- continuation cases;
-- anti-enumeration;
-- bounded state;
-- concurrency;
-- lock release;
-- tenant isolation.
-
-Tests that bypass the actual security boundary with mocks do not prove the boundary.
+If security behavior is unclear, STOP.
 
 ---
 
-# /27. Validation truthfulness/
+## 21. Authentication and Authorization
 
-Never claim a check passed unless it actually ran.
+Authentication and authorization changes MUST be treated as security-sensitive changes.
 
-If applicable validation cannot run:
+The agent MUST inspect the complete relevant lifecycle rather than changing an isolated function without understanding its callers and consumers.
 
-- state why;
-- identify the missing prerequisite;
-- provide the evidence;
-- do not report "STATUS: COMPLETE".
+Depending on the task, this may include:
+
+- Registration.
+- Email verification.
+- Login.
+- Logout.
+- Session creation.
+- Session validation.
+- Session expiration.
+- Password reset.
+- Token lifecycle.
+- Cookies.
+- User status.
+- Session invalidation.
+- Workspace membership.
+- Tenant isolation.
+- RBAC.
+- Rate limiting.
+
+Do not infer security behavior from UI behavior alone.
+
+Do not infer server security from client-side checks.
+
+---
+
+## 22. Secrets and Sensitive Data
+
+The agent MUST NOT expose secrets or credentials in:
+
+- Source code.
+- Logs.
+- Reports.
+- Tests.
+- Commits.
+- Migration files.
+- Terminal output.
+- Documentation.
+- Screenshots.
+- Error messages.
+
+When checking environment configuration, report whether a variable is present or absent when possible.
+
+Do not print the secret value merely to verify that it exists.
+
+Raw authentication tokens, password-reset tokens, session secrets, API keys, credentials, and similar sensitive values MUST NOT be included in reports.
+
+---
+
+## 23. Production Safety
+
+Unless explicitly authorized, the agent MUST assume that production systems and production data are protected.
+
+The agent MUST NOT:
+
+- Run destructive production migrations.
+- Delete production data.
+- Reset production databases.
+- Change production secrets.
+- Modify production infrastructure.
+- Trigger real payment operations.
+- Send real transactional messages.
+- Perform irreversible production actions.
+
+Prefer local, test, dry-run, or inspection-only procedures.
+
+---
+
+## 24. Preserve User Work
+
+Pre-existing changes may belong to the user or another process.
+
+The agent MUST NOT assume that unexpected changes are mistakes.
+
+Before modifying a file that already contains changes:
+
+1. Inspect the existing state.
+2. Determine which portions are relevant to the task.
+3. Preserve unrelated modifications.
+4. Apply only the authorized change.
+5. Verify that unrelated changes remain intact.
+
+If safe modification cannot be guaranteed, STOP.
+
+---
+
+## 25. Repository-Wide Audit Requirements
+
+If the task is described as:
+
+- `audit`;
+- `360° audit`;
+- `complete repository analysis`;
+- `repository review`;
+- `database audit`;
+- `architecture audit`;
+- `security audit`;
+- `full analysis`;
+
+the agent MUST NOT perform a narrow spot-check and call it a complete audit.
+
+The agent MUST:
+
+1. Define the inspection surface.
+2. Inspect the relevant areas systematically.
+3. Record what was actually inspected.
+4. Identify areas that were not inspected.
+5. Distinguish verified findings from hypotheses.
+6. Report contradictions.
+7. Report unresolved areas.
+8. Avoid claiming completeness without corresponding evidence.
+
+A repository-wide claim requires repository-wide evidence.
+
+---
+
+## 26. Search Is a Discovery Mechanism
+
+Search is useful for finding candidate files and symbols.
+
+Search results are not proof of implementation behavior.
+
+After finding an important result, the agent MUST inspect the actual referenced file and sufficient surrounding context.
+
+The agent MUST NOT make a repository-wide claim from a single search result.
+
+---
+
+## 27. Previous Agent Reports Are Not Authority
+
+Previous agent output is historical evidence.
+
+Statements such as:
+
+    "Phase 1 is complete."
+    "Migration is correct."
+    "Schema is aligned."
+    "Tests pass."
+    "Repository is clean."
+    "The bug is fixed."
+
+MUST NOT be accepted as current facts without independent verification when the current task depends on them.
+
+The live repository takes precedence over previous agent reports.
+
+---
+
+## 28. Documentation Must Not Override Reality
+
+Documentation may describe intended behavior rather than current behavior.
+
+When documentation and implementation disagree, the agent MUST report the discrepancy.
+
+The agent MUST NOT silently modify implementation to match documentation unless the active specification and plan authorize that change.
+
+Likewise, the agent MUST NOT silently modify documentation to hide an implementation discrepancy.
+
+---
+
+## 29. Required Alignment Before Implementation
+
+Before implementation begins, the agent MUST be able to identify:
+
+    CURRENT STATE
+    DESIRED STATE
+    AUTHORIZED CHANGE
+    IN-SCOPE FILES
+    OUT-OF-SCOPE FILES
+    PREREQUISITES
+    RISKS
+    ACCEPTANCE CRITERIA
+    VERIFICATION METHOD
+    STOP CONDITIONS
+
+If any of these are materially unclear, implementation MUST NOT begin.
+
+The agent should resolve the ambiguity through inspection where possible.
+
+If repository evidence cannot resolve it, STOP and report it.
+
+---
+
+## 30. Change Minimality
+
+When implementation is authorized, the agent MUST prefer the smallest change that fully satisfies the requirement.
+
+Minimize:
+
+- Files changed.
+- Lines changed.
+- Behavioral surface.
+- Migration surface.
+- Dependencies.
+- Risk.
+
+Minimality MUST NOT override correctness, security, or explicit requirements.
+
+Do not omit required changes merely to keep the patch small.
+
+---
+
+## 31. No Silent Recovery
+
+When a command fails, the agent MUST NOT immediately try unrelated or increasingly destructive commands until something succeeds.
+
+The agent MUST first:
+
+1. Record the failure.
+2. Inspect the error.
+3. Determine the likely cause.
+4. Check whether the recovery action is authorized.
+5. Evaluate its impact.
+6. Perform the recovery only if explicitly permitted and safe.
+
+A successful command after an unexplained failure does not erase the original failure.
+
+The original failure and the recovery must both be reported.
+
+---
+
+## 32. No Tool-Driven Authority
+
+A tool does not determine project intent.
+
+This applies especially to:
+
+- Migration generators.
+- Formatters.
+- Linters.
+- Test runners.
+- Code generators.
+- Package managers.
+- Git.
+- Database tools.
+
+If a tool proposes a change, the agent MUST determine whether that change is consistent with the repository, specification, and active plan before accepting it.
+
+Tool output is evidence.
+
+It is not authorization.
+
+---
+
+## 33. End-of-Phase State Capture
+
+At the end of each phase, the agent MUST inspect and record the resulting state relevant to that phase.
+
+At minimum, when applicable:
+
+- Git status.
+- Git diff.
+- Modified files.
+- Created files.
+- Deleted files.
+- Generated artifacts.
+- Verification results.
+- Remaining conflicts.
+- Remaining unresolved issues.
+
+The next phase MUST begin from the observed state.
+
+It MUST NOT begin from an assumed state.
+
+---
+
+## 34. Final Status Rules
+
+The agent MUST use precise final status terminology.
+
+### Complete
 
 Use:
 
-UNKNOWN / INSUFFICIENT_EVIDENCE
+    STATUS: COMPLETE
 
-where appropriate.
+only when:
 
-Do not manufacture confidence from partial validation.
+- All authorized work was performed.
+- The acceptance criteria were satisfied.
+- Required verification was performed.
+- No required issue remains unresolved.
+- No unauthorized modification was made.
 
----
+### Incomplete
 
-# /28. Diff audit/
+Use:
 
-Before completion Jules must inspect:
+    STATUS: INCOMPLETE — VERIFICATION PENDING
 
-git status
-git diff --stat
-git diff --check
-git diff
+when implementation may be present but required verification has not been completed.
 
-The diff audit must verify:
+### Blocked
 
-- scope;
-- changed files;
-- task relevance;
-- security impact;
-- accidental files;
-- generated files;
-- dependencies;
-- migrations;
-- tests;
-- secrets;
-- debug code;
-- unrelated formatting;
-- unrelated refactoring.
+Use:
 
-Any unexplained changed file is a failure condition until resolved.
+    STATUS: BLOCKED
 
----
+when work cannot safely continue because of an unresolved conflict, missing prerequisite, ambiguity, authorization problem, or other stop condition.
 
-# /29. Action log/
+### Failed
 
-Maintain an action log for meaningful investigative, implementation, and validation actions.
+Use:
 
-Do not log trivial navigation or repetitive inspection.
+    STATUS: FAILED
 
-Record only actions actually performed:
+when the authorized operation was attempted and did not satisfy its required outcome.
 
-ACTION LOG [001]
-TYPE: RECON | FILE_INSPECTION | SEARCH | PLAN | CHANGE | TEST | VALIDATION | SUPERVISOR_CHECKPOINT
-Command:
-Result:
-Evidence:
-
-Never fabricate commands, output, or evidence.
+Do not use "complete" as a synonym for "I changed the files."
 
 ---
 
-# /30. Jules execution report/
+## 35. Required Final Report Structure
 
-[002]
-TYPE: FILE_INSPECTION
-File:
-Range:
-Finding:
+For implementation tasks, the final report MUST contain, as applicable:
 
-[003]
-TYPE: SEARCH
-Query:
-Scope:
-Result:
+    STATUS:
+    <COMPLETE / INCOMPLETE / BLOCKED / FAILED>
 
-[004]
-TYPE: CHANGE
-File:
-Before:
-After:
-Reason:
+    OBJECTIVE:
+    <what was authorized>
 
-[005]
-TYPE: TEST
-Command:
-Output:
-Exit code:
+    CURRENT RESULT:
+    <what was actually changed>
 
-[006]
-TYPE: VALIDATION
-Command:
-Output:
-Exit code:
+    FILES CHANGED:
+    <exact paths>
 
-The log MUST represent actions actually performed.
+    FILES CREATED:
+    <exact paths or none>
 
-Planned work MUST NOT be recorded as completed work.
+    FILES DELETED:
+    <exact paths or none>
 
----
+    VERIFICATION:
+    <commands/checks and observed results>
 
-31. Required Jules Final Report
+    GIT STATE:
+    <observed status>
 
-Every material task MUST finish with:
+    CONFLICTS:
+    <none or exact conflicts>
 
-STATUS: COMPLETE | BLOCKED
+    OUT-OF-SCOPE FINDINGS:
+    <none or findings>
 
-RECONNAISSANCE:
-- Applicable execution path:
-- Applicable architecture and conventions:
-- Applicable security / tenant boundaries:
-- Additional task-specific findings:
+    UNRESOLVED:
+    <none or exact unresolved items>
 
-PLAN:
-- Intended implementation path:
-- Existing abstractions reused:
-- Expected changed files:
-- Expected validation:
-
-SCOPE:
-- Allowed files:
-- Actual changed files:
-- Scope deviations:
-- Authorization for any deviation:
-
-CHANGED FILES:
-- File:
-  - Task relevance:
-  - Why it changed:
-  - Security impact:
-
-SECURITY CHANGES:
-- Item:
-
-TESTS:
-- Test:
-  - Command:
-  - Result:
-
-VALIDATION:
-- TypeScript:
-- Tests:
-- Lint:
-- Build:
-- Migration validation:
-- Security validation:
-- Runtime validation:
-- Diff audit:
-
-BLOCKERS:
-- None
-
-For security-sensitive or authentication-related tasks also include the applicable:
-
-- authentication path;
-- user schema;
-- password-storage convention;
-- migration system;
-- hashing;
-- trusted IP;
-- hard lock;
-- progressive state;
-- challenge;
-- continuation;
-- TTL/resource bounds;
-- concurrency;
-- locking.
-
-For unrelated tasks, report only applicable fields.
-
-If blocked, report:
-
-- exact reason;
-- evidence;
-- commands;
-- actual output;
-- mechanisms investigated;
-- mechanisms ruled out;
-- required architectural decision;
-- why implementation cannot safely continue within scope.
+The report MUST describe observed results, not merely repeat the intended plan.
 
 ---
 
-# /31. Supervisor checkpoint report/
+## 36. Evidence Standard
 
-When active execution supervision is available, the Supervisor should maintain:
+Every important claim in an agent report MUST be traceable to evidence.
 
-SUPERVISOR CHECKPOINT [001]
+Evidence should identify, when applicable:
 
-PHASE:
-JULES ACTION:
-OBSERVED EVIDENCE:
+- File path.
+- Relevant symbol.
+- Relevant section or line range.
+- Command executed.
+- Observed output.
+- Test result.
+- Git diff.
+- Git status.
 
-SCOPE:
-- PASS | VIOLATION
+Do not provide evidence by simply restating the conclusion.
 
-ARCHITECTURE:
-- PASS | VIOLATION | UNKNOWN
+For example:
 
-SECURITY:
-- PASS | VIOLATION | UNKNOWN
+    Weak:
+    "The migration is correct."
 
-TENANT ISOLATION:
-- PASS | VIOLATION | UNKNOWN
-
-EVIDENCE QUALITY:
-- SUFFICIENT | INSUFFICIENT
-
-EXECUTION DECISION:
-- CONTINUE
-- STOP
-- REPLAN
-- BLOCKED
-
-A "STOP", "REPLAN", or "BLOCKED" decision must include the reason and evidence.
+    Strong:
+    "Inspected database/schema/auth-tokens.ts and the generated migration.
+    The table contains the required columns, the token_hash unique index
+    is present, and the generated SQL was inspected for unintended objects.
+    Git diff shows only the authorized database files."
 
 ---
 
-# /32. Supervisor verification protocol/
+## 37. Agent Must Not Hide Uncertainty
 
-The Supervisor independently verifies:
+If the evidence is incomplete, the agent MUST explicitly state the limitation.
 
-- execution path;
-- architecture;
-- conventions;
-- dependencies;
-- persistence;
-- schema;
-- migrations;
-- tenant isolation;
-- security boundaries;
-- authentication;
-- recovery/challenge;
-- continuation;
-- rate limiting;
-- tests;
-- scope;
-- blockers.
+Examples:
 
-The Supervisor must distinguish between:
+    NOT VERIFIED — database runtime state was not inspected.
 
-MISSING_IMPLEMENTATION
-MISSING_ARCHITECTURE
-MISSING_CONVENTION
-MISSING_INFRASTRUCTURE
-IMPLEMENTATION_DIFFICULTY
-FORBIDDEN_SPECULATION
-INSUFFICIENT_EVIDENCE
+    NOT RUN — integration tests were not executed.
 
-When Jules reports "BLOCKED", determine independently whether:
+    BLOCKED — migration generator reported an unresolved column conflict.
 
-1. the capability is genuinely absent;
-2. an existing mechanism already satisfies it;
-3. Jules overlooked an abstraction;
-4. the issue is implementation difficulty;
-5. infrastructure is unavailable;
-6. a convention is unresolved;
-7. forbidden speculation would be required;
-8. reconnaissance is incomplete.
+    UNRESOLVED — schema and historical migration disagree on the column name.
 
-Do not accept Jules' blocker classification without independent verification.
+Uncertainty MUST be surfaced, not concealed by confident language.
 
 ---
 
-# /33. Supervisor final verdict/
+## 38. Relationship With Other Repository Control Documents
 
-The Supervisor returns exactly one:
+This repository may contain additional control documents, including:
 
-PASS
+    BLUEPRINT.md
+    SPEC.md
+    PLAN.md
+    SKILL.md
 
-or:
+Their purposes are distinct:
 
-FAIL
+- `AGENTS.md` defines mandatory agent operating rules.
+- `BLUEPRINT.md` defines the engineering and execution methodology.
+- `SPEC.md` defines intended technical behavior and system invariants.
+- `PLAN.md` defines the currently authorized work.
+- `SKILL.md` defines operational procedures.
 
-or:
+The agent MUST read the applicable documents before beginning substantial work.
 
-BLOCKED_CONFIRMED
+A lower-level document MUST NOT be used to bypass a mandatory rule in `AGENTS.md`.
 
-or:
+A plan does not authorize violating repository safety rules.
 
-INSUFFICIENT_EVIDENCE
+A specification does not authorize modifying files outside the plan.
 
-PASS
-
-Use only when:
-
-- task requirements are satisfied;
-- scope is clean;
-- applicable security boundaries are preserved;
-- applicable tenant boundaries are preserved;
-- validation is sufficient;
-- evidence is independently reproducible.
-
-FAIL
-
-Use when:
-
-- implementation violates requirements;
-- scope contains unexplained changes;
-- security or tenant isolation is weakened;
-- architecture is improperly bypassed;
-- validation demonstrates incorrect behavior.
-
-BLOCKED_CONFIRMED
-
-Use only when:
-
-- the required capability is genuinely unavailable;
-- safe implementation requires an unresolved architectural/security decision;
-- required infrastructure is genuinely unavailable;
-- continuing would require forbidden speculation.
-
-INSUFFICIENT_EVIDENCE
-
-Use when:
-
-- reconnaissance is incomplete;
-- important claims cannot be independently reproduced;
-- required validation cannot establish the relevant property;
-- repository state is ambiguous.
-
-Do not use "BLOCKED_CONFIRMED" merely because implementation is difficult.
+A procedure does not authorize destructive operations by itself.
 
 ---
 
-# /34. Supervisor intervention priority/
+## 39. Priority of Explicit Instructions
 
-When multiple concerns exist, intervention priority is:
+The agent MUST distinguish between:
 
-1. Security boundary violation
-2. Tenant-isolation violation
-3. Incorrect authentication behavior
-4. Architecture violation
-5. Scope violation
-6. Data / migration integrity
-7. Incorrect behavior
-8. Insufficient evidence
-9. Test / validation deficiency
-10. Style or maintainability issue
+1. Higher-priority system or platform instructions.
+2. Explicit instructions from the current user/task.
+3. Repository-level agent instructions.
+4. Active project control documents.
+5. Previous plans and historical reports.
+6. Agent assumptions.
 
-Higher-priority violations must be resolved before lower-priority work continues.
+The agent MUST NOT cite a lower-priority document as justification for violating a higher-priority instruction.
 
-A passing test cannot override a security violation.
-
-A successful build cannot override an architecture violation.
-
-A clean diff cannot override tenant-isolation failure.
-
-A complete-looking feature cannot override insufficient evidence.
+When instructions conflict, the agent MUST follow the applicable higher-priority instruction and clearly identify any resulting limitation when necessary.
 
 ---
 
-# /35. No self-authorized escape hatches/
+## 40. Final Operating Rule
 
-Jules must never reason:
+The repository is not considered healthy merely because the requested change can be made.
 
-"The repository does not have the required mechanism,
-so I will create a simplified version."
+The agent's responsibility is to establish a correct and verifiable state.
 
-or:
+Therefore:
 
-"The existing architecture is inconvenient,
-so I will create a parallel implementation."
+    EVIDENCE > ASSUMPTION
+    INSPECTION > INFERENCE
+    CURRENT REPOSITORY > PREVIOUS REPORT
+    EXPLICIT AUTHORIZATION > INITIATIVE
+    SOURCE FILES > GENERATED REPRESENTATIONS
+    VERIFIED STATE > EXPECTED STATE
+    PRESERVATION > CLEANUP
+    SAFETY > SPEED
+    SAFE STOPPING > UNSAFE CONTINUATION
 
-or:
+When uncertainty remains material to correctness, security, database integrity, repository integrity, or scope:
 
-"The tests are difficult,
-so I will mock the boundary."
+    STOP.
 
-or:
-
-"The scope is too restrictive,
-so I will change adjacent files."
-
-or:
-
-"The Supervisor is not currently available,
-so I can ignore the Supervisor rules."
-
-The correct response is to remain inside the contract and, where necessary, stop with evidence.
-
----
-
-# /36. Supervisor absence/
-
-The absence of an active Supervisor does not weaken this contract.
-
-When no external Supervisor is actively controlling execution:
-
-- Jules must still execute all mandatory checkpoints;
-- Jules must still stop on hard-stop conditions;
-- Jules must not claim independent verification;
-- Jules must clearly distinguish self-validation from independent verification;
-- the final state must remain eligible for later independent Supervisor review.
-
-Jules must never interpret the absence of a Supervisor as permission to bypass a guardrail.
-
----
-
-# /37. Completion criteria/
-
-A task is not complete merely because code was written.
-
-Completion requires all applicable conditions:
-
-REQUIREMENTS SATISFIED
-        AND
-SCOPE CLEAN
-        AND
-ARCHITECTURE RESPECTED
-        AND
-SECURITY BOUNDARIES PRESERVED
-        AND
-TENANT ISOLATION PRESERVED
-        AND
-APPLICABLE TESTS EXECUTED
-        AND
-APPLICABLE VALIDATION EXECUTED
-        AND
-DIFF AUDITED
-        AND
-EVIDENCE REPORTED
-        AND
-NO UNRESOLVED BLOCKER
-
-When active Supervisor verification is part of the workflow, final completion additionally requires:
-
-SUPERVISOR VERDICT: PASS
-
-Jules' "STATUS: COMPLETE" is not equivalent to Supervisor "PASS".
-
----
-
-# /38. Core rule/
-
-The governing principle of this repository is:
-
-«Do not reward an agent for completing the wrong task correctly.»
-
-The agent must remain on the correct architectural, security, tenant, scope, and evidence path throughout execution.
-
-When the path becomes uncertain:
-
-STOP.
-VERIFY.
-REASSESS.
-THEN CONTINUE.
-
-When the path becomes unsafe:
-
-STOP.
-DO NOT WORK AROUND THE CONTRACT.
-REPORT THE EVIDENCE.
-
-When the current plan becomes invalid:
-
-STOP.
-INVALIDATE THE PLAN.
-RECONSTRUCT THE PLAN FROM REPOSITORY EVIDENCE.
-
-When independent verification is required:
-
-JULES IMPLEMENTS.
-SUPERVISOR VERIFIES.
-NEITHER ROLE SUBSTITUTES FOR THE OTHER.
+Do not hide uncertainty behind implementation.
+```0
