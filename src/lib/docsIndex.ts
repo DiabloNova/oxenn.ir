@@ -10,6 +10,14 @@ export interface DocMeta {
 
 export const DOCS_INDEX: DocMeta[] = [
   {
+    slug: "FRONTEND-TRANSFORMATION-PLAN",
+    titleEn: "Enterprise Frontend Transformation Plan",
+    titleFa: "Enterprise Frontend Transformation Plan",
+    category: "product",
+    categoryFa: "Product",
+    snippet: `# Enterprise Frontend Transformation Plan  ## 1. Executive Summary  This document outlines the execution plan for transforming the \`ai-branding-platform\` frontend from its current early-stage architecture into an enterprise-grade, maintainable system. Based on the frontend audit (\`v1.0.0.md\`) and a direct repository analysis, this plan provides a structured, incremental roadmap. The primary goal is to establish robust architectural boundaries, standardized component patterns, and resilient styli`
+  },
+  {
     slug: "product",
     titleEn: "Seorchable Documentation Architecture",
     titleFa: "Seorchable Documentation Architecture",

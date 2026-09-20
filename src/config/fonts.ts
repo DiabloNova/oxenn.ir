@@ -2,10 +2,13 @@
  * Optimus AI — Premium Persian Font Configuration
  *
  * Persian/Farsi typography pairing:
- *  - "YekanBakh" (variable weights) drives all body / UI text for maximum
- *    on-screen legibility.
+ *  - "YekanBakh" (variable weights) drives all body, caption, label, button, and numeric text
+ *    for maximum on-screen legibility.
  *  - "Peyda" (Bold → Black) is reserved for display headings and titles,
  *    giving the interface a strong, editorial character.
+ *  - "BoxFace" is preserved as a specialized English/brand role.
+ *
+ * J-02 Typography Semantic Roles are defined in globals.css mapping to these variables.
  */
 
 import localFont from "next/font/local";
