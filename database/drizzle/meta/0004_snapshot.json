@@ -10927,11 +10927,149 @@
     "public.automated_recommendations": {
       "name": "automated_recommendations",
       "schema": "",
-      "columns": {},
-      "indexes": {},
-      "foreignKeys": {},
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "website_id": {
+          "name": "website_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "priority_score": {
+          "name": "priority_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "recommended_action": {
+          "name": "recommended_action",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "dedup_key": {
+          "name": "dedup_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "NOW()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "NOW()"
+        }
+      },
+      "indexes": {
+        "idx_automated_recs_org": {
+          "name": "idx_automated_recs_org",
+          "columns": [
+            "organization_id"
+          ],
+          "isUnique": false
+        },
+        "idx_automated_recs_status": {
+          "name": "idx_automated_recs_status",
+          "columns": [
+            "status"
+          ],
+          "isUnique": false
+        },
+        "idx_automated_recs_score": {
+          "name": "idx_automated_recs_score",
+          "columns": [
+            "priority_score"
+          ],
+          "isUnique": false
+        },
+        "idx_automated_recs_dedup": {
+          "name": "idx_automated_recs_dedup",
+          "columns": [
+            "organization_id",
+            "dedup_key"
+          ],
+          "isUnique": true,
+          "where": "status = 'pending'"
+        }
+      },
+      "foreignKeys": {
+        "automated_recommendations_organization_id_organizations_id_fk": {
+          "name": "automated_recommendations_organization_id_organizations_id_fk",
+          "tableFrom": "automated_recommendations",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "automated_recommendations_website_id_websites_id_fk": {
+          "name": "automated_recommendations_website_id_websites_id_fk",
+          "tableFrom": "automated_recommendations",
+          "tableTo": "websites",
+          "columnsFrom": [
+            "website_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+      "checkConstraints": {},
+      "isRLSEnabled": true,
       "policies": {
         "select_organization_id_isolation_policy": {
           "name": "select_organization_id_isolation_policy",
@@ -10970,9 +11108,7 @@
           ],
           "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
-      },
-      "checkConstraints": {},
-      "isRLSEnabled": true
+      }
     }
   },
   "enums": {},
