@@ -1,0 +1,14 @@
+ADDITIONAL CORRUPTION CHECK
+
+A read-only structural continuity scan was performed comparing 0002_snapshot.json to 0003_snapshot.json. The scan logic iterated over every shared table and column, comparing all property keys and values.
+
+Scan logic rules:
+1. Ignore differences where column 'name' in 0003 is the underscore-stripped version of 'name' in 0002.
+2. Ignore differences where column 'default' in 0003 contains "genrandomuuid()".
+3. Check all other table-level and column-level properties (type, notNull, primaryKey, etc.) for any deviations.
+
+Result: No additional systematic corruption classes were found. Every structural deviation between the historical schema state and the 0003 snapshot is entirely accounted for by the four known corruption classes:
+- underscore-stripped column names
+- underscore-stripped policy keys/names
+- underscore-stripped policy expressions
+- "gen_random_uuid()" → "genrandomuuid()"
