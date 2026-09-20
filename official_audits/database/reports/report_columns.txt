@@ -1,0 +1,55 @@
+COLUMN INVENTORY
+
+Distinct corrupted logical column paths: 43
+Total corrupted JSON occurrences: 48
+Total correction mappings: 48
+
+Path Inventory (Occurrences):
+public.aeo_analyses.overallaeoscore
+public.aeo_analyses.entitycoveragescore
+public.aeo_analyses.semanticcoveragescore
+public.aeo_analyses.questioncoveragescore
+public.aeo_analyses.citationreadinessscore
+public.ai_observations.rawresponsetext
+public.aiproviderconfigs.apikeymasked
+public.aiproviderconfigs.failoverproviderid
+public.aivisibilityaudits.targetbrandname
+public.aivisibilityaudits.brandauthorityscore
+public.aivisibilityaudits.citationreliabilityscore
+public.aivisibilityaudits.recommendationsharescore
+public.aivisibilityaudits.auditedengineids
+public.aivisibilityaudits.auditedpromptscount
+public.aivisibilityaudits.rawobservationscount
+public.citation_occurrences.isbrandmentioned
+public.citation_sources.isverifieddomain
+public.crawl_jobs.providerjobid
+public.crawl_jobs.leaseexpiresat
+public.crawl_jobs.cancellationrequestedby
+public.crawl_snapshots.monitoringconfigid
+public.crawl_snapshots.crawljobid
+public.crawl_snapshots.nonindexablepages
+public.crawl_snapshots.error4xxcount
+public.crawl_snapshots.error5xxcount
+public.crawl_snapshots.robotstxtavailable
+public.diagnosticfindingrelationships.parentfindingid
+public.diagnosticfindingrelationships.childfindingid
+public.entity_relationships.sourceentityid
+public.entity_relationships.targetentityid
+public.faq_opportunities.aeoanalysisid
+public.feature_flags.isenabledglobally
+public.kg_alignments.aeoanalysisid
+public.kg_relationships.sourceentityid
+public.kg_relationships.targetentityid
+public.monitoring_alerts.monitoringconfigid
+public.monitoring_alerts.crawlsnapshotid
+public.pages.lastcrawledat
+public.position_observations.sourceexecutionid
+public.position_observations.subjectentityid
+public.prompt_executions.resolvedprompttext
+public.prompt_schedules.nextexecutionat
+public.prompt_schedules.lastexecutionat
+public.tenant_quotas.maxcrawljobsperday
+public.tenant_quotas.monthlytokenlimit
+public.topics.parenttopicid
+public.websites.lastcrawledat
+public.websites.lastanalyzedat

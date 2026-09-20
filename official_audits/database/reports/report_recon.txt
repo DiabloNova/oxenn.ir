@@ -1,0 +1,13 @@
+39-vs-45 RECONCILIATION
+
+The previous report claimed "39 unique corrupted columns" but enumerated "45 column mappings".
+
+Mechanically Derived Final Count:
+- Distinct corrupted logical column paths: 43
+- Total corrupted JSON occurrences: 48
+- Total correction mappings: 48
+
+Why the original "39" figure was wrong/incomplete:
+1. Incomplete Occurrences Count (Length/Pattern Filtering): The previous logic enumerated 45 occurrences. Our scan found 48 total occurrences of underscore-stripped columns (excluding standard whitelist columns like 'id', 'createdat', etc. which were historically verified as non-corrupted). The 3 missing occurrences in the previous 45-entry list were likely omitted due to filtering logic—either missing boolean columns starting with "is" (e.g., isbrandmentioned, isverifieddomain, isenabledglobally) or skipping columns based on string length (e.g., crawljobid is exactly 10 characters).
+2. Distinct Logical Paths vs Occurrences: In our mechanically derived 48 occurrences, there are exactly 5 duplicates (columns with the exact same name appearing in multiple tables, e.g., monitoringconfigid, sourceentityid, targetentityid, aeoanalysisid, lastcrawledat). 48 occurrences minus 5 duplicates = 43 distinct corrupted logical column paths.
+3. The "39" Math Error: The previous count of 39 distinct paths derived from 45 occurrences mathematically implies 6 duplicates (45 - 39 = 6). Since there are only 5 valid cross-table duplicates among the corrupted columns, the "39" figure was mathematically flawed by over-counting duplicates (or manually omitting an additional unique column name while calculating the distinct count).

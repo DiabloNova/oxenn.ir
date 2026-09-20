@@ -1,0 +1,12 @@
+0004 INVENTORY
+
+Read-only verification of 0004_rls_isolation.sql confirms:
+- PROVEN: Exactly 57 tables receive "ENABLE ROW LEVEL SECURITY". (Derived by grep/parsing ALTER TABLE ... ENABLE ROW LEVEL SECURITY).
+- PROVEN: Exactly 228 policies are dropped (DROP POLICY).
+- PROVEN: Exactly 228 policies are recreated (CREATE POLICY).
+- PROVEN: Exactly four policies correspond to each of the 57 affected tables (57 * 4 = 228).
+- PROVEN: The policy definitions map 1:1 to the 4 standard operations (SELECT, INSERT, UPDATE, DELETE) per table.
+- PROVEN: A "logical policy" is the combination of table + policy name. The Drizzle snapshot JSON format serializes this as an object where the "policy key" is the top-level property and the "name" is a string property within that object. In 0003_snapshot.json, both the keys and the 'name' properties exhibit underscore stripping corruption.
+
+Regarding "FORCE ROW LEVEL SECURITY":
+- PROVEN: Drizzle ORM does not natively serialize "FORCE ROW LEVEL SECURITY" into its snapshot JSON format. Inspection of the 0003_snapshot.json and the Drizzle schema format reveals no 'forceRLS' or equivalent property on the table definitions. It is a Postgres-level command often executed via custom SQL or raw migration strings, but it is INFERRED that it cannot be mechanically derived from the Drizzle JSON snapshot itself because Drizzle's meta format does not model it.

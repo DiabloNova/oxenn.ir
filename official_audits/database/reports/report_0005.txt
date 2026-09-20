@@ -1,0 +1,43 @@
+0005 INVENTORY
+
+Read-only verification of 0005_unauthenticated_rate_limits.sql derives the following exact intended Drizzle JSON representation for the "public.unauthenticated_audit_rate_limits" table:
+
+- Table Name: "unauthenticated_audit_rate_limits"
+- Schema: "public"
+- Columns (6 total):
+  1. "identifier":
+     - type: "text"
+     - primaryKey: true
+     - notNull: true
+  2. "short_window_start":
+     - type: "timestamp with time zone"
+     - primaryKey: false
+     - notNull: true
+     - default: "NOW()" (or standard Drizzle default representation for NOW())
+  3. "short_window_count":
+     - type: "integer"
+     - primaryKey: false
+     - notNull: true
+     - default: 0
+  4. "daily_window_start":
+     - type: "timestamp with time zone"
+     - primaryKey: false
+     - notNull: true
+     - default: "NOW()"
+  5. "daily_window_count":
+     - type: "integer"
+     - primaryKey: false
+     - notNull: true
+     - default: 0
+  6. "updated_at":
+     - type: "timestamp with time zone"
+     - primaryKey: false
+     - notNull: true
+     - default: "NOW()"
+- Primary Key: Composed of ["identifier"] natively on the column, so the "compositePrimaryKeys" object would be empty {}.
+- Indexes: {} (None defined in SQL).
+- Foreign Keys: {} (None defined in SQL).
+- Unique Constraints: {} (None defined in SQL).
+- Check Constraints: {} (None defined in SQL).
+- Policies: {} (No policies defined in SQL).
+- RLS state: Not enabled/forced (No ALTER TABLE ENABLE ROW LEVEL SECURITY).
