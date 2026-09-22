@@ -10,12 +10,20 @@ export interface DocMeta {
 
 export const DOCS_INDEX: DocMeta[] = [
   {
-    slug: "FRONTEND-TRANSFORMATION-PLAN",
-    titleEn: "Enterprise Frontend Transformation Plan",
-    titleFa: "Enterprise Frontend Transformation Plan",
+    slug: "FE-001-BASELINE",
+    titleEn: "FE-001: Baseline Capture",
+    titleFa: "FE-001: Baseline Capture",
     category: "product",
     categoryFa: "Product",
-    snippet: `# Enterprise Frontend Transformation Plan  ## 1. Executive Summary  This document outlines the execution plan for transforming the \`ai-branding-platform\` frontend from its current early-stage architecture into an enterprise-grade, maintainable system. Based on the frontend audit (\`v1.0.0.md\`) and a direct repository analysis, this plan provides a structured, incremental roadmap. The primary goal is to establish robust architectural boundaries, standardized component patterns, and resilient styli`
+    snippet: `# FE-001: Baseline Capture  ## Objective Establish visual and technical baselines for the application before beginning the Phase 1 architectural migration.  ## Route Inventory The application uses Next.js App Router with a \`[locale]\` dynamic segment for internationalization (\`en\` and \`fa\`).   ### Public Routes - \`/\` (Home) - \`/about\` - \`/blog\` - \`/contact\` - \`/docs\` - \`/docs/[slug]\` - \`/features\` - \`/industries\` - \`/pricing\` - \`/privacy\` - \`/resources\` - \`/services\` - \`/services/[slug]\` - \`/solu`
+  },
+  {
+    slug: "FRONTEND-TRANSFORMATION-PLAN",
+    titleEn: "Frontend Transformation Plan",
+    titleFa: "Frontend Transformation Plan",
+    category: "product",
+    categoryFa: "Product",
+    snippet: `# Frontend Transformation Plan  ## 1. Executive Summary  This document serves as the comprehensive execution blueprint for transforming the current custom frontend into an enterprise-grade bespoke design system. The plan is structured around a two-phase strategy: first stabilizing the architecture and primitives (Phase 1), followed by an intentional visual redesign (Phase 2). This blueprint emphasizes high parallelization, explicit file ownership, and safe, staged token and RTL layout migrations`
   },
   {
     slug: "product",
@@ -288,6 +296,14 @@ export const DOCS_INDEX: DocMeta[] = [
     category: "architecture",
     categoryFa: "Architecture",
     snippet: `# Tenant Operations Guide  This document describes the administrative operations supporting multi-tenant lifecycle states, limits, and quotas.  ## Lifecycle States  - **Active**: The tenant runs normal crawl jobs, executes prompts, and accesses standard features. - **Suspended**: The tenant cannot process new crawl jobs or access features, but their database schemas and configurations are kept intact. - **Archived**: The tenant is soft-deleted, removing active schedules and preparing records for`
+  },
+  {
+    slug: "authentication_audit_report",
+    titleEn: "Authentication Forensic Audit Report",
+    titleFa: "Authentication Forensic Audit Report",
+    category: "product",
+    categoryFa: "Product",
+    snippet: `# Authentication Forensic Audit Report  ## 1. Current Authentication Architecture  The application implements a custom authentication and session management system built heavily around PostgreSQL and Next.js server actions.  - **Identity**: Managed in the \`users\` table, linked to \`organizations\` (workspaces) via \`organization_members\`. - **Sessions**: Uses stateless, cryptographically signed HTTP-only secure cookies (\`seorchable_session\`) initialized upon login. This cookie uses an HMAC SHA-256 `
   },
   {
     slug: "product",
