@@ -15,20 +15,6 @@ const ARGON2_OPTIONS: any = {
   timeCost: 2
 };
 
-async function progressiveDelay(attempts: number): Promise<void> {
-  if (attempts >= 6) {
-    return; // Challenge handled elsewhere
-  }
-  let delay = 0;
-  if (attempts === 3) delay = 20000;
-  else if (attempts === 4) delay = 5 * 60 * 1000;
-  else if (attempts >= 5) delay = 60 * 60 * 1000;
-
-  if (delay > 0) {
-    await new Promise(r => setTimeout(r, delay));
-  }
-}
-
 /**
  * Generates a dummy hash using Argon2id with required parameters.
  * We cache it globally per process to ensure constant time execution without overhead.
@@ -101,9 +87,6 @@ export async function loginAction(email: string, password: string): Promise<User
   if (userRecord.failed_login_attempts >= 6 || userRecord.challenge_required) {
     throw new Error("Challenge required before password verification.");
   }
-
-  // Progressive Delays
-  await progressiveDelay(userRecord.failed_login_attempts);
 
   // Argon2 Verification (outside of any DB lock/transaction)
   let isValid = false;

@@ -90,7 +90,7 @@ async function setupDatabase() {
 
   dbUsers = [
     { id: 'usr-test-1', name: 'Valid User', email: 'valid@test.com', password_hash: hash, is_active: 1, email_verified: 1, failed_login_attempts: 0, challenge_required: 0, trusted_ips: ['127.0.0.1'] },
-    { id: 'usr-test-2', name: 'Locked User', email: 'locked@test.com', password_hash: hash, is_active: 1, email_verified: 1, failed_login_attempts: 6, challenge_required: 1, trusted_ips: null },
+    { id: 'usr-test-2', name: 'Locked User', email: 'locked@test.com', password_hash: hash, is_active: 1, email_verified: 1, failed_login_attempts: 6, challenge_required: 1, locked_until: new Date(Date.now() + 60 * 60 * 1000).toISOString(), trusted_ips: null },
     { id: 'usr-test-3', name: 'Delay User 1', email: 'delay1@test.com', password_hash: hash, is_active: 1, email_verified: 1, failed_login_attempts: 3, challenge_required: 0, trusted_ips: null },
     { id: 'usr-test-8', name: 'Delay User 4', email: 'delay_test4@test.com', password_hash: hash, is_active: 1, email_verified: 1, failed_login_attempts: 4, challenge_required: 0, trusted_ips: null },
     { id: 'usr-test-4', name: 'Delay User 2', email: 'delay2@test.com', password_hash: hash, is_active: 1, email_verified: 1, failed_login_attempts: 5, challenge_required: 0, trusted_ips: null },
@@ -158,27 +158,27 @@ export async function runAuthTests() {
     console.log("  ✅ Unknown account does not reveal existence");
   }
 
-  // Test 4: Progressive Delays
-  const startDelay1 = advancedTime;
+  // Test 4: Fast Fail on Hard Lockout
+  const startLockout = Date.now();
   try {
-    await loginAction("delay1@test.com", "wrongpassword");
-  } catch {}
-  const endDelay1 = advancedTime;
-  assert.ok((endDelay1 - startDelay1) >= 20000, "3 attempts should delay ~20 seconds");
-  console.log("  ✅ Progressive delays enforced (3 attempts -> 20s)");
-
-  const startDelay2 = advancedTime;
-  try {
-    await loginAction("delay2@test.com", "wrongpassword");
-  } catch {}
-  const endDelay2 = advancedTime;
-  assert.ok((endDelay2 - startDelay2) >= 60 * 60 * 1000 - 1000, "5 attempts should delay ~60 minutes");
-  console.log("  ✅ Progressive delays enforced (5 attempts -> 60m)");
-
-  // Test 5: Hard Lockout / Challenge
-  try {
+    // using user with locked_until set in future
     await loginAction("locked@test.com", "validpassword");
-    assert.fail("Locked account should throw challenge");
+    assert.fail("Locked account should throw");
+  } catch (err: any) {
+    const endLockout = Date.now();
+    assert.match(err.message, /Account is temporarily locked/);
+    assert.ok((endLockout - startLockout) < 50, "Locked account should fail fast (<50ms) without event loop blocking");
+    console.log("  ✅ Locked account fast-fails instantly");
+  }
+
+  // Test 5: Hard Lockout / Challenge (challenge threshold with no locked_until)
+  try {
+    // delay2@test.com has 5 failures, let's bump it to 6 to trigger challenge required
+    const uIndex = dbUsers.findIndex(u => u.email === "delay2@test.com");
+    if(uIndex > -1) dbUsers[uIndex].failed_login_attempts = 6;
+
+    await loginAction("delay2@test.com", "validpassword");
+    assert.fail("Challenge required account should throw challenge");
   } catch (err: any) {
     assert.match(err.message, /Challenge required before password verification/);
     console.log("  ✅ Challenge enforced at threshold");
@@ -192,15 +192,6 @@ export async function runAuthTests() {
     assert.match(err.message, /Login from untrusted IP/);
     console.log("  ✅ Untrusted IP logic enforced");
   }
-
-  // Test 4b: Attempt 4 -> 5 minutes
-  const startDelay4 = advancedTime;
-  try {
-    await loginAction("delay_test4@test.com", "wrongpassword");
-  } catch {}
-  const endDelay4 = advancedTime;
-  assert.ok((endDelay4 - startDelay4) >= 5 * 60 * 1000 - 1000, "4 attempts should delay ~5 minutes");
-  console.log("  ✅ Progressive delays enforced (4 attempts -> 5m)");
 
   // Test 8: Unverified Account
   try {
