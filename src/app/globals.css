@@ -3,6 +3,28 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* New Semantic System Tokens */
+  --color-sys-bg: var(--sys-background);
+  --color-sys-fg: var(--sys-foreground);
+  --color-sys-primary: var(--sys-primary);
+  --color-sys-primary-hover: var(--sys-primary-hover);
+  --color-sys-secondary: var(--sys-secondary);
+  --color-sys-accent: var(--sys-accent);
+  --color-sys-muted: var(--sys-muted);
+  --color-sys-muted-fg: var(--sys-muted-foreground);
+  --color-sys-border: var(--sys-border);
+  --color-sys-card: var(--sys-card);
+  --color-sys-card-fg: var(--sys-card-foreground);
+  --color-sys-sidebar: var(--sys-sidebar);
+  --color-sys-header: var(--sys-header);
+  --color-sys-success: var(--sys-success);
+  --color-sys-warning: var(--sys-warning);
+  --color-sys-error: var(--sys-error);
+  --color-sys-info: var(--sys-info);
+  --radius-sys-sm: var(--sys-radius-sm);
+  --radius-sys-md: var(--sys-radius-md);
+  --radius-sys-lg: var(--sys-radius-lg);
+  --radius-sys-full: var(--sys-radius-full);
   --font-sans: var(--font-persian-primary), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-display: var(--font-persian-display), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-english-title: var(--font-english-title);
@@ -163,6 +185,30 @@
      DARK THEME (Default) — deep slate enterprise with Sky Blue/Gray/Orange
      ========================================================= */
   :root {
+    /* === NEW SEMANTIC DESIGN SYSTEM (FE-002) === */
+    --sys-background: var(--background);
+    --sys-foreground: var(--foreground);
+    --sys-primary: var(--sky-blue-600);
+    --sys-primary-hover: var(--sky-blue-500);
+    --sys-secondary: var(--gray-800);
+    --sys-accent: var(--orange-500);
+    --sys-muted: var(--muted-surface);
+    --sys-muted-foreground: var(--text-muted);
+    --sys-border: var(--border);
+    --sys-card: var(--card);
+    --sys-card-foreground: var(--card-foreground);
+    --sys-sidebar: var(--sidebar);
+    --sys-header: var(--header);
+    --sys-success: var(--color-success);
+    --sys-warning: var(--color-warning);
+    --sys-error: var(--color-error);
+    --sys-info: var(--color-info);
+    --sys-radius-sm: var(--radius-sm);
+    --sys-radius-md: var(--radius-md);
+    --sys-radius-lg: var(--radius-lg);
+    --sys-radius-full: var(--radius-full);
+    /* === END NEW SEMANTIC DESIGN SYSTEM === */
+
     /* Primary Palette - Sky Blue, Gray, Orange */
     --sky-blue-500: #38bdf8;
     --sky-blue-600: #0ea5e9;
@@ -275,6 +321,27 @@
      LIGHT THEME — Fresh & Airy
      ========================================================= */
   :root.light {
+    /* === NEW SEMANTIC DESIGN SYSTEM (FE-002) === */
+    --sys-background: var(--background);
+    --sys-foreground: var(--foreground);
+    --sys-primary: var(--sky-blue-600);
+    --sys-primary-hover: var(--sky-blue-700);
+    --sys-secondary: var(--gray-100);
+    --sys-accent: var(--orange-500);
+    --sys-muted: var(--muted-surface);
+    --sys-muted-foreground: var(--gray-500);
+    --sys-border: var(--border);
+    --sys-card: var(--card);
+    --sys-card-foreground: var(--card-foreground);
+    --sys-sidebar: var(--sidebar);
+    --sys-header: var(--header);
+    --sys-success: var(--color-success);
+    --sys-warning: var(--color-warning);
+    --sys-error: var(--color-error);
+    --sys-info: var(--color-info);
+    /* Radii typically inherited, but defined here if needed */
+    /* === END NEW SEMANTIC DESIGN SYSTEM === */
+
     --color-primary-600: var(--sky-blue-600);
     --color-primary-700: var(--sky-blue-700);
     --color-primary-blue: var(--sky-blue-600);
