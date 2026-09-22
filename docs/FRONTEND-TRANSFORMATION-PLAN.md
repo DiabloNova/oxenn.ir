@@ -1,206 +1,339 @@
-# Enterprise Frontend Transformation Plan
+# Frontend Transformation Plan
 
 ## 1. Executive Summary
 
-This document outlines the execution plan for transforming the `ai-branding-platform` frontend from its current early-stage architecture into an enterprise-grade, maintainable system. Based on the frontend audit (`v1.0.0.md`) and a direct repository analysis, this plan provides a structured, incremental roadmap. The primary goal is to establish robust architectural boundaries, standardized component patterns, and resilient styling methodologies without halting active feature development or discarding the existing visual language.
+This document serves as the comprehensive execution blueprint for transforming the current custom frontend into an enterprise-grade bespoke design system. The plan is structured around a two-phase strategy: first stabilizing the architecture and primitives (Phase 1), followed by an intentional visual redesign (Phase 2). This blueprint emphasizes high parallelization, explicit file ownership, and safe, staged token and RTL layout migrations.
 
-## 2. Current State
+### Executive Transformation Plan
+| Phase | Objective | Key Actions | Dependencies | Priority | Expected Outcome |
+|---|---|---|---|---|---|
+| **Phase A: Foundation** | Establish stable tokens & typography | Baseline capture, build token map & type scaling | None | P0 | Verified CSS variables & fonts; zero layout breakage. |
+| **Phase B: Primitives** | Standardize core reusable UI | Migrate Button, Badge, Input, Card, Dialog to CVA & logical CSS | Phase A | P0 | Unified component APIs with variants & safe RTL. |
+| **Phase C: Shells** | Migrate shared navigational UI | Update Dashboard Sidebar/Topbar and AppShell layouts | Phase B | P1 | Robust layout structures adapting natively to direction. |
+| **Phase D: Features** | Incremental feature migration | Parallelize AEO, Analytics, Audit, Settings refactors | Phase C | P1 | Product surfaces fully utilizing the new design system. |
+| **Phase E: Clean & QA** | Final QA and token cleanup | Responsive/a11y/RTL checks, remove unused legacy tokens | Phase D | P0 | A production-ready, stable architectural baseline. |
+| **Phase F: Visuals** | Premium visual redesign | Sophisticated motion, refined gradients & spacing | Phase E | P2 | AWWWARDS-level visual polish on stable architecture. |
 
-The repository currently utilizes a modern stack (Next.js 16 App Router, React 19, Tailwind CSS v4) but exhibits patterns that limit scalability:
-- **Component Architecture:** Primitives (`Button.tsx`, `Card.tsx`) use hardcoded string concatenation for variants, ignoring installed tools like `class-variance-authority` (cva) and `tailwind-merge`.
-- **RTL & Layout:** Deep reliance on a JavaScript `isRtl` boolean for physical layout placement (e.g., `isRtl ? "left-0" : "right-0"`) rather than CSS logical properties.
-- **Styling Dependency:** Tight coupling to global CSS variables defined in `globals.css` with complex manual overrides, instead of a systematized token hierarchy.
-- **Migration Risk:** Manual component APIs and intertwined directionality logic make broad design-system updates highly brittle.
+---
 
-## 3. Audit Findings
+## 2. Current Architecture Baseline
 
-Key findings extracted from `official_audits/front-end/v1.0.0.md` and verified in the repository:
+- **Framework:** Next.js 16.2.11 (App Router), React 19.2.4.
+- **Styling:** Tailwind CSS v4 via `@tailwindcss/postcss`, complex custom animations in `globals.css`.
+- **RTL:** HTML `dir` dynamically set. Extensive inline `isRtl` boolean logic in UI components rather than CSS logical properties.
+- **Theming:** Custom React `ThemeContext` toggles `light`/`dark` classes, driving extensive CSS variables.
+- **Components:** Custom primitives (e.g., `Button.tsx`, `Card.tsx`) using hardcoded class string interpolation rather than `cva`.
 
-1.  **Manual Variant Logic:** `Button.tsx` and other primitives manually map state strings to large class blocks. `cva` is installed but unused. (Verified).
-2.  **Hardcoded Directionality:** Extensive use of `isRtl` ternaries for padding, margin, and positioning across components (e.g., `DashboardSidebar.tsx`). (Verified).
-3.  **Arbitrary CSS Values:** Heavy use of raw CSS variables in component markup (e.g., `bg-[var(--glass-bg)]`). (Verified).
-4.  **Inconsistent Component Boundaries:** Primitives like `Dialog` contain hardcoded domain constraints (e.g., `max-w-lg`). Composite patterns exist (Card) but rely on brittle internal spacing. (Verified).
-5.  **Theme Coupling:** Layouts tightly couple to `language` state from `ThemeProvider` for visual behavior. (Verified).
+## 3. Audit Findings Relevant to the Transformation
 
-## 4. Root Cause Analysis
+1. **Hard-coded RTL Logic:** Use of ternary operators (`isRtl ? 'pr-6' : 'pl-6'`) across hundreds of layout points creates severe risk.
+2. **Missing Component Variants:** Lack of `cva` forces manual maintenance of class maps.
+3. **Token Coupling:** UI elements directly map to `globals.css` variables, without a well-defined intermediate semantic token layer.
+4. **Mix of Paradigms:** Utility classes are heavily mixed with raw arbitrary values (e.g., `bg-[image:var(--gradient-primary)]`).
 
--   **Symptom:** Difficult to update a component's design without risking visual regressions.
-    -   **Root Cause:** Lack of a standardized variant composition API (like `cva`) resulting in bespoke, fragile class string manipulation.
--   **Symptom:** Adding new languages or fixing RTL bugs requires modifying JavaScript logic in hundreds of files.
-    -   **Root Cause:** Treating physical direction (left/right) as application state rather than delegating it to CSS logical properties (`start`/`end`).
--   **Symptom:** Design token updates require global CSS edits and widespread component verification.
-    -   **Root Cause:** Direct referencing of CSS variables instead of semantic Tailwind theme extensions.
+## 4. Transformation Goals
 
-## 5. Enterprise Target State
+- Build a coherent enterprise-grade bespoke design system.
+- Standardize APIs for shared internal primitives (using `cva` or equivalent).
+- Use Tailwind CSS v4 variables appropriately.
+- Transition purely layout-driven `isRtl` references to CSS logical properties (`margin-inline-start`, etc.).
+- Establish strict file ownership rules to enable parallel task execution via Jules.
 
-The frontend will evolve to a state where:
--   **Component Library:** A well-defined internal component library utilizing `cva` and `tailwind-merge` for predictable, type-safe API boundaries.
--   **Directionality:** Layout is governed by CSS logical properties natively supporting `dir="rtl"`. `isRtl` is strictly reserved for behavioral or semantic branching (e.g., swapping a chevron icon, altering logical content order).
--   **Theme Engine:** Design tokens are formally defined, utilizing Tailwind v4's CSS configuration capabilities to provide semantic utility classes rather than requiring arbitrary variable injection.
--   **Development Workflow:** Clear module boundaries ensure that feature teams do not accidentally depend on internal implementations of shared UI components.
+## 5. Non-Goals
+
+- Do **not** replace the architecture wholesale with shadcn/ui or Radix unless a specific headless primitive adds proven value for complex interactions.
+- Do **not** prematurely mix Phase 2 visual redesign into Phase 1 architectural migration.
+- Do **not** modify backend/API or business logic.
 
 ## 6. Target Architecture
 
--   **Module Boundaries:**
-    -   `src/components/ui/`: Strictly controlled domain-agnostic UI primitives (Button, Input). Governed by `cva`.
-    -   `src/components/composites/`: Reusable patterns built from primitives (Card, DataGrid).
-    -   `src/components/features/`: Domain-specific components tightly coupled to business logic.
--   **Styling Architecture:** Semantic utility classes generated via PostCSS/Tailwind configuration over manual inline CSS variables.
--   **RTL Architecture:** `isRtl` boolean is removed from presentation logic. CSS uses `marginStart`, `paddingEnd`, `insetInlineStart` (via standard Tailwind classes like `ms-4`, `pe-4`, `start-0`).
--   **Variant Composition:** Universal adoption of a `cn()` utility (`clsx` + `tailwind-merge`) and `cva` for all base UI primitives.
+The target is an enterprise-grade bespoke design system.
+- **Module Boundaries:** Clear separation between generic design-system primitives, shared shells, and specific product feature surfaces.
+- **State/Theme:** Retain existing `ThemeProvider` and font configurations.
+- **Component APIs:** CVA-driven variant management.
+- **Styling:** Tailwind v4 driven by a semantic layer of CSS variables.
 
-## 7. Transformation Principles
+## 7. Design Token Architecture
 
-1.  **Incremental & Safe:** No "Big Bang" rewrites. Primitives will be refactored individually while maintaining their existing visual output.
-2.  **Preserve Visual Identity:** The goal is architectural soundness, not a redesign. The existing "Glassmorphic" enterprise look will be maintained.
-3.  **Active Development Support:** Feature teams will continue working. Shared components will be migrated behind version boundaries or feature flags if changes are highly disruptive.
-4.  **Strict Linting First:** Automation (ESLint, Prettier) will enforce new rules before manual migration begins.
-5.  **Value Over Dogma:** We will not adopt standard `shadcn/ui` components just because `components.json` exists; we will rebuild our bespoke components using its underlying architectural principles (`cva`, `tailwind-merge`).
+**Migration Principle:**
+`OLD TOKENS` → `NEW TOKEN ARCHITECTURE` → `COMPONENT MIGRATION` → `PAGE MIGRATION` → `VERIFY NO CONSUMERS` → `REMOVE LEGACY TOKENS`.
+Do not delete legacy tokens from `globals.css` until Phase E.
 
-## 8. Phase-by-Phase Execution Plan
+## 8. Typography Architecture
 
-### Phase 1: Foundation, Tooling, & Boundaries
-**Objective:** Establish the utilities, conventions, and quality gates required for the refactor without changing UI behavior.
-**Problems Addressed:** Lack of standard class merging, inconsistent use of dependencies.
-**Audit References:** 1, 5, 11
-**Preconditions:** Active development branch stable.
-**Step-by-Step Execution:**
-1. Verify `class-variance-authority`, `clsx`, and `tailwind-merge` versions in `package.json`.
-2. Create/Standardize the `src/lib/utils.ts` file providing the `cn()` utility function.
-3. Define the target directory structure (`src/components/ui/` vs `src/components/features/`).
-4. Implement ESLint rules to warn on arbitrary CSS variable usage (`bg-[var(--*)]`) in new code, guiding developers toward semantic utilities.
-**Validation:** `cn()` utility is unit tested. Linter runs successfully.
-**Definition of Done:** Foundations are merged to `main` without impacting any existing features.
+- Retain existing Next.js local font setup (YekanBakh, Peyda, BoxFace).
+- Map fonts to structured semantic design tokens rather than ad-hoc inline usage.
 
-### Phase 2: RTL & Layout Modernization
-**Objective:** Decouple physical layout from JavaScript state, migrating to CSS logical properties.
-**Problems Addressed:** Hardcoded directionality logic (Ternary `isRtl` checks).
-**Audit References:** 9, 12, 13(Point 2)
-**Preconditions:** Phase 1 complete.
-**Step-by-Step Execution:**
-1. Audit all usages of `isRtl` in `src/components/`.
-2. Categorize usages into "Presentational" (e.g., padding/margins) and "Behavioral" (e.g., Icon swapping).
-3. Systematically replace presentational ternaries with standard Tailwind logical properties (`ms-`, `me-`, `ps-`, `pe-`, `start-`, `end-`).
-4. Refactor `DashboardSidebar.tsx` and `DashboardTopbar.tsx` layout grids to rely on CSS inherited directionality.
-**Dependencies:** None (can run parallel to UI primitive refactoring).
-**Risks:** Visual regressions in RTL mode.
-**Risk Mitigation:** Perform side-by-side visual comparisons in both `fa` and `en` locales for every modified component.
-**Validation:** Application renders identically in RTL and LTR without JS-driven layout calculation.
+## 9. Component Architecture
 
-### Phase 3: Primitive Component Refactoring
-**Objective:** Re-architect base UI components using `cva` for predictable variants and state management.
-**Problems Addressed:** Manual variant handling, brittle class string concatenation.
-**Audit References:** 5, 6, 10, 13(Point 1)
-**Preconditions:** Phase 1 complete.
-**Step-by-Step Execution:**
-1. Refactor `Button.tsx`: Implement `cva` for existing `variant` and `size` props. Preserve exact visual styles (including glass/gradient effects). Use `cn()` for merging overrides.
-2. Refactor `Badge.tsx` and `Input.tsx` using the same methodology.
-3. Isolate the "Glassmorphic" effects into reusable utility classes or token definitions rather than repeating arbitrary strings.
-**Dependencies:** Phase 1.
-**Risks:** Feature branches currently modifying these primitives will conflict.
-**Risk Mitigation:** Announce a short change-freeze for `src/components/Button.tsx` and `Input.tsx` during this specific PR, or dual-publish (e.g., `ButtonV2`) if freeze is impossible.
-**Validation:** Unit tests for variant rendering. Storybook/visual inspection.
+- Create internal variants using `cva` for predictable composition.
+- Export base atoms and layout patterns cleanly.
 
-### Phase 4: Composite Components & Tokens
-**Objective:** Stabilize complex patterns and formalize the design token hierarchy.
-**Problems Addressed:** Card internals tightly coupled, arbitrary CSS variable usage.
-**Audit References:** 10, 11, 13(Point 3)
-**Preconditions:** Phase 3 complete.
-**Step-by-Step Execution:**
-1. Refactor `Card.tsx` and `GlassCard.tsx` to utilize `cn()` and `cva` where applicable. Ensure sub-components (`CardHeader`, `CardTitle`) have clear, overrideable boundaries.
-2. Audit `src/app/globals.css`. Map arbitrary CSS variables (e.g., `--sky-blue-500`) to formalized Tailwind configuration (theme definitions in `globals.css` via `@theme` block or PostCSS).
-3. Update components to use semantic utility classes instead of arbitrary `var()` injection.
-**Validation:** Visual parity maintained; `globals.css` is significantly smaller and tokenized.
+## 10. RTL Architecture
 
-## 9. Detailed Task Backlog
+**Hybrid Migration Strategy:**
+CSS logical properties must replace direction-sensitive CSS where direction is purely a layout concern.
+- **SAFE to convert:** `margin-left` → `margin-inline-start`, padding, inset, border, text-align.
+- **UNSAFE to convert (keep `isRtl`):** Charts, data visualizations, directional icons (e.g., `ArrowLeft`), explicit transforms, animations with semantic direction, third-party libraries.
 
-| ID | Initiative | Task | Problem Solved | Dependencies | Priority | Complexity | Validation | Acceptance Criteria |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| FE-001 | Foundations | Create `cn()` utility in `src/lib/utils.ts` | Lack of standard class merging | None | P0 | S | Unit tests | `cn` correctly merges overlapping tailwind classes |
-| FE-002 | Linting | Add ESLint rule to restrict `isRtl` for layout | Prevents future JS-based layout branching | None | P1 | S | CI execution | Linter warns/errors on `isRtl ? "ml-4" : "mr-4"` |
-| FE-003 | RTL | Migrate primitive components to logical CSS | Hardcoded RTL logic | FE-002 | P0 | M | Visual QA | Button, Input, Badge use logical props; look identical in FA/EN |
-| FE-004 | RTL | Migrate Layouts (Sidebar/Topbar) to logical CSS | Hardcoded RTL logic | FE-002 | P0 | L | Visual QA | Sidebars collapse/expand correctly in both directions |
-| FE-005 | Components | Refactor `Button.tsx` using `cva` | Manual variant maintenance | FE-001 | P0 | M | Component test | Variants render correct classes; overrides via `className` work |
-| FE-006 | Components | Refactor `Input.tsx` using `cva` | Manual variant maintenance | FE-001 | P1 | M | Component test | Variants render correctly |
-| FE-007 | Components | Refactor `Card.tsx` & `GlassCard.tsx` | Brittle internal styling | FE-001, FE-005 | P1 | M | Visual QA | Card composition works predictably |
-| FE-008 | Styling | Formalize Design Tokens | Arbitrary CSS variable usage | None | P2 | L | Build check | Components use semantic tailwind classes (e.g. `bg-glass`) |
+## 11. Theme Architecture
 
-## 10. Audit-to-Task Traceability Matrix
+- Retain `ThemeProvider.tsx`.
+- Standardize the mapping of themes (`light`, `dark`) to the new semantic tokens in `globals.css`.
 
-| Audit Finding | Severity | Root Cause | Planned Action | Phase | Task ID | Validation | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Manual string variants | High | Lack of standard API | Implement `cva` for primitives | 3 | FE-005, FE-006 | Unit/Visual tests | Planned |
-| Hardcoded directionality | High | Misunderstanding CSS logical props | Migrate to logical CSS properties | 2 | FE-003, FE-004 | Visual QA | Planned |
-| Arbitrary CSS variables | Medium | Incomplete Tailwind setup | Formalize tokens in CSS/Tailwind config | 4 | FE-008 | Build check | Planned |
-| Inconsistent Component Boundaries | Medium | Lack of established patterns | Refactor Composites (Card, Dialog) | 4 | FE-007 | Visual QA | Planned |
-| Theme Provider coupling | Low | Global state used for local layout | Rely on HTML `dir` attribute | 2 | FE-004 | Visual QA | Planned |
+## 12. Responsive Architecture
 
-## 11. Dependency Map
+- Use standard Tailwind breakpoints (`sm`, `md`, `lg`).
+- Move away from hardcoded pixel offsets where logical grid/flex gaps work better.
 
-```text
-[FE-001: Foundations]
-   |
-   +---> [FE-005: Refactor Button] ---> [FE-007: Refactor Card]
-   |
-   +---> [FE-006: Refactor Input]
+## 13. Accessibility Architecture
 
-[FE-002: Linting]
-   |
-   +---> [FE-003: RTL Primitives]
-   |
-   +---> [FE-004: RTL Layouts]
+- Ensure all components support keyboard navigation, ARIA attributes, and adequate color contrast. Focus rings should be consistent.
 
-[FE-008: Formalize Tokens] (Independent, parallelizable)
-```
+## 14. Motion Strategy
 
-## 12. Quality Gates
+- Consolidate complex `@keyframes` in `globals.css`.
+- Respect `prefers-reduced-motion` explicitly.
 
--   **Type Safety:** `cva` usage must be strictly typed, eliminating `any` and ensuring variant prop validation.
--   **Styling:** 0 usage of `isRtl` for determining padding, margin, or layout positioning in newly refactored components.
--   **Performance:** Refactoring to `cva` must not increase bundle size significantly or cause Client Component boundary bloat (preserve Server Components where possible).
--   **CI/CD:** All tasks must pass existing `tsx` tests and ESLint checks before merging.
+---
 
-## 13. Production Safety & Rollback Strategy
+## 15. Phase 1 — Architectural Migration (Detailed Task Backlog)
 
--   **Parallel Components (If necessary):** For high-risk, widely used primitives (e.g., `Button.tsx`), create `ButtonV2.tsx` during development. Migrate usages incrementally to `ButtonV2`. Once complete, rename to `Button.tsx` and delete the old version. This prevents "stop the world" PRs.
--   **Incremental PRs:** Merge changes per component. Never merge a "Refactor All Components" PR.
--   **Rollback:** Standard Git reverts. Because we are not altering database schemas or backend logic, frontend component changes are inherently stateless and safe to revert.
+**Important Rule for All Tasks:**
+*You have ONE task. Do not perform unrelated refactoring. Do not modify files owned by another active Jules session. Do not redesign components outside your scope. Do not modify backend logic. Use the existing local Persian font infrastructure. Run `npm run lint` and `npm run build` to validate.*
 
-## 14. Enterprise Readiness Checklist
+### FE-001: Baseline Capture
+- **Objective:** Establish visual and technical baselines.
+- **Context:** Capture existing state of the app before significant changes.
+- **Allowed Files:** N/A (Read-only documentation output).
+- **Forbidden Files:** All source code files.
+- **Dependencies:** None.
+- **Implementation Requirements:** Document route inventory, themes, desktop/mobile, LTR/RTL behavior.
+- **Acceptance Criteria:** A baseline document/screenshot set exists.
+- **Validation Commands:** `npm run dev`
+- **Expected Final Report:** Summary of captured routes, verified themes and RTL behaviors.
+- **Parallelization Status:** Sequential (No).
 
-| Area | Current State | Target State | Required Work | Verification Method | Completion Criteria |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Architecture | Manual classes | Standardized `cva` APIs | Phase 1 & 3 | Code Review | All base primitives use `cva`/`cn()` |
-| RTL | JS `isRtl` driven | CSS Logical properties | Phase 2 | Visual QA (FA/EN) | `isRtl` removed from layout logic |
-| Design Tokens | Arbitrary CSS vars | Formal Tailwind config | Phase 4 | Code Review | Semantic classes used over `var(--x)` |
-| Maintainability | High debt on UI updates| Predictable component APIs | Phases 1-4 | PR velocity | New feature UI matches design easily |
+### FE-002: Token Map & Design System Foundation
+- **Objective:** Introduce semantic CSS variables alongside legacy ones.
+- **Context:** Map new CSS variables based on the audit's recommendation to decouple styling.
+- **Allowed Files:** `src/app/globals.css`, `.tailwindcss/postcss` (if applicable).
+- **Forbidden Files:** Component code (`src/components/`, `src/app/**/*.tsx`).
+- **Dependencies:** FE-001.
+- **Implementation Requirements:** Add a new layer of semantic tokens without removing the old variables.
+- **Acceptance Criteria:** Both legacy and new tokens are present. UI looks identical.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Confirmed the addition of semantic tokens.
+- **Parallelization Status:** Sequential (No).
 
-## 15. Success Metrics
+### FE-003: Typography Foundation
+- **Objective:** Standardize font usage via tokens.
+- **Context:** Map the Next.js local fonts to CSS variables.
+- **Allowed Files:** `src/config/fonts.ts`, `src/app/[locale]/layout.tsx`, `src/app/globals.css`.
+- **Forbidden Files:** UI components (`src/components/Button.tsx`, etc.).
+- **Dependencies:** FE-002.
+- **Implementation Requirements:** Ensure existing local fonts (YekanBakh, Peyda) use standard token mappings.
+- **Acceptance Criteria:** Font display is unchanged visually, mapped via semantic variables.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Typography standard verified.
+- **Parallelization Status:** Sequential (No).
 
--   **Code Quality:** Reduction in the number of ternary operators related to styling (measurable via `grep`).
--   **Maintainability:** Increase in standard utility class usage (`cn()` invocations) vs string concatenation.
--   **Developer Velocity:** Subjective decrease in time taken to implement new UI elements due to predictable primitive behavior.
--   **Bug Rate:** Decrease in RTL layout bugs reported during QA.
+### FE-004: Core Variant Architecture (CVA Setup)
+- **Objective:** Setup `cva` utility.
+- **Context:** Standardize the API for components.
+- **Allowed Files:** `src/lib/utils.ts` (or equivalent), `package.json`.
+- **Forbidden Files:** Any UI components.
+- **Dependencies:** FE-003.
+- **Implementation Requirements:** Add `cva`, `clsx`, `tailwind-merge` utility functions if missing.
+- **Acceptance Criteria:** Standard `cn` and `cva` are exported from a utils file.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Utils are ready for components.
+- **Parallelization Status:** Sequential (No).
 
-## 16. Open Questions & Required Investigation
+### FE-005: Migrate Primitive - Button
+- **Objective:** Refactor `Button.tsx` to use CVA and logical CSS properties.
+- **Context:** Standardize the button API.
+- **Allowed Files:** `src/components/Button.tsx`.
+- **Forbidden Files:** Other UI components.
+- **Dependencies:** FE-004.
+- **Implementation Requirements:** Remove manual variant logic. Use `cva`. Replace purely layout `isRtl` logic with logical CSS.
+- **Acceptance Criteria:** `Button` API works with `variant` and `size` props. LTR/RTL layout is correct.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Button refactored.
+- **Parallelization Status:** Parallel (with FE-006, FE-007, FE-008, FE-009).
 
--   **Dialog/Modal Constraints:** The audit notes `Dialog.tsx` has hardcoded constraints (e.g., `max-w-lg`). *Required Investigation:* Are these constraints expected globally, or do specific workflows require custom dialog sizes? *Impact:* Determines if Dialog is a primitive or a composite.
--   **Third-party UI libraries:** Are there any undocumented dependencies on libraries like Radix UI or Headless UI that might conflict with our custom `cva` implementation?
+### FE-006: Migrate Primitive - Badge
+- **Objective:** Refactor `Badge.tsx`.
+- **Context:** Standardize badge API.
+- **Allowed Files:** `src/components/Badge.tsx`.
+- **Forbidden Files:** Other UI components.
+- **Dependencies:** FE-004.
+- **Implementation Requirements:** Use `cva` and logical CSS.
+- **Acceptance Criteria:** Badge API updated. LTR/RTL valid.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Badge refactored.
+- **Parallelization Status:** Parallel.
 
-## 17. Recommended Execution Order
+### FE-007: Migrate Primitive - Input
+- **Objective:** Refactor `Input.tsx`.
+- **Context:** Standardize input API.
+- **Allowed Files:** `src/components/Input.tsx`.
+- **Forbidden Files:** Other UI components.
+- **Dependencies:** FE-004.
+- **Implementation Requirements:** Use `cva` and logical CSS.
+- **Acceptance Criteria:** Input API updated.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Input refactored.
+- **Parallelization Status:** Parallel.
 
-**Now (Critical Foundations):**
-1. FE-001 (Foundations: `cn` utility)
-2. FE-002 (Linting for RTL)
+### FE-008: Migrate Primitive - Card
+- **Objective:** Refactor `Card.tsx` (and subcomponents).
+- **Context:** Standardize card composite API.
+- **Allowed Files:** `src/components/Card.tsx`.
+- **Forbidden Files:** Other UI components.
+- **Dependencies:** FE-004.
+- **Implementation Requirements:** Use `cva` and logical CSS.
+- **Acceptance Criteria:** Card structure updated.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Card refactored.
+- **Parallelization Status:** Parallel.
 
-**Next (High Value, Parallelizable Workstreams):**
-3. Workstream A: FE-003, FE-004 (RTL Modernization)
-4. Workstream B: FE-005, FE-006 (Primitive Refactoring)
+### FE-009: Migrate Primitive - Dialog
+- **Objective:** Refactor `Dialog.tsx`.
+- **Context:** Standardize dialog composite API.
+- **Allowed Files:** `src/components/Dialog.tsx`.
+- **Forbidden Files:** Other UI components.
+- **Dependencies:** FE-004.
+- **Implementation Requirements:** Use `cva` and logical CSS.
+- **Acceptance Criteria:** Dialog structural CSS modernized.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Dialog refactored.
+- **Parallelization Status:** Parallel.
 
-**Later (Architecture Hardening):**
-5. FE-007 (Composite Refactoring)
-6. FE-008 (Design Token Formalization)
+### FE-010: Migrate Dashboard Sidebar
+- **Objective:** Convert layout directionality to logical properties.
+- **Context:** Decouple the shell's layout from `isRtl` where possible.
+- **Allowed Files:** `src/components/navigation/DashboardSidebar.tsx`, `src/components/navigation/AppSidebar.tsx`.
+- **Forbidden Files:** DashboardTopbar, Feature routes.
+- **Dependencies:** FE-005, FE-006, FE-007, FE-008, FE-009.
+- **Implementation Requirements:** Swap structural layout (paddings/margins) to logical.
+- **Acceptance Criteria:** Sidebar correctly renders in both LTR/RTL.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Sidebar layout modernized.
+- **Parallelization Status:** Parallel (with FE-011).
 
-## 18. Final Roadmap
+### FE-011: Migrate Dashboard Topbar
+- **Objective:** Convert topbar layout directionality.
+- **Context:** Update navigational layout.
+- **Allowed Files:** `src/components/navigation/DashboardTopbar.tsx`.
+- **Forbidden Files:** DashboardSidebar, Feature routes.
+- **Dependencies:** FE-005, FE-006, FE-007, FE-008, FE-009.
+- **Implementation Requirements:** Use logical CSS.
+- **Acceptance Criteria:** Topbar works in LTR/RTL.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Topbar layout modernized.
+- **Parallelization Status:** Parallel (with FE-010).
 
-The transformation will begin by solidifying our utilities (`cn()`) and linting rules. We will then split into two parallel tracks: one team/developer focusing on migrating to CSS logical properties to resolve RTL debt, while another refactors base primitives to utilize `cva`. Once primitives and layouts are stabilized, we will combine these efforts to refactor composite components and formally tokenize the design system. This incremental approach ensures the platform remains stable and feature development continues uninterrupted.
+### FE-012: Migrate Dashboard Shell
+- **Objective:** Integrate updated navigational components into the shell.
+- **Context:** Ensure the full shell wrapper is fully migrated.
+- **Allowed Files:** `src/components/DashboardShell.tsx`, `src/app/[locale]/dashboard/layout.tsx`.
+- **Forbidden Files:** Feature pages.
+- **Dependencies:** FE-010, FE-011.
+- **Implementation Requirements:** Align shell spacing with logical properties.
+- **Acceptance Criteria:** The entire dashboard shell handles RTL correctly.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Shell migration complete.
+- **Parallelization Status:** Sequential (No).
+
+### FE-013 to FE-021: Feature Domain Migrations
+- **Objective:** Refactor specific feature components to use updated primitives and logical properties.
+- **Context:** Convert individual product surfaces to the new design system.
+- **Task Domains:**
+  - FE-013: AEO (`src/components/features/aeo/`, `src/app/[locale]/dashboard/aeo/`)
+  - FE-014: Analytics (`src/components/features/analytics/`)
+  - FE-015: Audit (`src/components/features/audit/`)
+  - FE-016: Content (`src/components/features/content/`)
+  - FE-017: SEO (`src/app/[locale]/dashboard/seo/`)
+  - FE-018: Settings (`src/app/[locale]/dashboard/settings/`)
+  - FE-019: Billing (`src/app/[locale]/dashboard/billing/`)
+  - FE-020: Brand (`src/app/[locale]/dashboard/brand/`)
+  - FE-021: Query (`src/app/[locale]/dashboard/query/`)
+- **Dependencies:** FE-012.
+- **Implementation Requirements:** Replace layout `isRtl` and hardcoded components with logical properties and new `cva` primitives.
+- **Forbidden Files:** Shell components, globals.css, other feature folders outside the task domain.
+- **Acceptance Criteria:** Feature behaves identically, utilizing the semantic design system and logical RTL properties.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Feature migrated safely.
+- **Parallelization Status:** Parallel (Maximum 9 concurrent).
+
+### FE-022: Final QA & Legacy Token Cleanup
+- **Objective:** Verify integrations, remove legacy tokens.
+- **Context:** Final pass over the architecture to confirm migration is over.
+- **Allowed Files:** `src/app/globals.css`.
+- **Forbidden Files:** Core components unless fixing a critical bug.
+- **Dependencies:** All Feature Migrations (FE-013 to FE-021).
+- **Implementation Requirements:** Safely drop unused old token variables. Verify zero consumers.
+- **Acceptance Criteria:** Project builds. Visual QA (responsive, LTR/RTL, a11y) passes.
+- **Validation Commands:** `npm run lint`, `npm run build`.
+- **Expected Final Report:** Token cleanup verified; phase 1 is complete.
+- **Parallelization Status:** Sequential (No).
+
+---
+
+## 16. Phase 2 — Premium Visual Redesign
+
+*Only execute after FE-022 is complete.*
+- Introduce stronger art direction, refined visual hierarchy, sophisticated motion, and high-quality hero sections. Tasks to be defined post-Phase 1.
+
+---
+
+## 17. Dependency Graph & Parallelization Strategy
+
+1. **Sequential Foundation:** FE-001 -> FE-002 -> FE-003 -> FE-004.
+2. **Parallel Primitives:** FE-005 to FE-009 run concurrently.
+3. **Parallel Nav UI:** FE-010, FE-011 run concurrently.
+4. **Sequential Shell Integration:** FE-012.
+5. **Highly Parallel Features:** FE-013 through FE-021 run concurrently.
+6. **Sequential Final QA:** FE-022.
+
+## 18. File Ownership Rules
+
+- A task may only modify files listed in its "Allowed Files".
+- Modifications to `package.json` are strictly controlled.
+- Modifying backend routing, database schemas, or `src/core/` is explicitly forbidden.
+- If a Jules session requires a change in a primitive while executing a feature task, it must report it instead of fixing it to avoid conflict.
+
+## 19. Git Checkpoints
+
+- **Checkpoint 0 (Baseline):** After FE-001.
+- **Checkpoint 1 (Foundation):** After FE-004.
+- **Checkpoint 2 (Primitives):** After FE-009.
+- **Checkpoint 3 (Shells):** After FE-012.
+- **Checkpoint 4 (Features):** After FE-021.
+- **Checkpoint 5 (Clean):** After FE-022.
+
+## 20. Validation Strategy & Quality Gates
+
+**Gate Criteria for Every Task:**
+- `npm run lint` must pass (no warnings).
+- `npm run build` must succeed.
+- TypeScript compilation must pass.
+- Components must render without errors in both LTR (en) and RTL (fa) contexts.
+- Accessibility passes basic checks (focus states visible, aria labels present).
+
+## 21. Risk Register & Rollback Strategy
+
+- **Risk:** Unsafe RTL conversion breaks data visualization charts.
+  - **Mitigation:** Strict guidelines on what `isRtl` logic is safe to convert. Feature owners must explicitly check charts.
+- **Risk:** Token migration breaks existing UI.
+  - **Mitigation:** Phased token introduction; old tokens are not removed until FE-022.
+- **Rollback:** Because the migration is incrementally structured, any failed Checkpoint can be reverted via Git without blocking parallel independent feature work.
+
+## 22. Definition of Done
+- A task is considered done when `npm run lint` and `npm run build` complete without errors.
+- Visual regressions are verified against the Checkpoint 0 baseline.
+- Code matches Phase 1 boundaries.
+
+## 23. Recommended Execution Order
+Execute FE-001 through FE-022 strictly adhering to the Dependency Graph. Initiate parallel tasks only when prerequisite Checkpoints are validated.
