@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Programmatic Enterprise Test Suite for Web Crawler & Data Extraction Service.
  * Verifies link discovery, text extraction, Persian normalization, mock fallback mode,
@@ -282,7 +281,6 @@ export async function testWebCrawlerSuite() {
       let ssrfCaught = false;
       try {
         await fetchAndExtractText("http://evil.internal/");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         if (error.message.includes("SSRF Blocked: URL http://evil.internal/ is not allowed")) {
           ssrfCaught = true;
@@ -306,7 +304,6 @@ export async function testWebCrawlerSuite() {
       let redirectSsrfCaught = false;
       try {
         await fetchAndExtractText(`http://test-site.com:${port}/ssrf-redirect`);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         if (error.message.includes("SSRF Blocked: URL")) {
           redirectSsrfCaught = true;
@@ -414,25 +411,20 @@ export async function testWebCrawlerSuite() {
 
 // Test suite helper to safely manage global test options
 async function withTestOptions(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: any,
   testFn: () => Promise<void>
 ) {
   const hasPrevious = "__CRAWLER_TEST_OPTIONS__" in globalThis;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const previousValue = (globalThis as any).__CRAWLER_TEST_OPTIONS__;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (globalThis as any).__CRAWLER_TEST_OPTIONS__ = options;
 
   try {
     await testFn();
   } finally {
     if (hasPrevious) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (globalThis as any).__CRAWLER_TEST_OPTIONS__ = previousValue;
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (globalThis as any).__CRAWLER_TEST_OPTIONS__;
     }
   }
@@ -443,10 +435,8 @@ export async function testGlobalCleanupLogic() {
   console.log("  * Testing __CRAWLER_TEST_OPTIONS__ global cleanup logic...");
 
   // 1. Deletion of previously absent property
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete (globalThis as any).__CRAWLER_TEST_OPTIONS__;
   await withTestOptions({ mock: true }, async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.mock) throw new Error("Options not set");
   });
   if ("__CRAWLER_TEST_OPTIONS__" in globalThis) {
@@ -454,34 +444,27 @@ export async function testGlobalCleanupLogic() {
   }
 
   // 2. Restoration of existing previous value
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (globalThis as any).__CRAWLER_TEST_OPTIONS__ = { existing: true };
   await withTestOptions({ nested: true }, async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.nested) throw new Error("Options not set");
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.existing) {
     throw new Error("Cleanup Failure: Previously existing property was not restored.");
   }
 
   // 3. Cleanup when test throws
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (globalThis as any).__CRAWLER_TEST_OPTIONS__ = { existing2: true };
   try {
     await withTestOptions({ throwTest: true }, async () => {
       throw new Error("Test exception");
     });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     if (e.message !== "Test exception") throw e;
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (!(globalThis as any).__CRAWLER_TEST_OPTIONS__.existing2) {
     throw new Error("Cleanup Failure: Property not restored when test body threw exception.");
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete (globalThis as any).__CRAWLER_TEST_OPTIONS__;
   console.log("    ✅ Successfully verified global test options cleanup.");
 }
