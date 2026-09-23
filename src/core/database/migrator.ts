@@ -2,11 +2,33 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
 import path from "path";
+import { captureDatabaseCatalog, DatabaseCatalogSnapshot } from "./catalog-capture";
+
+export { captureDatabaseCatalog } from "./catalog-capture";
+export type {
+  TargetClassification,
+  RedactedTargetIdentity,
+  DatabaseCatalogSnapshot,
+  CatalogColumn,
+  CatalogConstraint,
+  CatalogIndex,
+  CatalogPolicy,
+  CatalogExtension,
+  TableRlsStatus,
+} from "./catalog-capture";
 
 export async function runMigrations(databaseUrl?: string) {
   const connectionString = databaseUrl || process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL environment variable is required to run migrations.");
+  }
+
+  // Acceptance criteria: No SQL repair or migration starts while classification is unknown
+  const snapshot = await captureDatabaseCatalog({ databaseUrl: connectionString });
+  if (snapshot.classification === "unknown") {
+    throw new Error(
+      `[Migration Runner] Migration blocked: database environment classification is 'unknown' (${snapshot.classificationReason}).`
+    );
   }
 
   const pool = new Pool({

@@ -1,0 +1,68 @@
+{
+  "targetIdentity": {
+    "envVarName": "DATABASE_URL",
+    "isAvailable": false,
+    "errorMessage": "DATABASE_URL is not set or empty"
+  },
+  "areTargetsIdentical": true,
+  "classification": "unknown",
+  "classificationReason": "DATABASE_URL target is unavailable or invalid.",
+  "drizzleMigrationRecords": [],
+  "canonicalJournalEntries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1787055825228,
+      "tag": "0000_reflective_loa",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787289552926,
+      "tag": "0001_illegal_grey_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787298574291,
+      "tag": "0002_soft_jimmy_woo",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787492243071,
+      "tag": "0003_yellow_winter_soldier",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787588948132,
+      "tag": "0004_rls_isolation",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787589028546,
+      "tag": "0005_unauthenticated_rate_limits",
+      "breakpoints": true
+    }
+  ],
+  "lineageReconciled": false,
+  "legacyArtifactsDetected": false,
+  "legacyArtifactDetails": [],
+  "tables": [],
+  "tableRlsStatus": [],
+  "columns": [],
+  "constraints": [],
+  "indexes": [],
+  "policies": [],
+  "extensions": [],
+  "unknownOrInconsistencyReasons": [
+    "DATABASE_URL target unavailable: DATABASE_URL is not set or empty"
+  ]
+}
