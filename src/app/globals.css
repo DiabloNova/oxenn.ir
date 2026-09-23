@@ -25,9 +25,14 @@
   --radius-sys-md: var(--sys-radius-md);
   --radius-sys-lg: var(--sys-radius-lg);
   --radius-sys-full: var(--sys-radius-full);
-  --font-sans: var(--font-persian-primary), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-display: var(--font-persian-display), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-english-title: var(--font-english-title);
+  --font-sys-sans: var(--sys-font-sans);
+  --font-sys-display: var(--sys-font-display);
+  --font-sys-primary: var(--sys-font-primary);
+  --font-sys-heading: var(--sys-font-heading);
+  --font-sys-english-title: var(--sys-font-english-title);
+  --font-sans: var(--sys-font-sans);
+  --font-display: var(--sys-font-display);
+  --font-english-title: var(--sys-font-english-title);
 
   --animate-fade-in: fade-in 0.35s ease-out forwards;
   --animate-slide-up: slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -80,7 +85,7 @@
    Semantic typography API mapping the project's existing fonts.
    ========================================================= */
 @utility display-xl {
-  font-family: var(--font-display);
+  font-family: var(--sys-font-display);
   font-size: clamp(2.25rem, 5vw + 1rem, 4.5rem);
   font-weight: 900;
   line-height: 1.1;
@@ -88,7 +93,7 @@
 }
 
 @utility display-lg {
-  font-family: var(--font-display);
+  font-family: var(--sys-font-display);
   font-size: clamp(1.875rem, 4vw + 1rem, 3.75rem);
   font-weight: 900;
   line-height: 1.15;
@@ -96,7 +101,7 @@
 }
 
 @utility heading-xl {
-  font-family: var(--font-display);
+  font-family: var(--sys-font-display);
   font-size: clamp(1.5rem, 3vw + 0.75rem, 2.25rem);
   font-weight: 800;
   line-height: 1.2;
@@ -104,7 +109,7 @@
 }
 
 @utility heading-lg {
-  font-family: var(--font-display);
+  font-family: var(--sys-font-display);
   font-size: clamp(1.25rem, 2vw + 0.5rem, 1.875rem);
   font-weight: 800;
   line-height: 1.25;
@@ -112,49 +117,49 @@
 }
 
 @utility heading-md {
-  font-family: var(--font-display);
+  font-family: var(--sys-font-display);
   font-size: clamp(1.125rem, 1.5vw + 0.5rem, 1.5rem);
   font-weight: 700;
   line-height: 1.3;
 }
 
 @utility heading-sm {
-  font-family: var(--font-display);
+  font-family: var(--sys-font-display);
   font-size: 1.25rem;
   font-weight: 700;
   line-height: 1.35;
 }
 
 @utility body-lg {
-  font-family: var(--font-sans);
+  font-family: var(--sys-font-primary);
   font-size: 1.125rem;
   font-weight: 400;
   line-height: 1.6;
 }
 
 @utility body-md {
-  font-family: var(--font-sans);
+  font-family: var(--sys-font-primary);
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.6;
 }
 
 @utility body-sm {
-  font-family: var(--font-sans);
+  font-family: var(--sys-font-primary);
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.5;
 }
 
 @utility caption {
-  font-family: var(--font-sans);
+  font-family: var(--sys-font-primary);
   font-size: 0.75rem;
   font-weight: 400;
   line-height: 1.4;
 }
 
 @utility label {
-  font-family: var(--font-sans);
+  font-family: var(--sys-font-primary);
   font-size: 0.6875rem;
   font-weight: 600;
   line-height: 1.2;
@@ -163,14 +168,14 @@
 }
 
 @utility button {
-  font-family: var(--font-sans);
+  font-family: var(--sys-font-primary);
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.2;
 }
 
 @utility numeric {
-  font-family: var(--font-sans);
+  font-family: var(--sys-font-primary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -207,6 +212,12 @@
     --sys-radius-md: var(--radius-md);
     --sys-radius-lg: var(--radius-lg);
     --sys-radius-full: var(--radius-full);
+    /* Typography Tokens */
+    --sys-font-primary: var(--font-persian-primary), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --sys-font-sans: var(--sys-font-primary);
+    --sys-font-display: var(--font-persian-display), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --sys-font-heading: var(--sys-font-display);
+    --sys-font-english-title: var(--font-english-title), 'Impact', 'Arial Black', sans-serif;
     /* === END NEW SEMANTIC DESIGN SYSTEM === */
 
     /* Primary Palette - Sky Blue, Gray, Orange */
@@ -423,7 +434,7 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: var(--sys-font-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   transition: background-color var(--motion-normal), color var(--motion-normal);
@@ -438,7 +449,7 @@ body {
    handles all body / UI copy. */
 h1, h2, h3, h4, h5, h6,
 .font-display {
-  font-family: var(--font-display);
+  font-family: var(--sys-font-display);
   letter-spacing: -0.01em;
 }
 :lang(fa) h1,
