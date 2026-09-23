@@ -8,6 +8,7 @@ export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof cardVariants> {
   hoverable?: boolean;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
@@ -16,6 +17,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <GlassCard
         className={cn(cardVariants(), className)}
         hoverable={hoverable}
+        {...(ref ? { ref } : {})}
         {...props}
       >
         {children}
