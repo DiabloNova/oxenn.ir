@@ -350,7 +350,10 @@
     --sys-warning: var(--color-warning);
     --sys-error: var(--color-error);
     --sys-info: var(--color-info);
-    /* Radii typically inherited, but defined here if needed */
+    --sys-radius-sm: var(--radius-sm);
+    --sys-radius-md: var(--radius-md);
+    --sys-radius-lg: var(--radius-lg);
+    --sys-radius-full: var(--radius-full);
     /* === END NEW SEMANTIC DESIGN SYSTEM === */
 
     --color-primary-600: var(--sky-blue-600);
