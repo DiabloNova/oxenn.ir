@@ -2,6 +2,21 @@
 
 import React, { useEffect } from "react";
 import { Button } from "./Button";
+import { cn, cva } from "@/lib/utils";
+
+export const dialogOverlayVariants = cva(
+  "fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+);
+
+export const dialogContentVariants = cva(
+  "relative bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] w-full max-w-lg overflow-hidden animate-in fade-in-50 duration-150 z-10"
+);
+
+export const dialogHeaderVariants = cva(
+  "px-6 py-4 border-b border-[var(--border)] flex items-center justify-between"
+);
+
+export const dialogBodyVariants = cva("p-6 overflow-y-auto max-h-[70vh]");
 
 export interface DialogProps {
   isOpen: boolean;
@@ -38,7 +53,7 @@ export const Dialog: React.FC<DialogProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        className={cn(dialogOverlayVariants())}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -48,10 +63,12 @@ export const Dialog: React.FC<DialogProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className="relative bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] w-full max-w-lg overflow-hidden animate-in fade-in-50 duration-150 z-10"
+        className={cn(dialogContentVariants())}
       >
-        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
-          <h2 id="dialog-title" className="text-lg font-bold text-[var(--text-primary)]">{title}</h2>
+        <div className={cn(dialogHeaderVariants())}>
+          <h2 id="dialog-title" className="text-lg font-bold text-[var(--text-primary)]">
+            {title}
+          </h2>
           <Button
             variant="ghost"
             size="sm"
@@ -63,7 +80,7 @@ export const Dialog: React.FC<DialogProps> = ({
           </Button>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
+        <div className={cn(dialogBodyVariants())}>
           {children}
         </div>
       </div>
