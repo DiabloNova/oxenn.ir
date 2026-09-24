@@ -183,9 +183,9 @@ export default function DashboardSidebar({
             )}
           </button>
 
-          {/* Children / Accordion list */}
+          {/* Children / Accordion list using CSS logical properties */}
           {hasChildren && isExpanded && (!collapsed || isMobileState) && (
-            <div className={`space-y-1 ${isRtl ? "pr-6 border-r border-[var(--border)]" : "pl-6 border-l border-[var(--border)]"} mt-1 mr-2 ml-2`}>
+            <div className="space-y-1 ps-6 border-s border-[var(--border)] mt-1 mx-2">
               {item.children?.map((child) => {
                 const isChildActiveRoute = isRouteActive(child.href);
                 return (
@@ -284,7 +284,7 @@ export default function DashboardSidebar({
     <>
       {/* DESKTOP SIDEBAR CONTAINER (Hidden on Mobile <768px) */}
       <aside
-        className={`hidden md:flex flex-col h-screen sticky top-0 bg-[var(--card)] border-r border-l border-[var(--border)] transition-all duration-300 shrink-0 z-30 select-none overflow-hidden
+        className={`hidden md:flex flex-col h-screen sticky top-0 bg-[var(--card)] border-e border-s border-[var(--border)] transition-all duration-300 shrink-0 z-30 select-none overflow-hidden
           ${collapsed ? "w-20" : "w-64 lg:w-72"}`}
         dir={direction}
       >
@@ -324,7 +324,7 @@ export default function DashboardSidebar({
               animate={{ x: 0 }}
               exit={{ x: isRtl ? "100%" : "-100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-              className={`absolute top-0 bottom-0 ${isRtl ? "right-0" : "left-0"} w-80 max-w-[85vw] bg-[var(--card)] border-r border-l border-[var(--border)] flex flex-col shadow-2xl overflow-hidden`}
+              className="absolute top-0 bottom-0 start-0 w-80 max-w-[85vw] bg-[var(--card)] border-e border-s border-[var(--border)] flex flex-col shadow-2xl overflow-hidden"
             >
               {/* Close Button floating top inner */}
               <button

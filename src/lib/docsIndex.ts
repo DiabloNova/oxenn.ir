@@ -10,22 +10,6 @@ export interface DocMeta {
 
 export const DOCS_INDEX: DocMeta[] = [
   {
-    slug: "FE-001-BASELINE",
-    titleEn: "FE-001: Baseline Capture",
-    titleFa: "FE-001: Baseline Capture",
-    category: "product",
-    categoryFa: "Product",
-    snippet: `# FE-001: Baseline Capture  ## Objective Establish visual and technical baselines for the application before beginning the Phase 1 architectural migration.  ## Route Inventory The application uses Next.js App Router with a \`[locale]\` dynamic segment for internationalization (\`en\` and \`fa\`).   ### Public Routes - \`/\` (Home) - \`/about\` - \`/blog\` - \`/contact\` - \`/docs\` - \`/docs/[slug]\` - \`/features\` - \`/industries\` - \`/pricing\` - \`/privacy\` - \`/resources\` - \`/services\` - \`/services/[slug]\` - \`/solu`
-  },
-  {
-    slug: "FRONTEND-TRANSFORMATION-PLAN",
-    titleEn: "Frontend Transformation Plan",
-    titleFa: "Frontend Transformation Plan",
-    category: "product",
-    categoryFa: "Product",
-    snippet: `# Frontend Transformation Plan  ## 1. Executive Summary  This document serves as the comprehensive execution blueprint for transforming the current custom frontend into an enterprise-grade bespoke design system. The plan is structured around a two-phase strategy: first stabilizing the architecture and primitives (Phase 1), followed by an intentional visual redesign (Phase 2). This blueprint emphasizes high parallelization, explicit file ownership, and safe, staged token and RTL layout migrations`
-  },
-  {
     slug: "product",
     titleEn: "Seorchable Documentation Architecture",
     titleFa: "Seorchable Documentation Architecture",
@@ -306,6 +290,30 @@ export const DOCS_INDEX: DocMeta[] = [
     snippet: `# Authentication Forensic Audit Report  ## 1. Current Authentication Architecture  The application implements a custom authentication and session management system built heavily around PostgreSQL and Next.js server actions.  - **Identity**: Managed in the \`users\` table, linked to \`organizations\` (workspaces) via \`organization_members\`. - **Sessions**: Uses stateless, cryptographically signed HTTP-only secure cookies (\`seorchable_session\`) initialized upon login. This cookie uses an HMAC SHA-256 `
   },
   {
+    slug: "database_audit",
+    titleEn: "Executive Summary",
+    titleFa: "Executive Summary",
+    category: "database",
+    categoryFa: "Database",
+    snippet: `# Executive Summary  **Verdict: BLOCKER.** The supplied repository snapshot is not production-ready as a database system. PostgreSQL and Drizzle are still the right foundation, but the repository currently contains multiple incompatible schema authorities, a broken executable migration chain, application queries shaped for a different schema family, incomplete authentication and payment persistence, unproven tenant isolation, and production paths that can fall back to local or in-memory behavior`
+  },
+  {
+    slug: "LINT-BASELINE-REPORT",
+    titleEn: "ESLint Baseline Report",
+    titleFa: "ESLint Baseline Report",
+    category: "lint",
+    categoryFa: "lint",
+    snippet: `# ESLint Baseline Report  ## 1. Purpose This document establishes the verified historical baseline of ESLint violations in the repository. It serves as the durable handoff for future execution sessions to understand the known evidence, the repository's lint architecture, and the boundaries of current knowledge.  ## 2. Investigation Context An investigation was conducted to analyze reported ESLint failures. The investigation verified that the failure is caused by actual lint violations in the rep`
+  },
+  {
+    slug: "LINT-REMEDIATION-PLAN",
+    titleEn: "ESLint Remediation Plan",
+    titleFa: "ESLint Remediation Plan",
+    category: "lint",
+    categoryFa: "lint",
+    snippet: `# ESLint Remediation Plan  ## 1. Objective This document defines a rigorous, executable remediation plan for future Jules sessions to resolve ESLint violations. It establishes how work will be sequenced, discovered, and executed, without prematurely defining unknown file boundaries or task counts.  ## 2. Baseline Reference This plan operates on the evidence documented in \`docs/lint/LINT-BASELINE-REPORT.md\`. The latest verified inventory reported 681 total violations (343 errors, 338 warnings) ac`
+  },
+  {
     slug: "product",
     titleEn: "Product Documentation",
     titleFa: "Product Documentation",
@@ -344,6 +352,38 @@ export const DOCS_INDEX: DocMeta[] = [
     category: "services",
     categoryFa: "Services",
     snippet: `# Service Documentation  This section describes the internal application services, their boundaries, and responsibilities.  ## Status Dictionary - **Implemented**: Verified existing service. - **Partial**: Service exists but is missing functionality. - **Planned**: Not currently implemented.  ## Core Services  ### Asynchronous Job Processing (\`src/services/jobs/\`) Defines a canonical, infrastructure-agnostic background processing boundary via \`IJobQueue\`, \`IJobExecutor\`, and \`IJobRepository\` int`
+  },
+  {
+    slug: "TASK_ONE",
+    titleEn: "Jules running code review:",
+    titleFa: "Jules running code review:",
+    category: "tasks_reports",
+    categoryFa: "tasks_reports",
+    snippet: `# Jules running code review:  ## Analysis and Reasoning:  **User's Goal**: The user wants to fix a \`Denial of Service (DoS)\` vulnerability in the login flow based on the remediation steps provided in a security audit report. Evaluation of the Solution: Core Functionality: The patch correctly identifies and removes the \`progressiveDelay\` function, which was likely the source of the DoS (by holding open connections with massive asynchronous delays of up to an hour). However, it stops halfway. The `
+  },
+  {
+    slug: "FRONTEND_TRANSFORMATION_PLAN",
+    titleEn: "Frontend Transformation Plan",
+    titleFa: "Frontend Transformation Plan",
+    category: "tasks_reports",
+    categoryFa: "tasks_reports",
+    snippet: `# Frontend Transformation Plan  ## 1. Executive Summary  This document serves as the comprehensive execution blueprint for transforming the current custom frontend into an enterprise-grade bespoke design system. The plan is structured around a two-phase strategy: first stabilizing the architecture and primitives (Phase 1), followed by an intentional visual redesign (Phase 2). This blueprint emphasizes high parallelization, explicit file ownership, and safe, staged token and RTL layout migrations`
+  },
+  {
+    slug: "TASKS_ONE_BASELINE",
+    titleEn: "FE-001: Baseline Capture",
+    titleFa: "FE-001: Baseline Capture",
+    category: "tasks_reports",
+    categoryFa: "tasks_reports",
+    snippet: `# FE-001: Baseline Capture  ## Objective Establish visual and technical baselines for the application before beginning the Phase 1 architectural migration.  ## Route Inventory The application uses Next.js App Router with a \`[locale]\` dynamic segment for internationalization (\`en\` and \`fa\`).  ### Public Routes - \`/\` (Home) - \`/about\` - \`/blog\` - \`/contact\` - \`/docs\` - \`/docs/[slug]\` - \`/features\` - \`/industries\` - \`/pricing\` - \`/privacy\` - \`/resources\` - \`/services\` - \`/services/[slug]\` - \`/solut`
+  },
+  {
+    slug: "TASK_TWO",
+    titleEn: "FE-002: Token Map & Design System Foundation (Addendum)",
+    titleFa: "FE-002: Token Map & Design System Foundation (Addendum)",
+    category: "tasks_reports",
+    categoryFa: "tasks_reports",
+    snippet: `# FE-002: Token Map & Design System Foundation (Addendum)  ## Task Status Completed (radius missing mappings appended to light theme).  ## What was implemented - Added the missing \`--sys-radius-*\` mappings to the \`:root.light\` section of \`src/app/globals.css\`. - Ensured they correctly map to the legacy \`--radius-*\` variables (\`--radius-sm\`, \`--radius-md\`, \`--radius-lg\`, \`--radius-full\`). - Retained all existing legacy mappings and dark theme (\`:root\`) mappings. - No components were migrated or a`
   },
   {
     slug: "user-guides",

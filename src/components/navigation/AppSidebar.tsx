@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import LinkNext from "next/link";
 import { usePathname } from "next/navigation";
@@ -45,24 +45,28 @@ export default function AppSidebar({
   const { session, logout } = useAuth();
   const isFa = language === "fa";
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const [prevMobileOpen, setPrevMobileOpen] = useState<boolean | undefined>(mobileOpen);
 
-  useEffect(() => {
+  if (mobileOpen !== prevMobileOpen) {
+    setPrevMobileOpen(mobileOpen);
     if (mobileOpen !== undefined) {
-      setIsOpen(mobileOpen);
+      setInternalIsOpen(mobileOpen);
     }
-  }, [mobileOpen]);
+  }
+
+  const isOpen = mobileOpen !== undefined ? mobileOpen : internalIsOpen;
 
   const handleToggle = () => {
     const nextState = !isOpen;
-    setIsOpen(nextState);
+    setInternalIsOpen(nextState);
     if (setMobileOpen) {
       setMobileOpen(nextState);
     }
   };
 
   const handleClose = () => {
-    setIsOpen(false);
+    setInternalIsOpen(false);
     if (setMobileOpen) {
       setMobileOpen(false);
     }
@@ -137,9 +141,9 @@ export default function AppSidebar({
 
   return (
     <>
-      {/* HAMBURGER TOGGLE BUTTON IN TOP LEFT (Only if not hideToggle) */}
+      {/* HAMBURGER TOGGLE BUTTON IN TOP START (Only if not hideToggle) */}
       {!hideToggle && (
-        <div className="fixed top-3 left-4 z-[60]">
+        <div className="fixed top-3 start-4 z-[60]">
           <button
             onClick={handleToggle}
             aria-label={isFa ? "باز کردن منوی ناوبری" : "Toggle navigation menu"}
@@ -192,7 +196,7 @@ export default function AppSidebar({
               animate={{ x: 0 }}
               exit={{ x: isFa ? "100%" : "-100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-              className={`absolute top-0 bottom-0 ${isFa ? "right-0" : "left-0"} w-80 sm:w-85 border-r border-l border-white/10 bg-slate-950/95 text-white shadow-2xl flex flex-col overflow-hidden`}
+              className="absolute top-0 bottom-0 start-0 w-80 sm:w-85 border-e border-s border-white/10 bg-slate-950/95 text-white shadow-2xl flex flex-col overflow-hidden"
             >
               {/* Drawer Header */}
               <div className="h-16 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
