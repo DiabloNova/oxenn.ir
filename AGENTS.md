@@ -117,7 +117,17 @@ The agent MUST NOT begin implementation merely because it has found a file that 
 
 ---
 
-## 4. Actual File Inspection Is Mandatory
+## 4. Mandatory Read-Only Documentation Review Rule
+
+Before planning any task, the agent MUST inspect the relevant reports, logs, audits, implementation plans, findings, and other documentation **only** under the `docs/` directory and use the *relevant Markdown (`*.md`) files* as the basis for the task's plan.
+
+*Relevant Markdown files*  in this rule are any `*.md` files under `docs/` whose subject is directly relevant to the current task.
+
+If the task prompt explicitly instructs the agent to read specific files or documents under `docs/`, the prompt's explicit instruction OVERRIDES this rule, and the agent MUST follow the prompt's instruction exactly.
+
+---
+
+## 5. Actual File Inspection Is Mandatory
 
 When a conclusion depends on file contents, the agent MUST read the actual file.
 
@@ -143,7 +153,7 @@ when it only inspected a search result, index, snapshot, or summary.
 
 ---
 
-## 5. No Fabrication or Unverified Claims
+## 6. No Fabrication or Unverified Claims
 
 The agent MUST NOT fabricate repository facts.
 
@@ -171,7 +181,7 @@ Do not convert missing evidence into an assumption.
 
 ---
 
-## 6. Fact, Inference, Assumption, and Conflict
+## 7. Fact, Inference, Assumption, and Conflict
 
 The agent MUST distinguish between different levels of certainty.
 
@@ -205,7 +215,7 @@ The agent MUST NOT present an inference or assumption as a fact.
 
 ---
 
-## 7. Contradiction Protocol
+## 8. Contradiction Protocol
 
 If relevant repository sources disagree, the agent MUST NOT silently choose one interpretation.
 
@@ -254,7 +264,7 @@ Use this reporting format:
 
 ---
 
-## 8. Scope Is a Hard Boundary
+## 9. Scope Is a Hard Boundary
 
 The active task and approved `PLAN.md` define what the agent is authorized to change.
 
@@ -293,7 +303,7 @@ Use:
 
 ---
 
-## 9. No Opportunistic Refactoring
+## 10. No Opportunistic Refactoring
 
 Unless explicitly authorized, the agent MUST NOT:
 
@@ -318,7 +328,7 @@ The phrase "while I was here" is not sufficient authorization for an additional 
 
 ---
 
-## 10. Git Safety
+## 11. Git Safety
 
 The agent MUST preserve the existing Git history and all pre-existing user work.
 
@@ -357,7 +367,7 @@ Unexpected existing changes MUST be preserved.
 
 ---
 
-## 11. Destructive Operations Require Explicit Authorization
+## 12. Destructive Operations Require Explicit Authorization
 
 The agent MUST treat destructive or potentially irreversible operations as blocked unless explicitly authorized.
 
@@ -383,7 +393,7 @@ If a destructive operation appears necessary but is not explicitly authorized, S
 
 ---
 
-## 12. Database Work Is High Risk
+## 13. Database Work Is High Risk
 
 Database changes require a higher level of verification than ordinary application changes.
 
@@ -416,7 +426,7 @@ The agent MUST NOT:
 
 ---
 
-## 13. Migration Tool Conflicts Must Stop the Operation
+## 14. Migration Tool Conflicts Must Stop the Operation
 
 If a migration tool reports or presents:
 
@@ -449,7 +459,7 @@ A migration generator is a tool, not an authority that can independently decide 
 
 ---
 
-## 14. Generated Artifacts
+## 15. Generated Artifacts
 
 Generated artifacts are evidence, not automatically authoritative truth.
 
@@ -472,7 +482,21 @@ The agent MUST NOT modify generated artifacts merely to hide an underlying incon
 
 ---
 
-## 15. Phase Discipline
+## 16.Mandatory Task Report Rule
+
+After completing every task and before publishing its branch, the agent MUST create a Markdown (`.md`) report documenting the completed task, changes, validation results, and any actual remaining issues.
+
+The report MUST be added under the appropriate directory within:
+- `docs/tasks_reports/front_end_reports/` for frontend tasks.
+- `docs/tasks_reports/database/` for database tasks.
+- `docs/tasks_reports/authentication_tasks_reports/` for authentication tasks.
+- If the task belongs to another distinct domain, the agent MUST create an appropriately named directory under `docs/tasks_reports/` and place the report there.
+
+If another task-specific instruction explicitly defines a different report location or format, that explicit instruction takes precedence over this rule.
+
+---
+
+## 17. Phase Discipline
 
 Work MUST be divided into explicit phases when the active plan defines phases.
 
@@ -497,7 +521,7 @@ If a phase fails, the agent MUST stop unless the active plan explicitly defines 
 
 ---
 
-## 16. Stop Conditions
+## 18. Stop Conditions
 
 The agent MUST STOP rather than improvise when any of the following occurs:
 
@@ -540,7 +564,7 @@ When stopping, report:
 
 ---
 
-## 17. Verification Is Mandatory
+## 19. Verification Is Mandatory
 
 Changing files is not verification.
 
@@ -582,7 +606,7 @@ Avoid statements such as:
 
 ---
 
-## 18. Verification Must Test the Requirement, Not Merely the Edit
+## 20. Verification Must Test the Requirement, Not Merely the Edit
 
 The agent MUST verify the actual requirement being changed.
 
@@ -599,7 +623,7 @@ Verification MUST correspond to the acceptance criteria.
 
 ---
 
-## 19. Test Integrity
+## 21. Test Integrity
 
 Tests are evidence, not unquestionable authority.
 
@@ -621,7 +645,7 @@ If not, report the issue separately.
 
 ---
 
-## 20. Security-Sensitive Work
+## 22. Security-Sensitive Work
 
 The following areas require explicit security consideration:
 
@@ -655,7 +679,7 @@ If security behavior is unclear, STOP.
 
 ---
 
-## 21. Authentication and Authorization
+## 23. Authentication and Authorization
 
 Authentication and authorization changes MUST be treated as security-sensitive changes.
 
@@ -686,7 +710,7 @@ Do not infer server security from client-side checks.
 
 ---
 
-## 22. Secrets and Sensitive Data
+## 24. Secrets and Sensitive Data
 
 The agent MUST NOT expose secrets or credentials in:
 
@@ -709,7 +733,7 @@ Raw authentication tokens, password-reset tokens, session secrets, API keys, cre
 
 ---
 
-## 23. Production Safety
+## 25. Production Safety
 
 Unless explicitly authorized, the agent MUST assume that production systems and production data are protected.
 
@@ -728,7 +752,7 @@ Prefer local, test, dry-run, or inspection-only procedures.
 
 ---
 
-## 24. Preserve User Work
+## 26. Preserve User Work
 
 Pre-existing changes may belong to the user or another process.
 
@@ -746,37 +770,17 @@ If safe modification cannot be guaranteed, STOP.
 
 ---
 
-## 25. Repository-Wide Audit Requirements
+## 27. Mandatory Repository Context Rule
 
-If the task is described as:
+Before planning or executing any audit, the agent MUST first read `docs/REPOSITORY_CONTEXT.md` to establish the current repository structure, architecture, technologies, conventions, known constraints, and previously verified findings.
 
-- `audit`;
-- `360° audit`;
-- `complete repository analysis`;
-- `repository review`;
-- `database audit`;
-- `architecture audit`;
-- `security audit`;
-- `full analysis`;
+The agent MUST then validate the relevant information against the current repository state before relying on it for the task.
 
-the agent MUST NOT perform a narrow spot-check and call it a complete audit.
-
-The agent MUST:
-
-1. Define the inspection surface.
-2. Inspect the relevant areas systematically.
-3. Record what was actually inspected.
-4. Identify areas that were not inspected.
-5. Distinguish verified findings from hypotheses.
-6. Report contradictions.
-7. Report unresolved areas.
-8. Avoid claiming completeness without corresponding evidence.
-
-A repository-wide claim requires repository-wide evidence.
+After completing a task that materially changes the repository's architecture, structure, technologies, conventions, or known constraints, the agent MUST update `docs/REPOSITORY_CONTEXT.md` with the verified changes.
 
 ---
 
-## 26. Search Is a Discovery Mechanism
+## 28. Search Is a Discovery Mechanism
 
 Search is useful for finding candidate files and symbols.
 
@@ -788,7 +792,7 @@ The agent MUST NOT make a repository-wide claim from a single search result.
 
 ---
 
-## 27. Previous Agent Reports Are Not Authority
+## 29. Previous Agent Reports Are Not Authority
 
 Previous agent output is historical evidence.
 
@@ -807,7 +811,7 @@ The live repository takes precedence over previous agent reports.
 
 ---
 
-## 28. Documentation Must Not Override Reality
+## 30. Documentation Must Not Override Reality
 
 Documentation may describe intended behavior rather than current behavior.
 
@@ -819,7 +823,7 @@ Likewise, the agent MUST NOT silently modify documentation to hide an implementa
 
 ---
 
-## 29. Required Alignment Before Implementation
+## 31. Required Alignment Before Implementation
 
 Before implementation begins, the agent MUST be able to identify:
 
@@ -842,7 +846,7 @@ If repository evidence cannot resolve it, STOP and report it.
 
 ---
 
-## 30. Change Minimality
+## 32. Change Minimality
 
 When implementation is authorized, the agent MUST prefer the smallest change that fully satisfies the requirement.
 
@@ -861,7 +865,7 @@ Do not omit required changes merely to keep the patch small.
 
 ---
 
-## 31. No Silent Recovery
+## 33. No Silent Recovery
 
 When a command fails, the agent MUST NOT immediately try unrelated or increasingly destructive commands until something succeeds.
 
@@ -880,7 +884,7 @@ The original failure and the recovery must both be reported.
 
 ---
 
-## 32. No Tool-Driven Authority
+## 34. No Tool-Driven Authority
 
 A tool does not determine project intent.
 
@@ -903,7 +907,7 @@ It is not authorization.
 
 ---
 
-## 33. End-of-Phase State Capture
+## 35. End-of-Phase State Capture
 
 At the end of each phase, the agent MUST inspect and record the resulting state relevant to that phase.
 
@@ -925,7 +929,7 @@ It MUST NOT begin from an assumed state.
 
 ---
 
-## 34. Final Status Rules
+## 36. Final Status Rules
 
 The agent MUST use precise final status terminology.
 
@@ -971,7 +975,7 @@ Do not use "complete" as a synonym for "I changed the files."
 
 ---
 
-## 35. Required Final Report Structure
+## 37. Required Final Report Structure
 
 For implementation tasks, the final report MUST contain, as applicable:
 
@@ -1012,7 +1016,7 @@ The report MUST describe observed results, not merely repeat the intended plan.
 
 ---
 
-## 36. Evidence Standard
+## 38. Evidence Standard
 
 Every important claim in an agent report MUST be traceable to evidence.
 
@@ -1042,7 +1046,7 @@ For example:
 
 ---
 
-## 37. Agent Must Not Hide Uncertainty
+## 39. Agent Must Not Hide Uncertainty
 
 If the evidence is incomplete, the agent MUST explicitly state the limitation.
 
@@ -1060,7 +1064,7 @@ Uncertainty MUST be surfaced, not concealed by confident language.
 
 ---
 
-## 38. Relationship With Other Repository Control Documents
+## 40. Relationship With Other Repository Control Documents
 
 This repository may contain additional control documents, including:
 
@@ -1089,7 +1093,51 @@ A procedure does not authorize destructive operations by itself.
 
 ---
 
-## 39. Priority of Explicit Instructions
+## 41. Visual Verification Requirement
+
+For any task that modifies frontend code, UI components, layouts, styling, navigation, responsive behavior, localization, theming, or any other code that can affect the rendered appearance or behavior of the website, visual verification is mandatory before the task is considered complete.
+
+The agent must:
+
+1. Run the application in a usable environment and navigate to the relevant page(s) affected by the change.
+2. Capture screenshots of the affected UI in all four required states:
+   - English locale + light theme
+   - English locale + dark theme
+   - Persian locale + light theme
+   - Persian locale + dark theme
+3. Display all four screenshots in the final task result.
+4. Ensure the screenshots show enough surrounding page context to verify the affected component in its actual application environment.
+5. Inspect the screenshots for:
+   - LTR/RTL directionality
+   - Layout and alignment
+   - Spacing and positioning
+   - Typography and text rendering
+   - Light/dark theme behavior
+   - Responsive behavior where relevant
+   - Overflow, clipping, wrapping, or visual regressions
+   - Navigation and interaction states where relevant
+6. Report the visual verification result explicitly in the final report.
+
+The four-state screenshot requirement applies even when the implementation change appears small or localized if the changed code can affect the rendered UI.
+
+For frontend tasks that are inherently locale- or theme-specific, the agent must still capture the four required combinations unless the relevant application state genuinely does not support one of them.
+
+If a required locale, theme, route, environment, or screenshot cannot be reached or captured, the agent must report the exact reason and identify visual verification as incomplete. The task must not be reported as fully verified.
+
+Linting, type-checking, tests, and build success do not substitute for visual verification.
+
+For changes that are not directly frontend changes but can affect the rendered website, the same visual verification requirement applies.
+
+The final report must include:
+- The affected page(s) or UI areas
+- The four required visual states
+- The screenshots
+- Any observed visual issue
+- Any state that could not be verified and the exact reason.
+
+---
+
+## 42. Priority of Explicit Instructions
 
 The agent MUST distinguish between:
 
@@ -1106,7 +1154,7 @@ When instructions conflict, the agent MUST follow the applicable higher-priority
 
 ---
 
-## 40. Final Operating Rule
+## 43. Final Operating Rule
 
 The repository is not considered healthy merely because the requested change can be made.
 
