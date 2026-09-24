@@ -1,20 +1,19 @@
 import {
   pgTable,
   uuid,
-  integer,
   text,
-  jsonb,
   timestamp,
-  pgPolicy,
-  index
+  integer,
+  index,
+  pgPolicy
 } from "drizzle-orm/pg-core";
-import { sql, relations } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { organizations } from "./organization";
 
 const defaultUuid = sql`gen_random_uuid()`;
 const defaultNow = sql`NOW()`;
 
-function tenantPolicy(colName: "organization_id" | "tenant_id" = "organization_id") {
+function tenantPolicy(colName: "organization_id" = "organization_id") {
   return [
     pgPolicy(`select_${colName}_isolation_policy`, {
       for: "select",
@@ -36,25 +35,22 @@ function tenantPolicy(colName: "organization_id" | "tenant_id" = "organization_i
   ];
 }
 
-export const creditTransactions = pgTable("credit_transactions", {
+export const brands = pgTable("brands", {
   id: uuid("id").primaryKey().default(defaultUuid),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  amount: integer("amount").notNull(),
-  transactionType: text("transaction_type"), // allocation, consumption, refund
-  feature: text("feature"),
-  description: text("description"),
-  referenceId: text("reference_id"),
-  metadata: jsonb("metadata").default({}),
+  name: text("name").notNull(),
+  canonicalDomain: text("canonical_domain").notNull(),
+  aliases: text("aliases").array().notNull().default(sql`'{}'::text[]`),
+  industry: text("industry").notNull(),
+  targetMarkets: text("target_markets").array().notNull().default(sql`'{}'::text[]`),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
+  createdBy: text("created_by").notNull().default("system"),
+  updatedBy: text("updated_by").notNull().default("system"),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  version: integer("version").notNull().default(1),
 }, (table) => [
-  index("idx_credit_transactions_org").on(table.organizationId),
-  index("idx_credit_transactions_feature").on(table.feature),
+  index("idx_brands_organization").on(table.organizationId),
+  index("idx_brands_domain").on(table.canonicalDomain),
   ...tenantPolicy("organization_id")
 ]);
-
-export const creditTransactionsRelations = relations(creditTransactions, ({ one }) => ({
-  organization: one(organizations, {
-    fields: [creditTransactions.organizationId],
-    references: [organizations.id],
-  }),
-}));

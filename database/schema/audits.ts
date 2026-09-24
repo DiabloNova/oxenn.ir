@@ -13,7 +13,7 @@ import { organizations, users } from "./organization";
 const defaultUuid = sql`gen_random_uuid()`;
 const defaultNow = sql`NOW()`;
 
-function tenantPolicy(colName: "workspace_id" = "workspace_id") {
+function tenantPolicy(colName: "organization_id" = "organization_id") {
   return [
     pgPolicy(`select_${colName}_isolation_policy`, {
       for: "select",
@@ -37,7 +37,7 @@ function tenantPolicy(colName: "workspace_id" = "workspace_id") {
 
 export const audits = pgTable("audits", {
   id: uuid("id").primaryKey().default(defaultUuid),
-  workspaceId: uuid("workspace_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   url: text("url").notNull(),
   status: text("status").notNull().default("pending"),
@@ -47,15 +47,15 @@ export const audits = pgTable("audits", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [
-  index("idx_audits_workspace").on(table.workspaceId),
+  index("idx_audits_organization").on(table.organizationId),
   index("idx_audits_user").on(table.userId),
   index("idx_audits_status").on(table.status),
-  ...tenantPolicy("workspace_id")
+  ...tenantPolicy("organization_id")
 ]);
 
 export const auditsRelations = relations(audits, ({ one }) => ({
-  workspace: one(organizations, {
-    fields: [audits.workspaceId],
+  organization: one(organizations, {
+    fields: [audits.organizationId],
     references: [organizations.id],
   }),
   user: one(users, {

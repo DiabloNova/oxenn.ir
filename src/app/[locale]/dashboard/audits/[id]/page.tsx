@@ -12,7 +12,7 @@ import { getAuditAction } from "@/app/actions/audit";
 
 type AuditRecord = {
   id: string;
-  workspaceId: string;
+  organizationId: string;
   userId: string;
   url: string;
   status: string;

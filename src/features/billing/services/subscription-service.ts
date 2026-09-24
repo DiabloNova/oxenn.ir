@@ -19,7 +19,7 @@ export class SubscriptionService {
     const subs = await db
       .select()
       .from(tenantSubscriptions)
-      .where(eq(tenantSubscriptions.tenantId, tenantId))
+      .where(eq(tenantSubscriptions.organizationId, tenantId))
       .limit(1);
 
     const now = new Date();
@@ -45,7 +45,7 @@ export class SubscriptionService {
     return {
       tenantId,
       effectivePlan,
-      status: isExpired ? "expired" : (sub.status as any),
+      status: isExpired ? "expired" : (sub.status as TenantSubscriptionState["status"]),
       startDate: sub.startDate.toISOString(),
       endDate: sub.endDate.toISOString(),
       isExpired,
@@ -73,7 +73,7 @@ export class SubscriptionService {
     const quotas = await db
       .select()
       .from(tenantQuotas)
-      .where(eq(tenantQuotas.tenantId, tenantId))
+      .where(eq(tenantQuotas.organizationId, tenantId))
       .limit(1);
 
     if (quotas.length === 0) {
@@ -112,7 +112,7 @@ export class SubscriptionService {
       .set({
         creditsBalance: sql`${tenantQuotas.creditsBalance} - ${amount}`
       })
-      .where(eq(tenantQuotas.tenantId, tenantId))
+      .where(eq(tenantQuotas.organizationId, tenantId))
       .returning({ newBalance: tenantQuotas.creditsBalance });
 
     if (result.length === 0) {
@@ -126,14 +126,14 @@ export class SubscriptionService {
         .set({
           creditsBalance: sql`${tenantQuotas.creditsBalance} + ${amount}`
         })
-        .where(eq(tenantQuotas.tenantId, tenantId));
+        .where(eq(tenantQuotas.organizationId, tenantId));
 
       throw new Error("Insufficient credit balance");
     }
 
     // Record the transaction
     await db.insert(creditTransactions).values({
-      tenantId,
+      organizationId: tenantId,
       amount: -amount,
       transactionType: "consumption",
       description,
@@ -157,14 +157,14 @@ export class SubscriptionService {
       .set({
         creditsBalance: sql`${tenantQuotas.creditsBalance} + ${amount}`
       })
-      .where(eq(tenantQuotas.tenantId, tenantId))
+      .where(eq(tenantQuotas.organizationId, tenantId))
       .returning({ id: tenantQuotas.id });
 
     // If quota record doesn't exist, create it (fallback for missing initialization)
     if (result.length === 0) {
         const state = await this.getEffectiveSubscription();
         await db.insert(tenantQuotas).values({
-            tenantId,
+            organizationId: tenantId,
             creditsBalance: amount,
             maxUsers: state.effectivePlan.quotas.maxUsers,
             maxBrands: state.effectivePlan.quotas.maxBrands,
@@ -177,7 +177,7 @@ export class SubscriptionService {
     }
 
     await db.insert(creditTransactions).values({
-      tenantId,
+      organizationId: tenantId,
       amount,
       transactionType: "allocation",
       description,

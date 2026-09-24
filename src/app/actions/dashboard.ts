@@ -22,7 +22,7 @@ export const getDashboardStatsAction = secureServerActionNoInput(
         const allAudits = await db
           .select()
           .from(audits)
-          .where(eq(audits.workspaceId, ctx.workspaceId!));
+          .where(eq(audits.organizationId, ctx.workspaceId!));
 
         const totalAudits = allAudits.length;
         const completedAudits = allAudits.filter(a => a.status === "completed");
@@ -44,7 +44,7 @@ export const getDashboardStatsAction = secureServerActionNoInput(
              if (typeof a.aiInsights === 'string') {
                try {
                  insights = JSON.parse(a.aiInsights);
-               } catch (e) {
+               } catch {
                  insights = {};
                }
              } else if (typeof a.aiInsights === 'object' && !Array.isArray(a.aiInsights) && a.aiInsights !== null) {
