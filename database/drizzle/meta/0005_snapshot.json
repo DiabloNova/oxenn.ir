@@ -620,8 +620,8 @@
       "checkConstraints": {},
       "isRLSEnabled": true
     },
-    "public.aiproviderconfigs": {
-      "name": "aiproviderconfigs",
+    "public.ai_provider_configs": {
+      "name": "ai_provider_configs",
       "schema": "",
       "columns": {
         "id": {
@@ -701,8 +701,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.aivisibilityaudits": {
-      "name": "aivisibilityaudits",
+    "public.ai_visibility_audits": {
+      "name": "ai_visibility_audits",
       "schema": "",
       "columns": {
         "id": {
@@ -862,7 +862,7 @@
       "foreignKeys": {
         "aivisibilityauditsorganizationidorganizationsid_fk": {
           "name": "aivisibilityauditsorganizationidorganizationsid_fk",
-          "tableFrom": "aivisibilityaudits",
+          "tableFrom": "ai_visibility_audits",
           "tableTo": "organizations",
           "columnsFrom": [
             "organization_id"
@@ -1004,7 +1004,7 @@
         "auditpromptsauditidaivisibilityauditsidfk": {
           "name": "auditpromptsauditidaivisibilityauditsidfk",
           "tableFrom": "audit_prompts",
-          "tableTo": "aivisibilityaudits",
+          "tableTo": "ai_visibility_audits",
           "columnsFrom": [
             "audit_id"
           ],
@@ -2465,8 +2465,8 @@
       "checkConstraints": {},
       "isRLSEnabled": true
     },
-    "public.competitiveseofindings": {
-      "name": "competitiveseofindings",
+    "public.competitive_seo_findings": {
+      "name": "competitive_seo_findings",
       "schema": "",
       "columns": {
         "id": {
@@ -2590,7 +2590,7 @@
       "foreignKeys": {
         "competitiveseofindingstenantidorganizationsid_fk": {
           "name": "competitiveseofindingstenantidorganizationsid_fk",
-          "tableFrom": "competitiveseofindings",
+          "tableFrom": "competitive_seo_findings",
           "tableTo": "organizations",
           "columnsFrom": [
             "tenant_id"
@@ -2603,7 +2603,7 @@
         },
         "competitiveseofindingscompetitoridcompetitorsid_fk": {
           "name": "competitiveseofindingscompetitoridcompetitorsid_fk",
-          "tableFrom": "competitiveseofindings",
+          "tableFrom": "competitive_seo_findings",
           "tableTo": "competitors",
           "columnsFrom": [
             "competitor_id"
@@ -4287,8 +4287,8 @@
       "checkConstraints": {},
       "isRLSEnabled": true
     },
-    "public.diagnosticfindingrelationships": {
-      "name": "diagnosticfindingrelationships",
+    "public.diagnostic_finding_relationships": {
+      "name": "diagnostic_finding_relationships",
       "schema": "",
       "columns": {
         "id": {
@@ -4380,7 +4380,7 @@
       "foreignKeys": {
         "diagnosticfindingrelationshipsorganizationidorganizationsid_fk": {
           "name": "diagnosticfindingrelationshipsorganizationidorganizationsid_fk",
-          "tableFrom": "diagnosticfindingrelationships",
+          "tableFrom": "diagnostic_finding_relationships",
           "tableTo": "organizations",
           "columnsFrom": [
             "organization_id"
@@ -4393,7 +4393,7 @@
         },
         "diagnosticfindingrelationshipsparentfindingiddiagnosticfindingsid_fk": {
           "name": "diagnosticfindingrelationshipsparentfindingiddiagnosticfindingsid_fk",
-          "tableFrom": "diagnosticfindingrelationships",
+          "tableFrom": "diagnostic_finding_relationships",
           "tableTo": "diagnostic_findings",
           "columnsFrom": [
             "parentfindingid"
@@ -4406,7 +4406,7 @@
         },
         "diagnosticfindingrelationshipschildfindingiddiagnosticfindingsid_fk": {
           "name": "diagnosticfindingrelationshipschildfindingiddiagnosticfindingsid_fk",
-          "tableFrom": "diagnosticfindingrelationships",
+          "tableFrom": "diagnostic_finding_relationships",
           "tableTo": "diagnostic_findings",
           "columnsFrom": [
             "childfindingid"
