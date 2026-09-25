@@ -339,8 +339,10 @@ export default function AeoPlaygroundPage() {
             size="sm"
             onClick={() => setShowCreateModal(true)}
           >
-            <Plus size={14} />
-            <span>{isRtl ? "خلق قالب پرسش" : "Create Template"}</span>
+            <span className="flex items-center gap-1.5">
+              <Plus size={14} />
+              <span>{isRtl ? "خلق قالب پرسش" : "Create Template"}</span>
+            </span>
           </Button>
         </div>
       </div>
@@ -598,8 +600,10 @@ export default function AeoPlaygroundPage() {
                     disabled={isPending || selectedModels.length === 0}
                     className="w-full"
                   >
-                    <Play size={14} className={cn(isPending && "animate-spin")} />
-                    <span>{isRtl ? "اجرای مقایسه همزمان" : "Execute Model Comparison"}</span>
+                    <span className="flex items-center gap-2">
+                      <Play size={14} className={cn(isPending && "animate-spin")} />
+                      <span>{isRtl ? "اجرای مقایسه همزمان" : "Execute Model Comparison"}</span>
+                    </span>
                   </Button>
                 </CardContent>
               </Card>

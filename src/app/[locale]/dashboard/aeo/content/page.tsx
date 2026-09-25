@@ -157,8 +157,10 @@ export default function AeoContentIntelligenceDashboard() {
             disabled={isLoading || isPending || !selectedPageId}
             className="mbs-4"
           >
-            <RefreshCw className={cn("w-3.5 h-3.5", isPending && "animate-spin")} />
-            <span>{isRtl ? "تحلیل مجدد محتوا" : "Re-run Content Analysis"}</span>
+            <span className="flex items-center gap-1.5">
+              <RefreshCw className={cn("w-3.5 h-3.5", isPending && "animate-spin")} />
+              <span>{isRtl ? "تحلیل مجدد محتوا" : "Re-run Content Analysis"}</span>
+            </span>
           </Button>
         </div>
       </div>

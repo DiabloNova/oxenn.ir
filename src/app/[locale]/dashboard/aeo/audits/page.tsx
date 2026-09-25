@@ -165,8 +165,10 @@ export default function AeoAuditsPage() {
             disabled={isLoading || isPending || !selectedBrandId}
             className="mbs-4"
           >
-            <RefreshCw className={cn("w-3.5 h-3.5", isPending && "animate-spin")} />
-            <span>{isRtl ? "اجرای پایش هوشمند جدید" : "Run AI Visibility Audit"}</span>
+            <span className="flex items-center gap-1.5">
+              <RefreshCw className={cn("w-3.5 h-3.5", isPending && "animate-spin")} />
+              <span>{isRtl ? "اجرای پایش هوشمند جدید" : "Run AI Visibility Audit"}</span>
+            </span>
           </Button>
         </div>
       </div>
@@ -205,8 +207,10 @@ export default function AeoAuditsPage() {
             onClick={triggerNewAudit}
             className="mbs-5"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>{isRtl ? "اولین سنجش را اجرا کنید" : "Begin Verification Process"}</span>
+            <span className="flex items-center gap-1.5">
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>{isRtl ? "اولین سنجش را اجرا کنید" : "Begin Verification Process"}</span>
+            </span>
           </Button>
         </Card>
       )}
