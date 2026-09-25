@@ -266,7 +266,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -275,7 +275,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -284,8 +284,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -294,7 +294,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -586,7 +586,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -595,7 +595,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -604,8 +604,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -614,7 +614,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -884,7 +884,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -893,7 +893,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -902,8 +902,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -912,7 +912,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -1038,7 +1038,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -1047,7 +1047,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -1056,8 +1056,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -1066,7 +1066,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -1358,7 +1358,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -1367,7 +1367,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -1376,8 +1376,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -1386,7 +1386,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -1566,7 +1566,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -1575,7 +1575,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -1584,8 +1584,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -1594,7 +1594,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -1748,7 +1748,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -1757,7 +1757,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -1766,8 +1766,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -1776,7 +1776,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -1929,7 +1929,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -1938,7 +1938,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -1947,8 +1947,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -1957,7 +1957,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -2104,7 +2104,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -2113,7 +2113,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -2122,8 +2122,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -2132,7 +2132,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -2312,7 +2312,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -2321,7 +2321,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -2330,8 +2330,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -2340,7 +2340,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -2431,7 +2431,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -2440,7 +2440,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -2449,8 +2449,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -2459,7 +2459,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -2625,7 +2625,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -2634,7 +2634,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -2643,8 +2643,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -2653,7 +2653,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {
@@ -2812,7 +2812,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -2821,7 +2821,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -2830,8 +2830,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -2840,7 +2840,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -3035,7 +3035,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -3044,7 +3044,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -3053,8 +3053,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -3063,7 +3063,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -3224,7 +3224,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -3233,7 +3233,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -3242,8 +3242,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -3252,7 +3252,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -3344,7 +3344,21 @@
           "with": {}
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "crawl_cache_organization_id_organizations_id_fk": {
+          "name": "crawl_cache_organization_id_organizations_id_fk",
+          "tableFrom": "crawl_cache",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {
@@ -3355,7 +3369,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -3364,7 +3378,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -3373,8 +3387,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -3383,7 +3397,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {
@@ -3719,7 +3733,21 @@
           "with": {}
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "crawl_jobs_organization_id_organizations_id_fk": {
+          "name": "crawl_jobs_organization_id_organizations_id_fk",
+          "tableFrom": "crawl_jobs",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {
@@ -3730,7 +3758,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -3739,7 +3767,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -3748,8 +3776,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -3758,7 +3786,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {
@@ -3861,8 +3889,21 @@
         }
       },
       "foreignKeys": {
-        "crawlresultsjobidcrawljobsid_fk": {
-          "name": "crawlresultsjobidcrawljobsid_fk",
+        "crawl_results_organization_id_organizations_id_fk": {
+          "name": "crawl_results_organization_id_organizations_id_fk",
+          "tableFrom": "crawl_results",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "crawl_results_job_id_crawl_jobs_id_fk": {
+          "name": "crawl_results_job_id_crawl_jobs_id_fk",
           "tableFrom": "crawl_results",
           "tableTo": "crawl_jobs",
           "columnsFrom": [
@@ -3885,7 +3926,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -3894,7 +3935,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -3903,8 +3944,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -3913,7 +3954,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -4142,7 +4183,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -4151,7 +4192,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -4160,8 +4201,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -4170,7 +4211,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -4253,7 +4294,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -4262,7 +4303,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -4271,8 +4312,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -4281,7 +4322,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -4428,7 +4469,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -4437,7 +4478,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -4446,8 +4487,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -4456,7 +4497,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -4629,7 +4670,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -4638,7 +4679,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -4647,8 +4688,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -4657,7 +4698,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -4735,7 +4776,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -4744,7 +4785,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -4753,8 +4794,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -4763,7 +4804,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -4910,7 +4951,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -4919,7 +4960,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -4928,8 +4969,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -4938,7 +4979,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -5126,7 +5167,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -5135,7 +5176,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -5144,8 +5185,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -5154,7 +5195,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -5287,7 +5328,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -5296,7 +5337,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -5305,8 +5346,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -5315,7 +5356,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -5549,7 +5590,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -5558,7 +5599,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -5567,8 +5608,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -5577,7 +5618,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -5743,7 +5784,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -5752,7 +5793,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -5761,8 +5802,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -5771,7 +5812,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -5883,7 +5924,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -5892,7 +5933,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -5901,8 +5942,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -5911,7 +5952,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -6050,7 +6091,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -6059,7 +6100,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -6068,8 +6109,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -6078,7 +6119,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -6192,7 +6233,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -6201,7 +6242,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -6210,8 +6251,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -6220,7 +6261,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -6381,7 +6422,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -6390,7 +6431,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -6399,8 +6440,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -6409,7 +6450,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -6587,7 +6628,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -6596,7 +6637,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -6605,8 +6646,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -6615,7 +6656,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -6748,7 +6789,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -6757,7 +6798,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -6766,8 +6807,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -6776,7 +6817,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -6902,7 +6943,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -6911,7 +6952,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -6920,8 +6961,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -6930,7 +6971,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -7056,7 +7097,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -7065,7 +7106,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -7074,8 +7115,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -7084,7 +7125,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -7199,7 +7240,7 @@
           "to": [
             "public"
           ],
-          "using": "\"id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_org_isolation_policy": {
           "name": "insert_org_isolation_policy",
@@ -7208,7 +7249,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_org_isolation_policy": {
           "name": "update_org_isolation_policy",
@@ -7217,8 +7258,8 @@
           "to": [
             "public"
           ],
-          "using": "\"id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_org_isolation_policy": {
           "name": "delete_org_isolation_policy",
@@ -7227,7 +7268,7 @@
           "to": [
             "public"
           ],
-          "using": "\"id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -7479,7 +7520,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -7488,7 +7529,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -7497,8 +7538,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -7507,7 +7548,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -7626,7 +7667,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -7635,7 +7676,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -7644,8 +7685,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -7654,7 +7695,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -7773,7 +7814,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -7782,7 +7823,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -7791,8 +7832,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -7801,7 +7842,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -7920,7 +7961,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -7929,7 +7970,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -7938,8 +7979,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -7948,7 +7989,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -8152,7 +8193,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -8161,7 +8202,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -8170,8 +8211,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -8180,7 +8221,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -8295,7 +8336,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -8304,7 +8345,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -8313,8 +8354,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -8323,7 +8364,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -8517,7 +8558,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -8526,7 +8567,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -8535,8 +8576,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -8545,7 +8586,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -8746,7 +8787,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -8755,7 +8796,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -8764,8 +8805,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -8774,7 +8815,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {
@@ -8930,7 +8971,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -8939,7 +8980,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -8948,8 +8989,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -8958,7 +8999,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -9124,7 +9165,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -9133,7 +9174,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -9142,8 +9183,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -9152,7 +9193,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -9305,7 +9346,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -9314,7 +9355,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -9323,8 +9364,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -9333,7 +9374,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -9517,7 +9558,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -9526,7 +9567,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -9535,8 +9576,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -9545,7 +9586,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -9782,7 +9823,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -9791,7 +9832,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -9800,8 +9841,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -9810,7 +9851,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -9946,7 +9987,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -9955,7 +9996,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -9964,8 +10005,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -9974,7 +10015,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -10083,7 +10124,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -10092,7 +10133,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -10101,8 +10142,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -10111,7 +10152,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -10278,7 +10319,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -10287,7 +10328,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -10296,8 +10337,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -10306,7 +10347,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -10418,7 +10459,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -10427,7 +10468,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -10436,8 +10477,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -10446,7 +10487,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -10696,7 +10737,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -10705,7 +10746,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -10714,8 +10755,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -10724,7 +10765,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -10890,7 +10931,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -10899,7 +10940,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -10908,8 +10949,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -10918,7 +10959,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       },
       "checkConstraints": {},
@@ -11078,7 +11119,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "insert_organization_id_isolation_policy": {
           "name": "insert_organization_id_isolation_policy",
@@ -11087,7 +11128,7 @@
           "to": [
             "public"
           ],
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "update_organization_id_isolation_policy": {
           "name": "update_organization_id_isolation_policy",
@@ -11096,8 +11137,8 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid",
-          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid",
+          "withCheck": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         },
         "delete_organization_id_isolation_policy": {
           "name": "delete_organization_id_isolation_policy",
@@ -11106,7 +11147,7 @@
           "to": [
             "public"
           ],
-          "using": "\"organization_id\" = NULLIF(current_setting('app.current_organization_id', true), '')::uuid"
+          "using": "\"organization_id\" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid"
         }
       }
     },
