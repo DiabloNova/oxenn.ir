@@ -27,6 +27,9 @@ export async function runMigrations(databaseUrl?: string) {
     });
 
     console.log("[Migration Runner] All migrations applied successfully.");
+  } catch (error) {
+    console.error("[Migration Runner] Migration execution failed:", error);
+    throw error;
   } finally {
     await pool.end();
   }

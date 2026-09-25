@@ -588,6 +588,26 @@ CREATE POLICY "update_tenant_id_isolation_policy" ON kg_alignments FOR UPDATE US
 DROP POLICY IF EXISTS "delete_tenant_id_isolation_policy" ON kg_alignments;
 CREATE POLICY "delete_tenant_id_isolation_policy" ON kg_alignments FOR DELETE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
 
+CREATE TABLE IF NOT EXISTS automated_recommendations (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"organization_id" uuid NOT NULL CONSTRAINT "automated_recommendations_organization_id_organizations_id_fk" REFERENCES organizations(id) ON DELETE CASCADE,
+	"website_id" uuid CONSTRAINT "automated_recommendations_website_id_websites_id_fk" REFERENCES websites(id) ON DELETE CASCADE,
+	"title" text NOT NULL,
+	"description" text NOT NULL,
+	"type" text NOT NULL,
+	"priority_score" integer NOT NULL,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"recommended_action" jsonb DEFAULT '{}'::jsonb NOT NULL,
+	"dedup_key" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT NOW() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS "idx_automated_recs_org" ON automated_recommendations USING btree ("organization_id");
+CREATE INDEX IF NOT EXISTS "idx_automated_recs_status" ON automated_recommendations USING btree ("status");
+CREATE INDEX IF NOT EXISTS "idx_automated_recs_score" ON automated_recommendations USING btree ("priority_score");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_automated_recs_dedup" ON automated_recommendations USING btree ("organization_id", "dedup_key") WHERE status = 'pending';
+
 ALTER TABLE automated_recommendations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE automated_recommendations FORCE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "select_organization_id_isolation_policy" ON automated_recommendations;
@@ -675,44 +695,44 @@ CREATE POLICY "delete_tenant_id_isolation_policy" ON kg_relationships FOR DELETE
 ALTER TABLE crawl_jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE crawl_jobs FORCE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "select_tenant_id_isolation_policy" ON crawl_jobs;
-CREATE POLICY "select_tenant_id_isolation_policy" ON crawl_jobs FOR SELECT USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "select_tenant_id_isolation_policy" ON crawl_jobs FOR SELECT USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 DROP POLICY IF EXISTS "insert_tenant_id_isolation_policy" ON crawl_jobs;
-CREATE POLICY "insert_tenant_id_isolation_policy" ON crawl_jobs FOR INSERT WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "insert_tenant_id_isolation_policy" ON crawl_jobs FOR INSERT WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 DROP POLICY IF EXISTS "update_tenant_id_isolation_policy" ON crawl_jobs;
-CREATE POLICY "update_tenant_id_isolation_policy" ON crawl_jobs FOR UPDATE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid) WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "update_tenant_id_isolation_policy" ON crawl_jobs FOR UPDATE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')) WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 DROP POLICY IF EXISTS "delete_tenant_id_isolation_policy" ON crawl_jobs;
-CREATE POLICY "delete_tenant_id_isolation_policy" ON crawl_jobs FOR DELETE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "delete_tenant_id_isolation_policy" ON crawl_jobs FOR DELETE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 ALTER TABLE crawl_results ENABLE ROW LEVEL SECURITY;
 ALTER TABLE crawl_results FORCE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "select_tenant_id_isolation_policy" ON crawl_results;
-CREATE POLICY "select_tenant_id_isolation_policy" ON crawl_results FOR SELECT USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "select_tenant_id_isolation_policy" ON crawl_results FOR SELECT USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 DROP POLICY IF EXISTS "insert_tenant_id_isolation_policy" ON crawl_results;
-CREATE POLICY "insert_tenant_id_isolation_policy" ON crawl_results FOR INSERT WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "insert_tenant_id_isolation_policy" ON crawl_results FOR INSERT WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 DROP POLICY IF EXISTS "update_tenant_id_isolation_policy" ON crawl_results;
-CREATE POLICY "update_tenant_id_isolation_policy" ON crawl_results FOR UPDATE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid) WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "update_tenant_id_isolation_policy" ON crawl_results FOR UPDATE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')) WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 DROP POLICY IF EXISTS "delete_tenant_id_isolation_policy" ON crawl_results;
-CREATE POLICY "delete_tenant_id_isolation_policy" ON crawl_results FOR DELETE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "delete_tenant_id_isolation_policy" ON crawl_results FOR DELETE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 ALTER TABLE crawl_cache ENABLE ROW LEVEL SECURITY;
 ALTER TABLE crawl_cache FORCE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "select_tenant_id_isolation_policy" ON crawl_cache;
-CREATE POLICY "select_tenant_id_isolation_policy" ON crawl_cache FOR SELECT USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "select_tenant_id_isolation_policy" ON crawl_cache FOR SELECT USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 DROP POLICY IF EXISTS "insert_tenant_id_isolation_policy" ON crawl_cache;
-CREATE POLICY "insert_tenant_id_isolation_policy" ON crawl_cache FOR INSERT WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "insert_tenant_id_isolation_policy" ON crawl_cache FOR INSERT WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 DROP POLICY IF EXISTS "update_tenant_id_isolation_policy" ON crawl_cache;
-CREATE POLICY "update_tenant_id_isolation_policy" ON crawl_cache FOR UPDATE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid) WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "update_tenant_id_isolation_policy" ON crawl_cache FOR UPDATE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')) WITH CHECK ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 DROP POLICY IF EXISTS "delete_tenant_id_isolation_policy" ON crawl_cache;
-CREATE POLICY "delete_tenant_id_isolation_policy" ON crawl_cache FOR DELETE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
+CREATE POLICY "delete_tenant_id_isolation_policy" ON crawl_cache FOR DELETE USING ("tenant_id" = NULLIF(current_setting('app.current_tenant_id', true), ''));
 
 ALTER TABLE monitoring_configs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE monitoring_configs FORCE ROW LEVEL SECURITY;
