@@ -156,13 +156,14 @@ export const entitiesTable: TableDefinition = {
   indexes: [
     "CREATE INDEX idx_entities_organization ON entities(organization_id);",
     "CREATE INDEX idx_entities_brand ON entities(brand_id);",
+    "CREATE UNIQUE INDEX idx_entities_org_id_id ON entities(organization_id, id);",
     "CREATE UNIQUE INDEX idx_entities_wikidata ON entities(wikidata_id) WHERE wikidata_id IS NOT NULL AND deleted_at IS NULL;"
   ],
   sql: `
 CREATE TABLE IF NOT EXISTS entities (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  brand_id UUID NOT NULL REFERENCES brands(id) ON DELETE CASCADE,
+  brand_id UUID NOT NULL,
   name TEXT NOT NULL,
   type TEXT NOT NULL,
   wikidata_id TEXT,
@@ -180,11 +181,19 @@ CREATE TABLE IF NOT EXISTS entities (
   created_by TEXT NOT NULL DEFAULT 'system',
   updated_by TEXT NOT NULL DEFAULT 'system',
   deleted_at TIMESTAMP WITH TIME ZONE,
-  version INTEGER NOT NULL DEFAULT 1
+  version INTEGER NOT NULL DEFAULT 1,
+  CONSTRAINT fk_entities_brand_composite FOREIGN KEY (organization_id, brand_id) REFERENCES brands(organization_id, id) ON DELETE CASCADE,
+  CONSTRAINT chk_entities_scores_ranges CHECK (
+    authority_score >= 0.0 AND authority_score <= 100.0 AND
+    completeness_score >= 0.0 AND completeness_score <= 100.0 AND
+    confidence_score >= 0.0 AND confidence_score <= 1.0 AND
+    status IN ('active', 'archived', 'merged')
+  )
 );
 
 CREATE INDEX IF NOT EXISTS idx_entities_organization ON entities(organization_id);
 CREATE INDEX IF NOT EXISTS idx_entities_brand ON entities(brand_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_entities_org_id_id ON entities(organization_id, id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_entities_wikidata ON entities(wikidata_id) WHERE wikidata_id IS NOT NULL AND deleted_at IS NULL;
 
 -- Enable PostgreSQL Row Level Security (RLS) for zero-trust tenant isolation
@@ -338,13 +347,14 @@ export const entityRelationshipsTable: TableDefinition = {
   indexes: [
     "CREATE INDEX idx_relationships_organization ON entity_relationships(organization_id);",
     "CREATE INDEX idx_relationships_source ON entity_relationships(source_entity_id);",
-    "CREATE INDEX idx_relationships_target ON entity_relationships(target_entity_id);"
+    "CREATE INDEX idx_relationships_target ON entity_relationships(target_entity_id);",
+    "CREATE UNIQUE INDEX idx_entity_relationships_edge_unique ON entity_relationships(organization_id, source_entity_id, target_entity_id, relationship_type);"
   ],
   sql: `
 CREATE TABLE IF NOT EXISTS entity_relationships (
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  source_entity_id UUID NOT NULL REFERENCES entities(id) ON DELETE CASCADE,
-  target_entity_id UUID NOT NULL REFERENCES entities(id) ON DELETE CASCADE,
+  source_entity_id UUID NOT NULL,
+  target_entity_id UUID NOT NULL,
   relationship_type TEXT NOT NULL,
   direction TEXT NOT NULL DEFAULT 'directed',
   provenance JSONB,
@@ -357,12 +367,19 @@ CREATE TABLE IF NOT EXISTS entity_relationships (
   updated_by TEXT NOT NULL DEFAULT 'system',
   deleted_at TIMESTAMP WITH TIME ZONE,
   version INTEGER NOT NULL DEFAULT 1,
-  PRIMARY KEY (source_entity_id, target_entity_id, relationship_type)
+  PRIMARY KEY (source_entity_id, target_entity_id, relationship_type),
+  CONSTRAINT fk_entity_rel_source_composite FOREIGN KEY (organization_id, source_entity_id) REFERENCES entities(organization_id, id) ON DELETE CASCADE,
+  CONSTRAINT fk_entity_rel_target_composite FOREIGN KEY (organization_id, target_entity_id) REFERENCES entities(organization_id, id) ON DELETE CASCADE,
+  CONSTRAINT chk_entity_relationships_valid CHECK (
+    confidence_score >= 0.0 AND confidence_score <= 1.0 AND
+    direction IN ('directed', 'undirected')
+  )
 );
 
 CREATE INDEX IF NOT EXISTS idx_relationships_organization ON entity_relationships(organization_id);
 CREATE INDEX IF NOT EXISTS idx_relationships_source ON entity_relationships(source_entity_id);
 CREATE INDEX IF NOT EXISTS idx_relationships_target ON entity_relationships(target_entity_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_entity_relationships_edge_unique ON entity_relationships(organization_id, source_entity_id, target_entity_id, relationship_type);
 
 -- Enable PostgreSQL Row Level Security (RLS) for zero-trust tenant isolation
 ALTER TABLE entity_relationships ENABLE ROW LEVEL SECURITY;

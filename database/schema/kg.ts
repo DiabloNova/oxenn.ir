@@ -6,6 +6,8 @@ import {
   customType,
   timestamp,
   index,
+  uniqueIndex,
+  foreignKey,
   pgPolicy
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
@@ -64,6 +66,7 @@ export const kgEntities = pgTable("kg_entities", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [
+  uniqueIndex("idx_kg_entities_org_id_id").on(table.organizationId, table.id),
   index("idx_kg_entities_org").on(table.organizationId),
   index("idx_kg_entities_name").on(table.name),
   ...tenantPolicy("organization_id")
@@ -71,14 +74,30 @@ export const kgEntities = pgTable("kg_entities", {
 
 export const kgRelationships = pgTable("kg_relationships", {
   id: uuid("id").primaryKey().default(defaultUuid),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  sourceEntityId: uuid("source_entity_id").notNull().references(() => kgEntities.id, { onDelete: "cascade" }),
-  targetEntityId: uuid("target_entity_id").notNull().references(() => kgEntities.id, { onDelete: "cascade" }),
+  organizationId: uuid("organization_id").notNull(),
+  sourceEntityId: uuid("source_entity_id").notNull(),
+  targetEntityId: uuid("target_entity_id").notNull(),
   relationshipType: text("relationship_type").notNull(),
   properties: jsonb("properties").notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [
+  uniqueIndex("idx_kg_relationships_edge_unique").on(
+    table.organizationId,
+    table.sourceEntityId,
+    table.targetEntityId,
+    table.relationshipType
+  ),
+  foreignKey({
+    columns: [table.organizationId, table.sourceEntityId],
+    foreignColumns: [kgEntities.organizationId, kgEntities.id],
+    name: "fk_kg_rel_source_composite"
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.organizationId, table.targetEntityId],
+    foreignColumns: [kgEntities.organizationId, kgEntities.id],
+    name: "fk_kg_rel_target_composite"
+  }).onDelete("cascade"),
   index("idx_kg_relationships_org").on(table.organizationId),
   index("idx_kg_relationships_source").on(table.sourceEntityId),
   index("idx_kg_relationships_target").on(table.targetEntityId),

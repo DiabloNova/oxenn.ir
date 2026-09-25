@@ -5,7 +5,8 @@ import {
   text,
   timestamp,
   pgPolicy,
-  index
+  index,
+  uniqueIndex
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { organizations } from "./organization";
@@ -52,6 +53,7 @@ export const tenantQuotas = pgTable("tenant_quotas", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [
+  uniqueIndex("idx_tenant_quotas_org_unique").on(table.organizationId),
   index("idx_tenant_quotas_org").on(table.organizationId),
   ...tenantPolicy("organization_id")
 ]);
@@ -69,6 +71,7 @@ export const tenantSubscriptions = pgTable("tenant_subscriptions", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [
+  uniqueIndex("idx_tenant_subscriptions_active_unique").on(table.organizationId).where(sql`status = 'active'`),
   index("idx_tenant_subscriptions_org").on(table.organizationId),
   ...tenantPolicy("organization_id")
 ]);

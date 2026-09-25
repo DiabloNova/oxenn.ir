@@ -93,6 +93,7 @@ export const organizations = pgTable("organizations", {
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   version: integer("version").notNull().default(1),
 }, (table) => [
+  uniqueIndex("idx_organizations_id_unique").on(table.id),
   uniqueIndex("idx_organizations_slug").on(table.slug).where(sql`deleted_at IS NULL`),
   ...tenantPolicy("id")
 ]);
