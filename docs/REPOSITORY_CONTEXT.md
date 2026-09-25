@@ -113,7 +113,7 @@
 - **Execution Lifecycle:**
   1. Requests enter via Next.js App Router (`src/app/[locale]/`).
   2. Root routing is forwarded via `src/proxy.ts` (redirecting `/` to `/fa`). [VERIFIED CURRENT]
-  3. Interactive operations are executed via Server Actions (`src/app/actions/`) wrapped with `next-safe-action` (`src/lib/safe-action.ts`) or API endpoints (`src/app/api/`). [VERIFIED CURRENT]
+  3. Interactive operations are executed via Server Actions (`src/app/actions/`) wrapped with the custom `secureServerAction` helper (`src/lib/safe-action.ts`), or via API endpoints (`src/app/api/`). [VERIFIED CURRENT]
   4. Tenant context is injected per-request using `AsyncLocalStorage` in `TenantContextManager` (`src/core/database/tenant-context/index.ts`). [VERIFIED CURRENT]
   5. Asynchronous background jobs and scheduled workflows run via Inngest (`src/inngest/functions/` and `src/app/api/inngest/route.ts`). [VERIFIED CURRENT]
 
@@ -276,7 +276,7 @@ Required Environment Variables (`.env` / `.env.example`):
 
 ## 15. Known Issues
 
-- **Authentication Audit Finding F-01 (DoS via `progressiveDelay`):** `src/app/actions/auth.ts` implements an inline `progressiveDelay()` up to 60 minutes on failed login attempts, keeping server action handlers open and exposing the server to request/connection exhaustion DoS. [HISTORICAL] / [VERIFIED CURRENT]
+- **Authentication Audit Finding F-01 (DoS via `progressiveDelay`):** Resolved. `progressiveDelay()` has been removed from `src/app/actions/auth.ts`; failed logins are now handled by a `locked_until` hard-lock check. [HISTORICAL]
 - **Authentication Audit Finding F-02 (Missing Password Reset Endpoint):** `requestPasswordResetAction` in `src/app/actions/auth.ts` creates ephemeral reset tokens without saving them to the database, and the route `/[locale]/reset-password` is missing. [HISTORICAL] / [VERIFIED CURRENT]
 - **Missing Token Persistence Tables:** `users` schema lacks persistent columns for `reset_token`, `reset_token_expires`, `verification_token`, or `email_verified_at`. [HISTORICAL] / [VERIFIED CURRENT]
 - **ESLint Baseline Violations:** ESLint baseline scan recorded 681 total violations (343 errors, 338 warnings) across 142 affected files. [HISTORICAL]
@@ -327,6 +327,6 @@ Required Environment Variables (`.env` / `.env.example`):
 
 ## 21. Last Verified Repository State
 
-- **Verification Date:** March 2025 [VERIFIED CURRENT]
-- **Git Commit / Branch:** Inspected live repository state on current working branch. [VERIFIED CURRENT]
+- **Verification Date:** September 2026 [VERIFIED CURRENT]
+- **Git Commit / Branch:** Inspected at `c8c2604` (`create-repository-context-doc-1323507082286745438`). [VERIFIED CURRENT]
 - **Repository Health:** Clean build configuration, valid Next.js App Router structure, intact Drizzle schema and migration history. [VERIFIED CURRENT]

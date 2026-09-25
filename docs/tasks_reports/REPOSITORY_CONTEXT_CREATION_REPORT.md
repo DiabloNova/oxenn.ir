@@ -40,7 +40,7 @@ The primary objective of this task was to perform a systematic, evidence-based i
 
 ## Historical or Conflicting Information Discovered
 - **Database Schema Barrel Pattern:** Memory guidelines indicated `database/schema/index.ts` acts purely as a barrel file re-exporting modular files. In current repository truth, `database/schema/index.ts` re-exports modular schema files AND defines several core tables inline.
-- **Authentication Security Vulnerability (F-01):** Historical auth audit noted `progressiveDelay()` in `src/app/actions/auth.ts` sleeping up to 60 minutes, causing server connection pool exhaustion. Inspection confirmed `progressiveDelay()` remains in `src/app/actions/auth.ts`.
+- **Authentication Security Vulnerability (F-01):** Historical auth audit noted `progressiveDelay()` in `src/app/actions/auth.ts` sleeping up to 60 minutes. Direct inspection confirmed `progressiveDelay()` has been removed and replaced by a `locked_until` check.
 - **Unpersisted Password Reset Tokens (F-02):** `requestPasswordResetAction` in `src/app/actions/auth.ts` generates ephemeral reset tokens without saving them, and `/[locale]/reset-password` route is missing.
 - **Root vs Src Component & Utility Directories:** Both `lib/utils.ts` (root) and `src/lib/utils.ts` exist. `components/` (root) and `src/components/` both exist.
 
