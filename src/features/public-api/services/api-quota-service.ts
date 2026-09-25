@@ -22,7 +22,7 @@ export class ApiQuotaService {
       "system",
       "api-quota-check",
       async () => {
-        const sql = `SELECT * FROM tenant_quotas WHERE tenant_id = $1 LIMIT 1;`;
+        const sql = `SELECT * FROM tenant_quotas WHERE organization_id = $1 LIMIT 1;`;
         const res = await this.pg.query(sql, [tenantId]);
 
         if (!res.rows || res.rows.length === 0) {
@@ -35,7 +35,7 @@ export class ApiQuotaService {
           throw new Error("Usage Limit Exceeded");
         }
 
-        const updateSql = `UPDATE tenant_quotas SET used_tokens_this_month = used_tokens_this_month + $1, updated_at = NOW() WHERE tenant_id = $2;`;
+        const updateSql = `UPDATE tenant_quotas SET used_tokens_this_month = used_tokens_this_month + $1, updated_at = NOW() WHERE organization_id = $2;`;
         await this.pg.query(updateSql, [tokensToConsume, tenantId]);
       }
     );

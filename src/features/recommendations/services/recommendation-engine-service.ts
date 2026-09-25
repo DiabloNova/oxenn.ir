@@ -1,7 +1,6 @@
 import { AutomatedRecommendationRepository } from "../repositories/automated-recommendation-repository";
 import { TenantContextManager } from "../../../core/database/tenant-context";
 import { MonitoringAlertRepository } from "../../monitoring/repositories/monitoring-alert-repository";
-import { MonitoringAlert } from "../../monitoring/domain/entities/monitoring-alert";
 import { createHash } from "crypto";
 
 export class RecommendationEngineService {
@@ -15,7 +14,7 @@ export class RecommendationEngineService {
       // Here we will use MonitoringAlerts as a proxy for "What happened" and "Technical SEO observations".
 
       const ctx = TenantContextManager.getContext();
-      const db = (global as any).pgClient || ctx?.dbClient;
+      const db = (global as unknown as { pgClient?: unknown }).pgClient || ctx?.dbClient;
       if (!db) return;
 
       // Query open monitoring alerts for this tenant
@@ -33,7 +32,7 @@ export class RecommendationEngineService {
       // 2. We can also fetch Competitive SEO Findings to detect "Opportunities"
       const compRes = await db.query(`
         SELECT * FROM competitive_seo_findings
-        WHERE tenant_id = $1
+        WHERE organization_id = $1
       `, [tenantId]);
 
       for (const finding of compRes.rows) {
@@ -42,7 +41,7 @@ export class RecommendationEngineService {
     });
   }
 
-  private async processAlertIntoRecommendation(alert: any, tenantId: string, websiteId?: string) {
+  private async processAlertIntoRecommendation(alert: Record<string, unknown>, tenantId: string, websiteId?: string) {
     let priorityScore = 50; // default medium
     if (alert.severity === 'critical') priorityScore = 92;
     else if (alert.severity === 'high') priorityScore = 75;
@@ -55,7 +54,7 @@ export class RecommendationEngineService {
       organizationId: tenantId,
       websiteId,
       title: `${alert.category} issue detected`,
-      description: alert.message || `An issue of type ${alert.type} was detected.`,
+      description: (alert.message as string) || `An issue of type ${alert.type} was detected.`,
       type: "diagnosis",
       priorityScore,
       status: "pending",
@@ -63,7 +62,7 @@ export class RecommendationEngineService {
       recommendedAction: {
         label: "View Affected Pages",
         actionRef: "technical_seo_report",
-        url: alert.url
+        url: alert.url as string | undefined
       }
     };
 
@@ -75,23 +74,24 @@ export class RecommendationEngineService {
     }
   }
 
-  private async processFindingIntoOpportunity(finding: any, tenantId: string, websiteId?: string) {
-    let priorityScore = finding.impact_score || 70;
+  private async processFindingIntoOpportunity(finding: Record<string, unknown>, tenantId: string, websiteId?: string) {
+    let priorityScore = (finding.impact_score as number) || 70;
 
     // Scale impact score if needed
     if (priorityScore < 30) priorityScore = 35; // ensure it's at least medium if it's an opportunity
 
     const dedupKey = createHash("sha256").update(`rec-opp-${finding.id}`).digest("hex");
 
-    const title = finding.title || `Improve ${finding.finding_type}`;
-    const description = finding.description || finding.recommendation || `Competitive opportunity found in ${finding.finding_type}`;
+    const findingType = (finding.finding_type as string) || '';
+    const title = (finding.title as string) || `Improve ${findingType}`;
+    const description = (finding.description as string) || (finding.recommendation as string) || `Competitive opportunity found in ${findingType}`;
 
     let actionLabel = "View Opportunity";
     let actionRef = "general";
-    if (finding.finding_type.includes("content")) {
+    if (findingType.includes("content")) {
       actionLabel = "Open Content Studio";
       actionRef = "content_studio";
-    } else if (finding.finding_type.includes("ai")) {
+    } else if (findingType.includes("ai")) {
       actionLabel = "View AI Visibility Report";
       actionRef = "ai_visibility";
     }

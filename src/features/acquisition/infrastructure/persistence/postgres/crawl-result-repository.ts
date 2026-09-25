@@ -4,7 +4,7 @@ import { TenantContextManager } from "../../../../../core/database/tenant-contex
 
 interface ResultRow extends QueryResultRow {
   id: string;
-  tenant_id: string;
+  organization_id: string;
   job_id: string;
   result: CrawlResult;
   created_at: Date;
@@ -22,9 +22,9 @@ export class CrawlResultRepository {
   public async put(jobId: string, result: CrawlResult): Promise<string> {
     const tenantId = TenantContextManager.getRequiredTenantId();
     const response = await client().query<ResultRow>(
-      `INSERT INTO crawl_results (tenant_id, job_id, result)
+      `INSERT INTO crawl_results (organization_id, job_id, result)
        VALUES ($1, $2, $3)
-       RETURNING id, tenant_id, job_id, result, created_at`,
+       RETURNING id, organization_id, job_id, result, created_at`,
       [tenantId, jobId, JSON.stringify(result)]
     );
     return response.rows[0].id;
@@ -33,9 +33,9 @@ export class CrawlResultRepository {
   public async getByJobId(jobId: string): Promise<CrawlResult | null> {
     const tenantId = TenantContextManager.getRequiredTenantId();
     const response = await client().query<ResultRow>(
-      `SELECT id, tenant_id, job_id, result, created_at
+      `SELECT id, organization_id, job_id, result, created_at
        FROM crawl_results
-       WHERE tenant_id = $1 AND job_id = $2
+       WHERE organization_id = $1 AND job_id = $2
        ORDER BY created_at DESC
        LIMIT 1`,
       [tenantId, jobId]

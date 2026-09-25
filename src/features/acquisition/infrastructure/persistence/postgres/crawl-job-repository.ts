@@ -23,7 +23,7 @@ import { TenantContextManager } from "../../../../../core/database/tenant-contex
 
 interface CrawlJobRow extends QueryResultRow {
   id: string;
-  tenant_id: string;
+  organization_id: string;
   requested_url: string;
   normalized_url: string;
   policy: CrawlPolicy;
@@ -111,7 +111,7 @@ function normalizedUrl(value: string): NormalizedUrl {
 function mapJob(row: CrawlJobRow): CrawlJob {
   return {
     id: row.id,
-    tenantId: row.tenant_id,
+    tenantId: row.organization_id,
     requestedUrl: row.requested_url,
     normalizedUrl: normalizedUrl(row.normalized_url),
     policy: row.policy,
@@ -150,7 +150,7 @@ function mapJob(row: CrawlJobRow): CrawlJob {
 }
 
 const columns = `
-  id, tenant_id, requested_url, normalized_url, policy, dedup_key, cache_key,
+  id, organization_id, requested_url, normalized_url, policy, dedup_key, cache_key,
   priority, status, provider_id, provider_job_id, attempts, max_attempts,
   scheduled_for, claimed_at, heartbeat_at, lease_expires_at, worker_id,
   created_at, updated_at, started_at, completed_at, duration_ms, page_count,
@@ -181,7 +181,7 @@ export class CrawlJobRepository {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       const inserted = await client.query<CrawlJobRow>(
         `INSERT INTO crawl_jobs
-          (id, tenant_id, requested_url, normalized_url, policy, dedup_key,
+          (id, organization_id, requested_url, normalized_url, policy, dedup_key,
            cache_key, priority, status, max_attempts, scheduled_for,
            cache_outcome, correlation_id, request_id, trace_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'PENDING', $9, $10, $11, $12, $13, $14)
@@ -212,7 +212,7 @@ export class CrawlJobRepository {
       const existing = await client.query<CrawlJobRow>(
         `SELECT ${columns}
          FROM crawl_jobs
-         WHERE tenant_id = $1 AND dedup_key = $2
+         WHERE organization_id = $1 AND dedup_key = $2
          ORDER BY created_at ASC
          LIMIT 1`,
         [tenantId, dedupKey]
@@ -232,7 +232,7 @@ export class CrawlJobRepository {
     TenantContextManager.getRequiredTenantId();
     const result = await dbClient().query<CrawlJobRow>(
       `SELECT ${columns} FROM crawl_jobs
-       WHERE id = $1 AND tenant_id = $2`,
+       WHERE id = $1 AND organization_id = $2`,
       [id, TenantContextManager.getRequiredTenantId()]
     );
     return result.rows[0] ? mapJob(result.rows[0]) : null;
@@ -288,7 +288,7 @@ export class CrawlJobRepository {
            version = version + 1, updated_at = NOW(),
            started_at = CASE WHEN $4 = 'RUNNING' THEN COALESCE(started_at, NOW()) ELSE started_at END,
            completed_at = CASE WHEN $4 IN ('SUCCEEDED', 'PARTIAL', 'FAILED', 'CANCELLED') THEN NOW() ELSE completed_at END
-       WHERE id = $1 AND tenant_id = $5 AND status = $2 AND version = $3
+       WHERE id = $1 AND organization_id = $5 AND status = $2 AND version = $3
        RETURNING ${columns}`,
       [
         id,
@@ -324,7 +324,7 @@ export class CrawlJobRepository {
       `UPDATE crawl_jobs
        SET heartbeat_at = NOW(), lease_expires_at = $4,
            updated_at = NOW(), version = version + 1
-      WHERE id = $1 AND tenant_id = $5 AND status = 'RUNNING' AND worker_id = $2
+      WHERE id = $1 AND organization_id = $5 AND status = 'RUNNING' AND worker_id = $2
          AND version = $3 AND lease_expires_at > NOW()
        RETURNING ${columns}`,
       [lease.jobId, lease.workerId, expectedVersion, lease.leaseExpiresAt, tenantId]
@@ -349,7 +349,7 @@ export class CrawlJobRepository {
        SET status = 'CANCELLED', cancelled_at = NOW(),
            cancellation_reason = $4, cancellation_requested_by = $5,
            completed_at = NOW(), updated_at = NOW(), version = version + 1
-       WHERE id = $1 AND tenant_id = $6 AND status = $2 AND version = $3
+       WHERE id = $1 AND organization_id = $6 AND status = $2 AND version = $3
        RETURNING ${columns}`,
       [id, expectedStatus, expectedVersion, reason, requestedBy, tenantId]
     );

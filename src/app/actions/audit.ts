@@ -24,7 +24,7 @@ export const getAuditsListAction = secureServerActionNoInput(
         const auditsList = await db
           .select()
           .from(audits)
-          .where(eq(audits.workspaceId, ctx.workspaceId!))
+          .where(eq(audits.organizationId, ctx.workspaceId!))
           .orderBy(desc(audits.createdAt));
 
         return auditsList;
@@ -49,7 +49,7 @@ export const triggerAuditAction = secureServerAction(
         const [insertedAudit] = await db
           .insert(audits)
           .values({
-            workspaceId: ctx.workspaceId!,
+            organizationId: ctx.workspaceId!,
             userId: ctx.userId!,
             url,
             status: "pending",

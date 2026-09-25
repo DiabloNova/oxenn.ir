@@ -1,25 +1,17 @@
 import {
   pgTable,
   uuid,
+  integer,
   text,
-  jsonb,
-  customType,
   timestamp,
-  index,
-  pgPolicy
+  pgPolicy,
+  index
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { organizations } from "./organization";
 
 const defaultUuid = sql`gen_random_uuid()`;
 const defaultNow = sql`NOW()`;
-
-// Custom vector type for pgvector
-const vector = customType<{ data: number[] }>({
-  dataType() {
-    return "vector(768)";
-  },
-});
 
 function tenantPolicy(colName: "organization_id" = "organization_id") {
   return [
@@ -43,44 +35,40 @@ function tenantPolicy(colName: "organization_id" = "organization_id") {
   ];
 }
 
-export const documentEmbeddings = pgTable("document_embeddings", {
+export const tenantQuotas = pgTable("tenant_quotas", {
   id: uuid("id").primaryKey().default(defaultUuid),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  contentChunk: text("content_chunk").notNull(),
-  metadata: jsonb("metadata").notNull().default({}),
-  embedding: vector("embedding").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
-}, (table) => [
-  index("idx_document_embeddings_org").on(table.organizationId),
-  ...tenantPolicy("organization_id")
-]);
-
-export const kgEntities = pgTable("kg_entities", {
-  id: uuid("id").primaryKey().default(defaultUuid),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  type: text("type").notNull(),
-  properties: jsonb("properties").notNull().default({}),
+  maxUsers: integer("max_users").notNull(),
+  maxBrands: integer("max_brands").notNull(),
+  maxPrompts: integer("max_prompts").notNull(),
+  maxObservationsPerMonth: integer("max_observations_per_month").notNull(),
+  maxCrawlJobsPerDay: integer("max_crawl_jobs_per_day").notNull(),
+  monthlyTokenLimit: integer("monthly_token_limit").notNull(),
+  monthlyCostLimitUsd: integer("monthly_cost_limit_usd").notNull(),
+  usedObservationsThisMonth: integer("used_observations_this_month").notNull().default(0),
+  usedTokensThisMonth: integer("used_tokens_this_month").notNull().default(0),
+  usedCrawlJobsToday: integer("used_crawl_jobs_today").notNull().default(0),
+  creditsBalance: integer("credits_balance").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [
-  index("idx_kg_entities_org").on(table.organizationId),
-  index("idx_kg_entities_name").on(table.name),
+  index("idx_tenant_quotas_org").on(table.organizationId),
   ...tenantPolicy("organization_id")
 ]);
 
-export const kgRelationships = pgTable("kg_relationships", {
+export const tenantSubscriptions = pgTable("tenant_subscriptions", {
   id: uuid("id").primaryKey().default(defaultUuid),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  sourceEntityId: uuid("source_entity_id").notNull().references(() => kgEntities.id, { onDelete: "cascade" }),
-  targetEntityId: uuid("target_entity_id").notNull().references(() => kgEntities.id, { onDelete: "cascade" }),
-  relationshipType: text("relationship_type").notNull(),
-  properties: jsonb("properties").notNull().default({}),
+  plan: text("plan").notNull(),
+  status: text("status").notNull(),
+  billingCycle: text("billing_cycle").notNull(),
+  startDate: timestamp("start_date", { withTimezone: true }).notNull(),
+  endDate: timestamp("end_date", { withTimezone: true }).notNull(),
+  priceAmount: integer("price_amount").notNull(),
+  currency: text("currency").notNull().default("USD"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [
-  index("idx_kg_relationships_org").on(table.organizationId),
-  index("idx_kg_relationships_source").on(table.sourceEntityId),
-  index("idx_kg_relationships_target").on(table.targetEntityId),
+  index("idx_tenant_subscriptions_org").on(table.organizationId),
   ...tenantPolicy("organization_id")
 ]);

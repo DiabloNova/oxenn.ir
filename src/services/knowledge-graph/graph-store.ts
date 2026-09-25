@@ -103,7 +103,7 @@ export class GraphStoreService {
         entityId = crypto.randomUUID();
 
         const insertSql = `
-          INSERT INTO kg_entities (id, tenant_id, name, type, properties, created_at, updated_at)
+          INSERT INTO kg_entities (id, organization_id, name, type, properties, created_at, updated_at)
           VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
           RETURNING id;
         `;
@@ -180,7 +180,7 @@ export class GraphStoreService {
         relationshipId = crypto.randomUUID();
 
         const insertRelSql = `
-          INSERT INTO kg_relationships (id, tenant_id, source_entity_id, target_entity_id, relationship_type, properties, created_at, updated_at)
+          INSERT INTO kg_relationships (id, organization_id, source_entity_id, target_entity_id, relationship_type, properties, created_at, updated_at)
           VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
           RETURNING id;
         `;

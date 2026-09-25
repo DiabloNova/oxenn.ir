@@ -2,24 +2,19 @@ import {
   pgTable,
   uuid,
   text,
+  integer,
   jsonb,
-  customType,
   timestamp,
   index,
+  check,
   pgPolicy
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { organizations } from "./organization";
+import { competitors } from "./websites";
 
 const defaultUuid = sql`gen_random_uuid()`;
 const defaultNow = sql`NOW()`;
-
-// Custom vector type for pgvector
-const vector = customType<{ data: number[] }>({
-  dataType() {
-    return "vector(768)";
-  },
-});
 
 function tenantPolicy(colName: "organization_id" = "organization_id") {
   return [
@@ -43,44 +38,42 @@ function tenantPolicy(colName: "organization_id" = "organization_id") {
   ];
 }
 
-export const documentEmbeddings = pgTable("document_embeddings", {
+export const competitorChanges = pgTable("competitor_changes", {
   id: uuid("id").primaryKey().default(defaultUuid),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  contentChunk: text("content_chunk").notNull(),
-  metadata: jsonb("metadata").notNull().default({}),
-  embedding: vector("embedding").notNull(),
+  competitorId: uuid("competitor_id").notNull().references(() => competitors.id, { onDelete: "cascade" }),
+  changeType: text("change_type").notNull(),
+  severity: text("severity").notNull(),
+  summary: text("summary").notNull(),
+  details: jsonb("details").notNull().default({}),
+  detectedAt: timestamp("detected_at", { withTimezone: true }).notNull().default(defaultNow),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [
-  index("idx_document_embeddings_org").on(table.organizationId),
+  index("idx_competitor_changes_org").on(table.organizationId),
+  index("idx_competitor_changes_comp").on(table.competitorId),
+  index("idx_competitor_changes_type").on(table.changeType),
   ...tenantPolicy("organization_id")
 ]);
 
-export const kgEntities = pgTable("kg_entities", {
+export const competitiveSeoFindings = pgTable("competitive_seo_findings", {
   id: uuid("id").primaryKey().default(defaultUuid),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  type: text("type").notNull(),
-  properties: jsonb("properties").notNull().default({}),
+  competitorId: uuid("competitor_id").references(() => competitors.id, { onDelete: "set null" }),
+  findingType: text("finding_type").notNull(),
+  severity: text("severity").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  evidence: jsonb("evidence").notNull().default({}),
+  recommendation: text("recommendation").notNull(),
+  impactScore: integer("impact_score").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [
-  index("idx_kg_entities_org").on(table.organizationId),
-  index("idx_kg_entities_name").on(table.name),
-  ...tenantPolicy("organization_id")
-]);
-
-export const kgRelationships = pgTable("kg_relationships", {
-  id: uuid("id").primaryKey().default(defaultUuid),
-  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  sourceEntityId: uuid("source_entity_id").notNull().references(() => kgEntities.id, { onDelete: "cascade" }),
-  targetEntityId: uuid("target_entity_id").notNull().references(() => kgEntities.id, { onDelete: "cascade" }),
-  relationshipType: text("relationship_type").notNull(),
-  properties: jsonb("properties").notNull().default({}),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(defaultNow),
-}, (table) => [
-  index("idx_kg_relationships_org").on(table.organizationId),
-  index("idx_kg_relationships_source").on(table.sourceEntityId),
-  index("idx_kg_relationships_target").on(table.targetEntityId),
+  index("idx_comp_seo_findings_org").on(table.organizationId),
+  index("idx_comp_seo_findings_comp").on(table.competitorId),
+  index("idx_comp_seo_findings_type").on(table.findingType),
+  check("competitive_seo_findings_finding_type_check", sql`finding_type IN (
+    'technical_gap', 'content_gap', 'keyword_gap', 'topic_gap', 'structural_difference',
+    'ai_visibility_gap', 'citation_gap', 'prompt_gap', 'brand_mention_gap', 'ai_recommendation_gap', 'citation_overlap'
+  )`),
   ...tenantPolicy("organization_id")
 ]);
