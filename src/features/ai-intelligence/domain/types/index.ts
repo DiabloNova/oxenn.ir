@@ -786,6 +786,18 @@ export interface KgAlignment {
 }
 
 /**
+ * Recommendation Alert Signal (Task 4.4 integration)
+ * Represents an alert/opportunity signal surfaced for a specific page.
+ */
+export interface RecommendationSignal {
+  code: string;
+  level: "warning" | "opportunity";
+  message: string;
+  pageId: string;
+  path: string;
+}
+
+/**
  * AI Visibility Audit Types
  */
 export type AIVisibilityAuditStatus = "PENDING" | "RUNNING" | "ANALYZING" | "COMPLETED" | "FAILED";
