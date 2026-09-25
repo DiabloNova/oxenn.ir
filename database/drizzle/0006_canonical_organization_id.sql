@@ -38,9 +38,16 @@ BEGIN
 END $$;
 
 -- 2. Drop dependent policies BEFORE altering column type
-DROP POLICY IF EXISTS "crawl_tenant_policy" ON crawl_jobs;
-DROP POLICY IF EXISTS "crawl_tenant_policy" ON crawl_results;
-DROP POLICY IF EXISTS "crawl_tenant_policy" ON crawl_cache;
+DO $$
+DECLARE t text; op text;
+BEGIN
+  FOREACH t IN ARRAY ARRAY['crawl_jobs','crawl_results','crawl_cache'] LOOP
+    EXECUTE format('DROP POLICY IF EXISTS "crawl_tenant_policy" ON %I', t);
+    FOREACH op IN ARRAY ARRAY['select','insert','update','delete'] LOOP
+      EXECUTE format('DROP POLICY IF EXISTS %I ON %I', op || '_tenant_id_isolation_policy', t);
+    END LOOP;
+  END LOOP;
+END $$;
 
 -- Convert type of organization_id on crawl tables from text to uuid
 ALTER TABLE crawl_jobs ALTER COLUMN organization_id TYPE uuid USING organization_id::uuid;
