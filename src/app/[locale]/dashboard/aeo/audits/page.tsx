@@ -3,23 +3,21 @@
 import React, { useState, useEffect, useTransition } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/Card";
+import { Button } from "@/components/Button";
+import { cn } from "@/lib/utils";
 import {
   Sparkles,
   RefreshCw,
   TrendingUp,
   Award,
   Link2,
-  Tag,
   AlertTriangle,
   CheckCircle,
   Clock,
   Compass,
   FileText,
   ChevronDown,
-  ChevronUp,
-  Bookmark,
-  Receipt,
-  HelpCircle
+  ChevronUp
 } from "lucide-react";
 import {
   createAndRunAuditAction,
@@ -53,9 +51,7 @@ export default function AeoAuditsPage() {
         setSelectedBrandId(res.result[0].id);
 
         // Find existing audits if any
-        const brandId = res.result[0].id;
-        const detailsRes = await getAuditDetailsAction({ auditId: `audit-vis-dummy` }).catch(() => null);
-        // If dummy fails, we fetch last saved in db or leave empty
+        await getAuditDetailsAction({ auditId: `audit-vis-dummy` }).catch(() => null);
       } else if (!res.success) {
         setErrorMsg(isRtl ? "خطا در بارگذاری برندهای متصل" : "Failed to load tenant brands");
       }
@@ -136,7 +132,7 @@ export default function AeoAuditsPage() {
               Core Engine v1.0
             </span>
           </h1>
-          <p className="text-xs text-[var(--text-secondary)] mt-1.5 max-w-2xl leading-relaxed">
+          <p className="text-xs text-[var(--text-secondary)] mbs-1.5 max-w-2xl leading-relaxed">
             {isRtl
               ? "پلتفرم مانیتورینگ جامع سهم صدای برند و مراجع استنادی شما در مدل‌های پاسخ‌دهی زبان بزرگ (ChatGPT, Perplexity, Gemini). پیشنهادهای هدفمند به دست آمده به صورت قطعی و مستدل در دیتابیس ثبت می‌شوند."
               : "Enterprise intelligence suite designed to monitor, track, and score brand discoverability, entity association, and citation authority across search models."}
@@ -146,7 +142,7 @@ export default function AeoAuditsPage() {
         {/* Brand Selector & Trigger */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-col">
-            <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">
+            <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] mbe-1">
               {isRtl ? "انتخاب برند" : "Select Brand"}
             </label>
             <select
@@ -163,14 +159,15 @@ export default function AeoAuditsPage() {
             </select>
           </div>
 
-          <button
+          <Button
+            size="sm"
             onClick={triggerNewAudit}
             disabled={isLoading || isPending || !selectedBrandId}
-            className="flex items-center gap-2 px-4 py-2 mt-4 bg-[var(--sky-blue-500)] hover:bg-[var(--sky-blue-600)] disabled:opacity-50 text-white rounded-lg text-xs font-black shadow-sm transition-all cursor-pointer"
+            className="mbs-4"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isPending ? "animate-spin" : ""}`} />
+            <RefreshCw className={cn("w-3.5 h-3.5", isPending && "animate-spin")} />
             <span>{isRtl ? "اجرای پایش هوشمند جدید" : "Run AI Visibility Audit"}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -192,35 +189,36 @@ export default function AeoAuditsPage() {
       {/* Empty / Initial State */}
       {!isLoading && !activeAudit && (
         <Card className="border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center max-w-xl mx-auto rounded-xl">
-          <div className="w-12 h-12 bg-[var(--border)]/30 rounded-full flex items-center justify-center mx-auto mb-4 text-[var(--text-secondary)]">
+          <div className="w-12 h-12 bg-[var(--border)]/30 rounded-full flex items-center justify-center mx-auto mbe-4 text-[var(--text-secondary)]">
             <Compass size={24} />
           </div>
           <h3 className="text-sm font-black text-[var(--text-primary)]">
             {isRtl ? "پایشی یافت نشد" : "No Audits Performed Yet"}
           </h3>
-          <p className="text-xs text-[var(--text-secondary)] mt-1.5 leading-relaxed">
+          <p className="text-xs text-[var(--text-secondary)] mbs-1.5 leading-relaxed">
             {isRtl
               ? "هیچ سابقه سنجش رویت‌پذیری هوش مصنوعی برای این برند وجود ندارد. پایش هوشمند را برای شروع استخراج مراجع اجرا کنید."
               : "Perform your first comprehensive AI visibility evaluation to construct semantic entity metrics and trace response citations."}
           </p>
-          <button
+          <Button
+            size="sm"
             onClick={triggerNewAudit}
-            className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-[var(--sky-blue-500)] hover:bg-[var(--sky-blue-600)] text-white rounded-lg text-xs font-black transition-all cursor-pointer"
+            className="mbs-5"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>{isRtl ? "اولین سنجش را اجرا کنید" : "Begin Verification Process"}</span>
-          </button>
+          </Button>
         </Card>
       )}
 
       {/* Running / Analysing Overlay Indicator */}
       {!isLoading && activeAudit && activeAudit.status === "RUNNING" && (
         <Card className="border border-[var(--border)] bg-[var(--card)] p-12 text-center rounded-xl animate-pulse">
-          <RefreshCw className="w-8 h-8 text-[var(--sky-blue-500)] animate-spin mx-auto mb-4" />
+          <RefreshCw className="w-8 h-8 text-[var(--sky-blue-500)] animate-spin mx-auto mbe-4" />
           <h3 className="text-sm font-black text-[var(--text-primary)]">
             {isRtl ? "پایش در حال انجام است..." : "Audit Running..."}
           </h3>
-          <p className="text-xs text-[var(--text-secondary)] mt-1.5 max-w-md mx-auto leading-relaxed">
+          <p className="text-xs text-[var(--text-secondary)] mbs-1.5 max-w-md mx-auto leading-relaxed">
             {isRtl
               ? "موتور در حال ارسال ۷ پرسش کنترل شده به مدل‌ها، شبیه‌سازی مراجع استنادی، تحلیل داده‌های خروجی و وزن‌دهی به نتایج است. لطفاً منتظر بمانید..."
               : "Submitting prompt vectors, simulating conversational responses, analyzing brand mentions, and evaluating link authorities. Please wait..."}
@@ -235,7 +233,7 @@ export default function AeoAuditsPage() {
 
             {/* Left Box: Overall Score & Metrics */}
             <Card className="border border-[var(--border)] bg-[var(--card)] rounded-xl flex flex-col justify-between">
-              <CardHeader className="border-b border-[var(--border)]/50 pb-4">
+              <CardHeader className="border-b border-[var(--border)]/50 pbe-4">
                 <CardTitle className="text-sm font-black text-[var(--text-primary)] flex items-center gap-2">
                   <Award size={16} className="text-[var(--sky-blue-500)]" />
                   <span>{isRtl ? "نمره رویت‌پذیری کلی" : "Composite Visibility"}</span>
@@ -251,7 +249,7 @@ export default function AeoAuditsPage() {
                     <span className="text-4xl font-black text-[var(--text-primary)]">
                       {activeAudit.overallScore}%
                     </span>
-                    <div className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)] mt-0.5">
+                    <div className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)] mbs-0.5">
                       {isRtl ? "نمره برند" : "Score"}
                     </div>
                   </div>
@@ -262,7 +260,7 @@ export default function AeoAuditsPage() {
                   </span>
                 </div>
 
-                <div className="text-center max-w-xs px-2 pt-2">
+                <div className="text-center max-w-xs px-2 pbs-2">
                   <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                     {isRtl
                       ? "این نمره نشان‌دهنده درصد کلی دیده شدن و انطباق برند شما در مدل‌های پاسخ‌دهی بر اساس استنادها و موجودیت‌ها است."
@@ -274,7 +272,7 @@ export default function AeoAuditsPage() {
 
             {/* Right Box: Scoring Breakdown Metrics */}
             <Card className="lg:col-span-2 border border-[var(--border)] bg-[var(--card)] rounded-xl">
-              <CardHeader className="border-b border-[var(--border)]/50 pb-4">
+              <CardHeader className="border-b border-[var(--border)]/50 pbe-4">
                 <CardTitle className="text-sm font-black text-[var(--text-primary)] flex items-center gap-2">
                   <TrendingUp size={16} className="text-[var(--sky-blue-500)]" />
                   <span>{isRtl ? "تفکیک و وزن‌دهی سنجه‌ها" : "Scoring Factors Breakdown"}</span>
@@ -362,11 +360,11 @@ export default function AeoAuditsPage() {
             {[
               { label: isRtl ? "کل پرسش‌ها" : "Total Prompts", count: activeAudit.promptsCoverage.total, color: "text-[var(--text-primary)]" },
               { label: isRtl ? "اجرا شده" : "Executed count", count: activeAudit.promptsCoverage.executed, color: "text-[var(--sky-blue-500)]" },
-              { label: isRtl ? "آنالیز شده" : "Analyzed Successful", count: activeAudit.promptsCoverage.analyzed, color: "text-emerald-500", icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-500 inline-block mr-1" /> },
-              { label: isRtl ? "شکست خورده" : "Failed count", count: activeAudit.promptsCoverage.failed, color: "text-red-500", icon: activeAudit.promptsCoverage.failed > 0 ? <AlertTriangle className="w-3.5 h-3.5 text-red-500 inline-block mr-1 animate-bounce" /> : null }
+              { label: isRtl ? "آنالیز شده" : "Analyzed Successful", count: activeAudit.promptsCoverage.analyzed, color: "text-emerald-500", icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-500 inline-block me-1" /> },
+              { label: isRtl ? "شکست خورده" : "Failed count", count: activeAudit.promptsCoverage.failed, color: "text-red-500", icon: activeAudit.promptsCoverage.failed > 0 ? <AlertTriangle className="w-3.5 h-3.5 text-red-500 inline-block me-1 animate-bounce" /> : null }
             ].map((stat, idx) => (
               <Card key={idx} className="border border-[var(--border)] bg-[var(--card)] p-4 rounded-xl text-center">
-                <div className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-wider mb-1">
+                <div className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-wider mbe-1">
                   {stat.label}
                 </div>
                 <div className={`text-xl font-black ${stat.color} flex items-center justify-center`}>
@@ -407,7 +405,7 @@ export default function AeoAuditsPage() {
                             {prompt.category}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 mt-1 text-[10px] text-[var(--text-secondary)] font-mono">
+                        <div className="flex items-center gap-3 mbs-1 text-[10px] text-[var(--text-secondary)] font-mono">
                           <span className="flex items-center gap-1">
                             <Clock size={12} />
                             {prompt.latencyMs ? `${prompt.latencyMs}ms` : "-"}
@@ -471,7 +469,7 @@ export default function AeoAuditsPage() {
                                     <span>{isRtl ? "تعداد تکرار:" : "Mention Count:"}</span>
                                     <span className="font-bold">{prompt.analysis.brandMentions?.count || 0}</span>
                                   </div>
-                                  <div className="mt-2 p-2 bg-[var(--border)]/20 rounded font-mono text-[10px] italic">
+                                  <div className="mbs-2 p-2 bg-[var(--border)]/20 rounded font-mono text-[10px] italic">
                                     {prompt.analysis.brandMentions?.evidence}
                                   </div>
                                 </div>
@@ -487,7 +485,7 @@ export default function AeoAuditsPage() {
                                     <span>{isRtl ? "وضعیت انطباق:" : "Entity status:"}</span>
                                     <span className="capitalize font-bold text-[var(--sky-blue-500)]">{prompt.analysis.entityRecognition?.status}</span>
                                   </div>
-                                  <p className="text-[10px] italic pt-1 border-t border-[var(--border)]/50 mt-1">
+                                  <p className="text-[10px] italic pbs-1 border-t border-[var(--border)]/50 mbs-1">
                                     {prompt.analysis.entityRecognition?.evidence}
                                   </p>
                                 </div>
@@ -512,13 +510,13 @@ export default function AeoAuditsPage() {
                               </span>
                               {prompt.analysis.citationPresence?.present && prompt.analysis.citationPresence.citations.length > 0 ? (
                                 <div className="overflow-x-auto">
-                                  <table className="w-full text-left border-collapse text-[10px] font-mono">
+                                  <table className="w-full text-start border-collapse text-[10px] font-mono">
                                     <thead>
                                       <tr className="border-b border-[var(--border)] text-[var(--text-muted)] font-bold">
                                         <th className="py-1">{isRtl ? "آدرس مرجع" : "URL"}</th>
                                         <th className="py-1">{isRtl ? "دامنه" : "Domain"}</th>
                                         <th className="py-1">{isRtl ? "مالکیت برند" : "Type"}</th>
-                                        <th className="py-1 text-right">{isRtl ? "اعتبار دامنه" : "Domain Authority"}</th>
+                                        <th className="py-1 text-end">{isRtl ? "اعتبار دامنه" : "Domain Authority"}</th>
                                       </tr>
                                     </thead>
                                     <tbody>
@@ -537,7 +535,7 @@ export default function AeoAuditsPage() {
                                               </span>
                                             )}
                                           </td>
-                                          <td className="py-1 text-right font-black">
+                                          <td className="py-1 text-end font-black">
                                             {typeof cit.authority === "number" ? (
                                               `${cit.authority}/100`
                                             ) : (

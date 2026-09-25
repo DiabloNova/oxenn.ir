@@ -1,36 +1,29 @@
 "use client";
 
-import React, { useState, useEffect, useTransition } from "react";
+import React, { useState, useEffect, useCallback, useTransition } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/Card";
+import { Button } from "@/components/Button";
+import { cn } from "@/lib/utils";
 import {
-  Sparkles,
-  RefreshCw,
-  Award,
-  Link2,
-  Tag,
   AlertTriangle,
   CheckCircle,
   Clock,
   Compass,
   FileText,
-  ChevronDown,
-  ChevronUp,
-  Bookmark,
   Plus,
   Play,
   Settings,
   Calendar,
   Layers,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  Tag
 } from "lucide-react";
 import {
   createPromptDefinitionAction,
-  updatePromptDefinitionAction,
   getPromptDefinitionsAction,
   getPromptDetailsAction,
-  executePromptAction,
   executeModelComparisonAction,
   schedulePromptAction,
   unschedulePromptAction
@@ -96,44 +89,8 @@ export default function AeoPlaygroundPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Load brands on mount
-  useEffect(() => {
-    async function loadBrands() {
-      setIsLoading(true);
-      const res = await getBrandsAction();
-      if (res.success && (res as any).result && (res as any).result.length > 0) {
-        setBrands((res as any).result);
-        setSelectedBrandId((res as any).result[0].id);
-        loadDefinitions((res as any).result[0].id);
-      } else if (!res.success) {
-        setErrorMsg(isRtl ? "خطا در بارگذاری برندهای فعال" : "Failed to load tenant brands");
-        setIsLoading(false);
-      }
-    }
-    loadBrands();
-  }, [isRtl]);
-
-  // Load prompts library
-  const loadDefinitions = async (brandId: string) => {
-    setIsLoading(true);
-    setErrorMsg(null);
-    const res = await getPromptDefinitionsAction(brandId);
-    if (res.success && (res as any).result) {
-      setDefinitions((res as any).result);
-      if ((res as any).result.length > 0) {
-        handleSelectPrompt((res as any).result[0]);
-      } else {
-        setSelectedDef(null);
-        setPromptDetails(null);
-      }
-    } else {
-      setErrorMsg(isRtl ? "خطا در بارگذاری قالب‌های پرسش" : "Failed to load prompt templates");
-    }
-    setIsLoading(false);
-  };
-
   // Select a prompt template to view details
-  const handleSelectPrompt = async (prompt: PromptDefinition) => {
+  const handleSelectPrompt = useCallback(async (prompt: PromptDefinition) => {
     setSelectedDef(prompt);
     setComparisonResults(null);
     setErrorMsg(null);
@@ -148,14 +105,50 @@ export default function AeoPlaygroundPage() {
 
     // Fetch executions and schedule
     const res = await getPromptDetailsAction(prompt.id);
-    if (res.success && (res as any).result) {
-      setPromptDetails((res as any).result);
-      if ((res as any).result.schedule) {
-        setCronExpression((res as any).result.schedule.cronExpression);
-        setTimezone((res as any).result.schedule.timezone);
+    if (res.success && res.result) {
+      setPromptDetails(res.result);
+      if (res.result.schedule) {
+        setCronExpression(res.result.schedule.cronExpression);
+        setTimezone(res.result.schedule.timezone);
       }
     }
-  };
+  }, []);
+
+  // Load prompts library
+  const loadDefinitions = useCallback(async (brandId: string) => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    const res = await getPromptDefinitionsAction(brandId);
+    if (res.success && res.result) {
+      setDefinitions(res.result);
+      if (res.result.length > 0) {
+        handleSelectPrompt(res.result[0]);
+      } else {
+        setSelectedDef(null);
+        setPromptDetails(null);
+      }
+    } else {
+      setErrorMsg(isRtl ? "خطا در بارگذاری قالب‌های پرسش" : "Failed to load prompt templates");
+    }
+    setIsLoading(false);
+  }, [isRtl, handleSelectPrompt]);
+
+  // Load brands on mount
+  useEffect(() => {
+    async function loadBrands() {
+      setIsLoading(true);
+      const res = await getBrandsAction();
+      if (res.success && res.result && res.result.length > 0) {
+        setBrands(res.result);
+        setSelectedBrandId(res.result[0].id);
+        loadDefinitions(res.result[0].id);
+      } else if (!res.success) {
+        setErrorMsg(isRtl ? "خطا در بارگذاری برندهای فعال" : "Failed to load tenant brands");
+        setIsLoading(false);
+      }
+    }
+    loadBrands();
+  }, [isRtl, loadDefinitions]);
 
   // Trigger single execution or comparison
   const runComparison = () => {
@@ -172,17 +165,17 @@ export default function AeoPlaygroundPage() {
         models: selectedModels
       });
 
-      if (res.success && (res as any).result) {
-        setComparisonResults((res as any).result);
+      if (res.success && res.result) {
+        setComparisonResults(res.result);
         setSuccessMsg(isRtl ? "پاسخ مدل‌ها با موفقیت دریافت و آنالیز شد." : "Model responses compiled and analyzed successfully.");
 
         // Reload details to refresh history list
         const detailsRes = await getPromptDetailsAction(selectedDef.id);
-        if (detailsRes.success && (detailsRes as any).result) {
-          setPromptDetails((detailsRes as any).result);
+        if (detailsRes.success && detailsRes.result) {
+          setPromptDetails(detailsRes.result);
         }
       } else {
-        setErrorMsg((res as any).error || (isRtl ? "خطا در برقراری ارتباط با مدل‌ها." : "Error communicating with models."));
+        setErrorMsg(res.error || (isRtl ? "خطا در برقراری ارتباط با مدل‌ها." : "Error communicating with models."));
       }
     });
   };
@@ -210,7 +203,6 @@ export default function AeoPlaygroundPage() {
 
     startTransition(async () => {
       const res = await createPromptDefinitionAction({
-        // brandId has been removed from schema or was invalid
         brandId: selectedBrandId,
         name: newPromptName,
         promptTemplate: newTemplate,
@@ -223,7 +215,7 @@ export default function AeoPlaygroundPage() {
         notes: newNotes
       });
 
-      if (res.success && (res as any).result) {
+      if (res.success && res.result) {
         setShowCreateModal(false);
         setSuccessMsg(isRtl ? "قالب جدید با موفقیت به کتابخانه اضافه شد." : "New template added to library.");
 
@@ -236,7 +228,7 @@ export default function AeoPlaygroundPage() {
         // Reload list
         loadDefinitions(selectedBrandId);
       } else {
-        setErrorMsg((res as any).error || "Failed to create prompt template");
+        setErrorMsg(res.error || "Failed to create prompt template");
       }
     });
   };
@@ -254,17 +246,17 @@ export default function AeoPlaygroundPage() {
         timezone
       });
 
-      if (res.success && (res as any).result) {
+      if (res.success && res.result) {
         setSuccessMsg(isRtl ? "زمان‌بندی پایش با موفقیت ذخیره شد." : "Schedule updated successfully.");
         setShowSchedulePanel(false);
 
         // Refresh details
         const detailsRes = await getPromptDetailsAction(selectedDef.id);
-        if (detailsRes.success && (detailsRes as any).result) {
-          setPromptDetails((detailsRes as any).result);
+        if (detailsRes.success && detailsRes.result) {
+          setPromptDetails(detailsRes.result);
         }
       } else {
-        setErrorMsg((res as any).error || "Failed to save schedule");
+        setErrorMsg(res.error || "Failed to save schedule");
       }
     });
   };
@@ -282,11 +274,11 @@ export default function AeoPlaygroundPage() {
 
         // Refresh details
         const detailsRes = await getPromptDetailsAction(selectedDef.id);
-        if (detailsRes.success && (detailsRes as any).result) {
-          setPromptDetails((detailsRes as any).result);
+        if (detailsRes.success && detailsRes.result) {
+          setPromptDetails(detailsRes.result);
         }
       } else {
-        setErrorMsg((res as any).error || "Failed to disable schedule");
+        setErrorMsg(res.error || "Failed to disable schedule");
       }
     });
   };
@@ -311,15 +303,15 @@ export default function AeoPlaygroundPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in text-start pb-10">
+    <div className="space-y-6 animate-fade-in text-start pbe-10">
       {/* Header Panel */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--border)] pb-5">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--border)] pbe-5">
         <div>
           <h1 className="text-2xl font-black text-[var(--text-primary)] font-display flex items-center gap-2.5">
             <Layers className="text-[var(--sky-blue-500)]" size={24} />
             <span>{isRtl ? "استودیو هوشمند پرامپت (Prompt Intelligence)" : "Prompt Intelligence Studio"}</span>
           </h1>
-          <p className="text-xs text-[var(--text-secondary)] mt-1.5 max-w-2xl leading-relaxed">
+          <p className="text-xs text-[var(--text-secondary)] mbs-1.5 max-w-2xl leading-relaxed">
             {isRtl
               ? "ابزار پیشرفته مدیریت، قالب‌سازی متغیرها، مقایسه همزمان پاسخ مدل‌های هوشمند و ردیابی رتبه‌بندی کلامی برند شما در برابر رقبا."
               : "Enterprise prompt laboratory to parameterize templates, compare semantic models, schedule cron audits, and trace brand-vs-competitor ranks."}
@@ -343,13 +335,13 @@ export default function AeoPlaygroundPage() {
             </select>
           </div>
 
-          <button
+          <Button
+            size="sm"
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--sky-blue-500)] hover:bg-[var(--sky-blue-600)] text-white text-xs font-black rounded-lg cursor-pointer"
           >
             <Plus size={14} />
             <span>{isRtl ? "خلق قالب پرسش" : "Create Template"}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -373,7 +365,7 @@ export default function AeoPlaygroundPage() {
         {/* Left Library list */}
         <div className="space-y-4 lg:col-span-1">
           <Card className="border border-[var(--border)] bg-[var(--card)] rounded-xl">
-            <CardHeader className="border-b border-[var(--border)]/50 pb-3.5">
+            <CardHeader className="border-b border-[var(--border)]/50 pbe-3.5">
               <CardTitle className="text-xs font-black text-[var(--text-primary)] uppercase tracking-wider">
                 {isRtl ? "کتابخانه پرامپت‌های برند" : "Prompt Library"}
               </CardTitle>
@@ -391,7 +383,10 @@ export default function AeoPlaygroundPage() {
                   <div
                     key={def.id}
                     onClick={() => handleSelectPrompt(def)}
-                    className={`p-3 rounded-lg cursor-pointer transition-all duration-200 text-start flex justify-between items-start gap-2 ${selectedDef?.id === def.id ? "bg-[var(--sky-blue-500)]/10 border-l-2 border-[var(--sky-blue-500)]" : "hover:bg-[var(--border)]/20"}`}
+                    className={cn(
+                      "p-3 rounded-lg cursor-pointer transition-all duration-200 text-start flex justify-between items-start gap-2",
+                      selectedDef?.id === def.id ? "bg-[var(--sky-blue-500)]/10 border-s-2 border-[var(--sky-blue-500)]" : "hover:bg-[var(--border)]/20"
+                    )}
                   >
                     <div className="space-y-1 flex-grow">
                       <div className="flex items-center gap-1.5">
@@ -411,7 +406,7 @@ export default function AeoPlaygroundPage() {
                         <span>{def.intent}</span>
                       </div>
                     </div>
-                    <ChevronRight size={14} className="text-[var(--text-muted)] mt-1 shrink-0" />
+                    <ChevronRight size={14} className="text-[var(--text-muted)] mbs-1 shrink-0" />
                   </div>
                 ))
               )}
@@ -426,7 +421,7 @@ export default function AeoPlaygroundPage() {
 
               {/* Template details card */}
               <Card className="border border-[var(--border)] bg-[var(--card)] rounded-xl">
-                <CardHeader className="border-b border-[var(--border)]/50 pb-4 flex flex-row justify-between items-start">
+                <CardHeader className="border-b border-[var(--border)]/50 pbe-4 flex flex-row justify-between items-start">
                   <div>
                     <CardTitle className="text-sm font-black text-[var(--text-primary)]">
                       {selectedDef.name}
@@ -448,13 +443,15 @@ export default function AeoPlaygroundPage() {
                       </span>
                     )}
 
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setShowSchedulePanel(!showSchedulePanel)}
-                      className="p-1 rounded hover:bg-[var(--border)]/50 text-[var(--text-secondary)] cursor-pointer"
+                      className="p-1 h-auto"
                       title={isRtl ? "تنظیم زمان‌بندی" : "Configure Schedule"}
                     >
                       <Settings size={14} />
-                    </button>
+                    </Button>
                   </div>
                 </CardHeader>
 
@@ -468,7 +465,7 @@ export default function AeoPlaygroundPage() {
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1 block">
+                          <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] mbe-1 block">
                             {isRtl ? "عبارت کرون (Cron Expression)" : "Cron Expression"}
                           </label>
                           <input
@@ -480,7 +477,7 @@ export default function AeoPlaygroundPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1 block">
+                          <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] mbe-1 block">
                             {isRtl ? "منطقه زمانی" : "Timezone"}
                           </label>
                           <select
@@ -493,21 +490,22 @@ export default function AeoPlaygroundPage() {
                           </select>
                         </div>
                       </div>
-                      <div className="flex gap-2 justify-end pt-1">
+                      <div className="flex gap-2 justify-end pbs-1">
                         {promptDetails?.schedule?.enabled && (
-                          <button
+                          <Button
+                            variant="danger"
+                            size="sm"
                             onClick={handleDisableSchedule}
-                            className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-black text-[10px] cursor-pointer"
                           >
                             {isRtl ? "توقف پایش" : "Disable Schedule"}
-                          </button>
+                          </Button>
                         )}
-                        <button
+                        <Button
+                          size="sm"
                           onClick={handleSaveSchedule}
-                          className="px-3 py-1.5 bg-[var(--sky-blue-500)] hover:bg-[var(--sky-blue-600)] text-white rounded-lg font-black text-[10px] cursor-pointer"
                         >
                           {isRtl ? "ذخیره زمان‌بندی" : "Save Schedule"}
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -552,8 +550,8 @@ export default function AeoPlaygroundPage() {
 
                   {/* Competitors list show */}
                   {selectedDef.competitors.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5 pt-1 text-start">
-                      <span className="font-bold text-[var(--text-muted)] mr-1">
+                    <div className="flex flex-wrap items-center gap-1.5 pbs-1 text-start">
+                      <span className="font-bold text-[var(--text-muted)] me-1">
                         {isRtl ? "رقبای تنظیم شده:" : "Target Competitors:"}
                       </span>
                       {selectedDef.competitors.map((c, idx) => (
@@ -568,7 +566,7 @@ export default function AeoPlaygroundPage() {
 
               {/* Model Comparison settings & execution */}
               <Card className="border border-[var(--border)] bg-[var(--card)] rounded-xl">
-                <CardHeader className="border-b border-[var(--border)]/50 pb-3">
+                <CardHeader className="border-b border-[var(--border)]/50 pbe-3">
                   <CardTitle className="text-xs font-black text-[var(--text-primary)] uppercase tracking-wider flex items-center gap-2">
                     <Compass size={14} className="text-[var(--sky-blue-500)]" />
                     <span>{isRtl ? "مقایسه همزمان مدل‌ها" : "Model Comparison Matrix"}</span>
@@ -580,24 +578,29 @@ export default function AeoPlaygroundPage() {
                       {isRtl ? "انتخاب مدل‌ها:" : "Select Models:"}
                     </span>
                     {["sonar-medium", "gemini-1.5-flash", "gemini-1.5-pro"].map((m) => (
-                      <button
+                      <Button
                         key={m}
+                        variant={selectedModels.includes(m) ? "outline" : "ghost"}
+                        size="sm"
                         onClick={() => toggleModel(m)}
-                        className={`px-3 py-1.5 text-[10px] font-black rounded-lg border transition-all cursor-pointer ${selectedModels.includes(m) ? "bg-[var(--sky-blue-500)]/10 text-[var(--sky-blue-500)] border-[var(--sky-blue-500)]" : "bg-[var(--card)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--text-muted)]"}`}
+                        className={cn(
+                          "text-[10px]",
+                          selectedModels.includes(m) && "bg-[var(--sky-blue-500)]/10 text-[var(--sky-blue-500)] border-[var(--sky-blue-500)]"
+                        )}
                       >
                         {m}
-                      </button>
+                      </Button>
                     ))}
                   </div>
 
-                  <button
+                  <Button
                     onClick={runComparison}
                     disabled={isPending || selectedModels.length === 0}
-                    className="w-full flex items-center justify-center gap-2 py-2 bg-[var(--sky-blue-500)] hover:bg-[var(--sky-blue-600)] text-white text-xs font-black rounded-lg shadow cursor-pointer transition-all disabled:opacity-50"
+                    className="w-full"
                   >
-                    <Play size={14} className={isPending ? "animate-spin" : ""} />
+                    <Play size={14} className={cn(isPending && "animate-spin")} />
                     <span>{isRtl ? "اجرای مقایسه همزمان" : "Execute Model Comparison"}</span>
-                  </button>
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -640,8 +643,8 @@ export default function AeoPlaygroundPage() {
                                           {pos.presence === "ranked" ? `${isRtl ? "رتبه " : "Rank "}${pos.numericPosition}` : pos.presence}
                                         </span>
                                       </div>
-                                      <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed italic mt-1.5 border-t border-[var(--border)]/10 pt-1.5 font-mono">
-                                        "{pos.evidenceExcerpt}"
+                                      <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed italic mbs-1.5 border-t border-[var(--border)]/10 pbs-1.5 font-mono">
+                                        &quot;{pos.evidenceExcerpt}&quot;
                                       </p>
                                     </div>
                                   ))}
@@ -683,7 +686,7 @@ export default function AeoPlaygroundPage() {
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <Card className="w-full max-w-xl border border-[var(--border)] bg-[var(--card)] rounded-xl shadow-xl overflow-hidden animate-scale-in">
-            <CardHeader className="border-b border-[var(--border)]/50 pb-4">
+            <CardHeader className="border-b border-[var(--border)]/50 pbe-4">
               <CardTitle className="text-sm font-black text-[var(--text-primary)]">
                 {isRtl ? "تعریف قالب پرسش جدید" : "Create Prompt Template"}
               </CardTitle>
@@ -808,21 +811,20 @@ export default function AeoPlaygroundPage() {
                 />
               </div>
 
-              <div className="flex gap-2 justify-end pt-3 border-t border-[var(--border)]/50">
-                <button
+              <div className="flex gap-2 justify-end pbs-3 border-t border-[var(--border)]/50">
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-[var(--border)] text-[var(--text-secondary)] rounded-lg font-black transition-all cursor-pointer hover:bg-[var(--border)]/80"
                 >
                   {isRtl ? "انصراف" : "Cancel"}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={isPending}
-                  className="px-4 py-2 bg-[var(--sky-blue-500)] text-white rounded-lg font-black transition-all cursor-pointer hover:bg-[var(--sky-blue-600)]"
                 >
                   {isRtl ? "افزودن به کتابخانه" : "Add Template"}
-                </button>
+                </Button>
               </div>
             </form>
           </Card>
