@@ -45,7 +45,7 @@ export class CrawlCacheRepository {
     const response = await client().query<CacheRow>(
       `SELECT normalized_result, expires_at
        FROM crawl_cache
-       WHERE tenant_id = $1 AND cache_scope = $2 AND cache_key = $3
+       WHERE organization_id = $1 AND cache_scope = $2 AND cache_key = $3
        LIMIT 1`,
       [tenantId, scope, cacheKey]
     );
@@ -69,9 +69,9 @@ export class CrawlCacheRepository {
     const tenantId = TenantContextManager.getRequiredTenantId();
     await client().query(
       `INSERT INTO crawl_cache
-         (tenant_id, cache_scope, cache_key, normalized_result, expires_at)
+         (organization_id, cache_scope, cache_key, normalized_result, expires_at)
        VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (tenant_id, cache_scope, cache_key)
+       ON CONFLICT (organization_id, cache_scope, cache_key)
        DO UPDATE SET normalized_result = EXCLUDED.normalized_result,
                      expires_at = EXCLUDED.expires_at,
                      updated_at = NOW()`,
@@ -87,7 +87,7 @@ export class CrawlCacheRepository {
     const tenantId = TenantContextManager.getRequiredTenantId();
     await client().query(
       `DELETE FROM crawl_cache
-       WHERE tenant_id = $1 AND cache_scope = $2 AND cache_key = $3`,
+       WHERE organization_id = $1 AND cache_scope = $2 AND cache_key = $3`,
       [tenantId, scope, cacheKey]
     );
   }

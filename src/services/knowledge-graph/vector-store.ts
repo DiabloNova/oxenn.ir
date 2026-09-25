@@ -30,9 +30,9 @@ export class VectorStoreService {
     const vectorString = `[${embedding.join(",")}]`;
 
     const sql = `
-      INSERT INTO document_embeddings (id, tenant_id, content_chunk, metadata, embedding, created_at)
+      INSERT INTO document_embeddings (id, organization_id, content_chunk, metadata, embedding, created_at)
       VALUES ($1, $2, $3, $4, $5::vector, $6)
-      RETURNING id, tenant_id, content_chunk, metadata, created_at;
+      RETURNING id, organization_id AS tenant_id, content_chunk, metadata, created_at;
     `;
 
     const params = [
@@ -84,13 +84,13 @@ export class VectorStoreService {
     const sql = `
       SELECT
         id,
-        tenant_id,
+        organization_id AS tenant_id,
         content_chunk,
         metadata,
         (embedding <=> $2::vector) AS distance,
         created_at
       FROM document_embeddings
-      WHERE tenant_id = $1
+      WHERE organization_id = $1
       ORDER BY embedding <=> $2::vector
       LIMIT $3;
     `;

@@ -15,6 +15,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { organizations } from "./organization";
+import { entities } from "./entities";
 
 const defaultUuid = sql`gen_random_uuid()`;
 const defaultNow = sql`NOW()`;
@@ -193,7 +194,7 @@ export const pagesTopics = pgTable("pages_topics", {
 
 export const pagesEntities = pgTable("pages_entities", {
   pageId: uuid("page_id").notNull().references(() => pages.id, { onDelete: "cascade" }),
-  entityId: uuid("entity_id").notNull(),
+  entityId: uuid("entity_id").notNull().references(() => entities.id, { onDelete: "cascade" }),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   salience: doublePrecision("salience").notNull().default(1.0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
@@ -214,7 +215,7 @@ export const keywordsTopics = pgTable("keywords_topics", {
 
 export const topicsEntities = pgTable("topics_entities", {
   topicId: uuid("topic_id").notNull().references(() => topics.id, { onDelete: "cascade" }),
-  entityId: uuid("entity_id").notNull(),
+  entityId: uuid("entity_id").notNull().references(() => entities.id, { onDelete: "cascade" }),
   organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(defaultNow),
 }, (table) => [

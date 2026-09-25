@@ -1,10 +1,9 @@
 -- Migration to standardize tenant columns to organization_id (UUID), recreate RLS policies, and align credit_transactions schema
 
--- 1. Rename tenant_id -> organization_id
+-- 1. Rename tenant_id -> organization_id where applicable
 ALTER TABLE tenant_quotas RENAME COLUMN tenant_id TO organization_id;
 ALTER TABLE tenant_subscriptions RENAME COLUMN tenant_id TO organization_id;
 ALTER TABLE credit_transactions RENAME COLUMN tenant_id TO organization_id;
-ALTER TABLE audits RENAME COLUMN workspace_id TO organization_id;
 ALTER TABLE aeo_analyses RENAME COLUMN tenant_id TO organization_id;
 ALTER TABLE faq_opportunities RENAME COLUMN tenant_id TO organization_id;
 ALTER TABLE kg_alignments RENAME COLUMN tenant_id TO organization_id;
@@ -16,17 +15,55 @@ ALTER TABLE kg_relationships RENAME COLUMN tenant_id TO organization_id;
 ALTER TABLE crawl_jobs RENAME COLUMN tenant_id TO organization_id;
 ALTER TABLE crawl_results RENAME COLUMN tenant_id TO organization_id;
 ALTER TABLE crawl_cache RENAME COLUMN tenant_id TO organization_id;
-ALTER TABLE citation_sources RENAME COLUMN tenant_id TO organization_id;
 
--- 2. Convert type of organization_id on crawl tables from text to uuid
+-- Ensure audits table exists and rename workspace_id -> organization_id if column exists
+CREATE TABLE IF NOT EXISTS audits (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  url text NOT NULL,
+  status text NOT NULL DEFAULT 'pending',
+  raw_signals jsonb,
+  ai_insights jsonb,
+  error_message text,
+  created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+  updated_at timestamp with time zone NOT NULL DEFAULT NOW()
+);
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'audits' AND column_name = 'workspace_id') THEN
+    ALTER TABLE audits RENAME COLUMN workspace_id TO organization_id;
+  END IF;
+END $$;
+
+-- 2. Drop dependent policies BEFORE altering column type
+DROP POLICY IF EXISTS "crawl_tenant_policy" ON crawl_jobs;
+DROP POLICY IF EXISTS "crawl_tenant_policy" ON crawl_results;
+DROP POLICY IF EXISTS "crawl_tenant_policy" ON crawl_cache;
+
+-- Convert type of organization_id on crawl tables from text to uuid
 ALTER TABLE crawl_jobs ALTER COLUMN organization_id TYPE uuid USING organization_id::uuid;
 ALTER TABLE crawl_results ALTER COLUMN organization_id TYPE uuid USING organization_id::uuid;
 ALTER TABLE crawl_cache ALTER COLUMN organization_id TYPE uuid USING organization_id::uuid;
 
+-- Add foreign keys to organizations(id) where standardized
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'crawl_jobs_organization_id_organizations_id_fk') THEN
+    ALTER TABLE crawl_jobs ADD CONSTRAINT crawl_jobs_organization_id_organizations_id_fk FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'crawl_results_organization_id_organizations_id_fk') THEN
+    ALTER TABLE crawl_results ADD CONSTRAINT crawl_results_organization_id_organizations_id_fk FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'crawl_cache_organization_id_organizations_id_fk') THEN
+    ALTER TABLE crawl_cache ADD CONSTRAINT crawl_cache_organization_id_organizations_id_fk FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+  END IF;
+END $$;
+
 -- 3. Update credit_transactions schema columns
 ALTER TABLE credit_transactions ADD COLUMN IF NOT EXISTS transaction_type text;
 ALTER TABLE credit_transactions ADD COLUMN IF NOT EXISTS reference_id text;
-ALTER TABLE credit_transactions ALTER COLUMN feature DROP NOT NULL;
 ALTER TABLE credit_transactions ALTER COLUMN description DROP NOT NULL;
 
 -- 4. Recreate RLS Isolation Policies under organization_id
@@ -200,7 +237,6 @@ CREATE POLICY "update_organization_id_isolation_policy" ON kg_relationships FOR 
 CREATE POLICY "delete_organization_id_isolation_policy" ON kg_relationships FOR DELETE USING ("organization_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
 
 -- crawl_jobs
-DROP POLICY IF EXISTS "crawl_tenant_policy" ON crawl_jobs;
 DROP POLICY IF EXISTS "select_organization_id_isolation_policy" ON crawl_jobs;
 DROP POLICY IF EXISTS "insert_organization_id_isolation_policy" ON crawl_jobs;
 DROP POLICY IF EXISTS "update_organization_id_isolation_policy" ON crawl_jobs;
@@ -211,7 +247,6 @@ CREATE POLICY "update_organization_id_isolation_policy" ON crawl_jobs FOR UPDATE
 CREATE POLICY "delete_organization_id_isolation_policy" ON crawl_jobs FOR DELETE USING ("organization_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
 
 -- crawl_results
-DROP POLICY IF EXISTS "crawl_tenant_policy" ON crawl_results;
 DROP POLICY IF EXISTS "select_organization_id_isolation_policy" ON crawl_results;
 DROP POLICY IF EXISTS "insert_organization_id_isolation_policy" ON crawl_results;
 DROP POLICY IF EXISTS "update_organization_id_isolation_policy" ON crawl_results;
@@ -222,7 +257,6 @@ CREATE POLICY "update_organization_id_isolation_policy" ON crawl_results FOR UPD
 CREATE POLICY "delete_organization_id_isolation_policy" ON crawl_results FOR DELETE USING ("organization_id" = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid);
 
 -- crawl_cache
-DROP POLICY IF EXISTS "crawl_tenant_policy" ON crawl_cache;
 DROP POLICY IF EXISTS "select_organization_id_isolation_policy" ON crawl_cache;
 DROP POLICY IF EXISTS "insert_organization_id_isolation_policy" ON crawl_cache;
 DROP POLICY IF EXISTS "update_organization_id_isolation_policy" ON crawl_cache;
