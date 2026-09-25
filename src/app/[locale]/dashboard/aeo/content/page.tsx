@@ -24,7 +24,15 @@ import {
   getAeoContentDashboardDataAction,
   runAeoAnalysisForPageAction
 } from "@/app/actions/aeo-content-intelligence";
-import { Page, AeoAnalysis, FaqOpportunity, RecommendationSignal } from "@/features/ai-intelligence/domain/types";
+import { Page, AeoAnalysis, FaqOpportunity } from "@/features/ai-intelligence/domain/types";
+
+interface RecommendationSignal {
+  code: string;
+  level: string;
+  message: string;
+  pageId: string;
+  path: string;
+}
 
 export default function AeoContentIntelligenceDashboard() {
   const { language } = useTheme();

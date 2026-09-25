@@ -225,7 +225,7 @@ export default function DashboardTopbar({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute start-0 mt-2 w-64 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-lg z-50 overflow-hidden divide-y divide-[var(--border)]"
+                  className={`absolute ${isRtl ? "right-0" : "left-0"} mt-2 w-64 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-lg z-50 overflow-hidden divide-y divide-[var(--border)]`}
                   role="listbox"
                 >
                   <div className="px-3.5 py-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-wider bg-[var(--background)]/30 text-start">
@@ -308,7 +308,7 @@ export default function DashboardTopbar({
               aria-label={isRtl ? "اعلان‌ها" : "Notifications"}
             >
               <Bell size={16} />
-              <span className="absolute top-1.5 end-1.5 w-2 h-2 rounded-full bg-[var(--orange-500)] animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--orange-500)] animate-pulse" />
             </button>
 
             <AnimatePresence>
@@ -318,7 +318,7 @@ export default function DashboardTopbar({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute end-0 mt-2 w-80 sm:w-96 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-xl z-50 overflow-hidden divide-y divide-[var(--border)]"
+                  className={`absolute ${isRtl ? "left-0" : "right-0"} mt-2 w-80 sm:w-96 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-xl z-50 overflow-hidden divide-y divide-[var(--border)]`}
                 >
                   {/* Notification Center Header & state toggles */}
                   <div className="px-4 py-3 flex items-center justify-between bg-[var(--background)]/30 text-start">
