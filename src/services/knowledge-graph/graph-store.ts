@@ -67,12 +67,12 @@ export class GraphStoreService {
 
     // 2. Upsert Entities
     for (const [normName, ent] of entitiesToUpsertMap.entries()) {
-      // Find existing entity case-insensitively
+      // Find existing entity case-insensitively within active tenant
       const selectSql = `
         SELECT id, properties FROM kg_entities
-        WHERE LOWER(name) = LOWER($1) LIMIT 1;
+        WHERE LOWER(name) = LOWER($1) AND organization_id = $2 LIMIT 1;
       `;
-      const res = await this.pg.query(selectSql, [ent.name]);
+      const res = await this.pg.query(selectSql, [ent.name, tenantId]);
 
       let entityId: string;
       const properties = ent.properties || {};
@@ -94,10 +94,10 @@ export class GraphStoreService {
         const updateSql = `
           UPDATE kg_entities
           SET properties = $1, updated_at = NOW()
-          WHERE id = $2
+          WHERE id = $2 AND organization_id = $3
           RETURNING id;
         `;
-        await this.pg.query(updateSql, [JSON.stringify(mergedProperties), entityId]);
+        await this.pg.query(updateSql, [JSON.stringify(mergedProperties), entityId, tenantId]);
       } else {
         // Entity does not exist: Create new UUID and insert
         entityId = crypto.randomUUID();
@@ -144,13 +144,13 @@ export class GraphStoreService {
         source_chunk_id: sourceChunkId,
       };
 
-      // Check if relationship already exists
+      // Check if relationship already exists for this tenant
       const selectRelSql = `
         SELECT id, properties FROM kg_relationships
-        WHERE source_entity_id = $1 AND target_entity_id = $2 AND LOWER(relationship_type) = LOWER($3)
+        WHERE organization_id = $1 AND source_entity_id = $2 AND target_entity_id = $3 AND LOWER(relationship_type) = LOWER($4)
         LIMIT 1;
       `;
-      const resRel = await this.pg.query(selectRelSql, [sourceId, targetId, relType]);
+      const resRel = await this.pg.query(selectRelSql, [tenantId, sourceId, targetId, relType]);
 
       let relationshipId: string;
 
@@ -171,10 +171,10 @@ export class GraphStoreService {
         const updateRelSql = `
           UPDATE kg_relationships
           SET properties = $1, updated_at = NOW()
-          WHERE id = $2
+          WHERE id = $2 AND organization_id = $3
           RETURNING id;
         `;
-        await this.pg.query(updateRelSql, [JSON.stringify(mergedProperties), relationshipId]);
+        await this.pg.query(updateRelSql, [JSON.stringify(mergedProperties), relationshipId, tenantId]);
       } else {
         // Relationship does not exist: Create new UUID and insert
         relationshipId = crypto.randomUUID();
