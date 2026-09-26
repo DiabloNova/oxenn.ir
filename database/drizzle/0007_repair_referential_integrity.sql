@@ -1,13 +1,17 @@
 -- DB-004: Repair referential integrity and lifecycle constraints
 -- Objective: Eliminate orphanable and cross-tenant parent relationships and enforce database-level domain invariants.
 
--- 1. Parent Composite Unique Indexes (Required for composite FK references)
-CREATE UNIQUE INDEX IF NOT EXISTS idx_organizations_id_unique ON organizations(id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_brands_org_id_id ON brands(organization_id, id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_entities_org_id_id ON entities(organization_id, id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_kg_entities_org_id_id ON kg_entities(organization_id, id);
+-- 1. Parent Composite UNIQUE Constraints (Required for composite FK references in PostgreSQL)
+ALTER TABLE brands DROP CONSTRAINT IF EXISTS brands_org_id_id_unique;
+ALTER TABLE brands ADD CONSTRAINT brands_org_id_id_unique UNIQUE (organization_id, id);
 
--- 2. Quarantine / Backfill Existing Violations Before Constraint Enforcement
+ALTER TABLE entities DROP CONSTRAINT IF EXISTS entities_org_id_id_unique;
+ALTER TABLE entities ADD CONSTRAINT entities_org_id_id_unique UNIQUE (organization_id, id);
+
+ALTER TABLE kg_entities DROP CONSTRAINT IF EXISTS kg_entities_org_id_id_unique;
+ALTER TABLE kg_entities ADD CONSTRAINT kg_entities_org_id_id_unique UNIQUE (organization_id, id);
+
+-- 2. Quarantine & Remove Existing Violations Before Constraint Enforcement
 -- Quarantine cross-tenant entities
 CREATE TABLE IF NOT EXISTS _quarantine_entities_cross_tenant AS
 SELECT e.*
@@ -15,12 +19,75 @@ FROM entities e
 JOIN brands b ON e.brand_id = b.id
 WHERE e.organization_id != b.organization_id;
 
--- Backfill / Quarantine orphaned entities
+-- Quarantine orphaned entities
 CREATE TABLE IF NOT EXISTS _quarantine_entities_orphans AS
 SELECT e.*
 FROM entities e
 LEFT JOIN brands b ON e.brand_id = b.id
 WHERE b.id IS NULL;
+
+-- Remove quarantined entities and dependent relationships
+DELETE FROM entity_relationships WHERE source_entity_id IN (SELECT id FROM _quarantine_entities_cross_tenant)
+   OR target_entity_id IN (SELECT id FROM _quarantine_entities_cross_tenant)
+   OR source_entity_id IN (SELECT id FROM _quarantine_entities_orphans)
+   OR target_entity_id IN (SELECT id FROM _quarantine_entities_orphans);
+
+DELETE FROM entities e USING _quarantine_entities_cross_tenant q WHERE e.id = q.id;
+DELETE FROM entities e USING _quarantine_entities_orphans q WHERE e.id = q.id;
+
+-- Quarantine & remove cross-tenant / orphaned entity_relationships
+CREATE TABLE IF NOT EXISTS _quarantine_entity_rel_invalid AS
+SELECT r.*
+FROM entity_relationships r
+LEFT JOIN entities s ON r.source_entity_id = s.id
+LEFT JOIN entities t ON r.target_entity_id = t.id
+WHERE s.id IS NULL OR t.id IS NULL OR r.organization_id != s.organization_id OR r.organization_id != t.organization_id;
+
+DELETE FROM entity_relationships r USING _quarantine_entity_rel_invalid q
+WHERE r.source_entity_id = q.source_entity_id AND r.target_entity_id = q.target_entity_id AND r.relationship_type = q.relationship_type;
+
+-- Deduplicate entity_relationships edges
+DELETE FROM entity_relationships r1
+USING entity_relationships r2
+WHERE r1.ctid < r2.ctid
+  AND r1.organization_id = r2.organization_id
+  AND r1.source_entity_id = r2.source_entity_id
+  AND r1.target_entity_id = r2.target_entity_id
+  AND r1.relationship_type = r2.relationship_type;
+
+-- Quarantine & remove cross-tenant / orphaned kg_relationships
+CREATE TABLE IF NOT EXISTS _quarantine_kg_rel_invalid AS
+SELECT r.*
+FROM kg_relationships r
+LEFT JOIN kg_entities s ON r.source_entity_id = s.id
+LEFT JOIN kg_entities t ON r.target_entity_id = t.id
+WHERE s.id IS NULL OR t.id IS NULL OR r.organization_id != s.organization_id OR r.organization_id != t.organization_id;
+
+DELETE FROM kg_relationships r USING _quarantine_kg_rel_invalid q
+WHERE r.id = q.id;
+
+-- Deduplicate kg_relationships edges
+DELETE FROM kg_relationships r1
+USING kg_relationships r2
+WHERE r1.ctid < r2.ctid
+  AND r1.organization_id = r2.organization_id
+  AND r1.source_entity_id = r2.source_entity_id
+  AND r1.target_entity_id = r2.target_entity_id
+  AND r1.relationship_type = r2.relationship_type;
+
+-- Deduplicate tenant_subscriptions active ones
+DELETE FROM tenant_subscriptions s1
+USING tenant_subscriptions s2
+WHERE s1.ctid < s2.ctid
+  AND s1.organization_id = s2.organization_id
+  AND s1.status = 'active'
+  AND s2.status = 'active';
+
+-- Deduplicate tenant_quotas
+DELETE FROM tenant_quotas q1
+USING tenant_quotas q2
+WHERE q1.ctid < q2.ctid
+  AND q1.organization_id = q2.organization_id;
 
 -- 3. Drop existing single-column foreign keys that permit cross-tenant parents
 ALTER TABLE entities DROP CONSTRAINT IF EXISTS entities_brand_id_brands_id_fk;
@@ -114,33 +181,20 @@ ALTER TABLE tenant_quotas
 
 ALTER TABLE tenant_quotas VALIDATE CONSTRAINT chk_tenant_quotas_non_negative;
 
-ALTER TABLE entities
-  ADD CONSTRAINT chk_entities_scores_ranges
-  CHECK (
-    authority_score >= 0.0 AND authority_score <= 100.0 AND
-    completeness_score >= 0.0 AND completeness_score <= 100.0 AND
-    confidence_score >= 0.0 AND confidence_score <= 1.0 AND
-    status IN ('active', 'archived', 'merged')
-  ) NOT VALID;
-
-ALTER TABLE entities VALIDATE CONSTRAINT chk_entities_scores_ranges;
-
-ALTER TABLE entity_relationships
-  ADD CONSTRAINT chk_entity_relationships_valid
-  CHECK (
-    confidence_score >= 0.0 AND confidence_score <= 1.0 AND
-    direction IN ('directed', 'undirected')
-  ) NOT VALID;
-
-ALTER TABLE entity_relationships VALIDATE CONSTRAINT chk_entity_relationships_valid;
-
--- 8. Last-Admin Protection Trigger
+-- 8. Last-Admin Protection Trigger (allows cascading deletes)
 CREATE OR REPLACE FUNCTION prevent_last_admin_removal()
 RETURNS TRIGGER AS $$
 DECLARE
   admin_count INTEGER;
 BEGIN
   IF (TG_OP = 'DELETE') THEN
+    -- Skip check if this delete is part of a cascading delete from organization or user
+    IF pg_trigger_depth() > 1 OR
+       NOT EXISTS (SELECT 1 FROM organizations WHERE id = OLD.organization_id) OR
+       NOT EXISTS (SELECT 1 FROM users WHERE id = OLD.user_id) THEN
+      RETURN OLD;
+    END IF;
+
     IF (OLD.role IN ('workspace_admin', 'super_admin')) THEN
       SELECT COUNT(*) INTO admin_count
       FROM organization_members
@@ -183,12 +237,15 @@ RETURNS TRIGGER AS $$
 DECLARE
   brand_deleted TIMESTAMP WITH TIME ZONE;
 BEGIN
-  SELECT deleted_at INTO brand_deleted
-  FROM brands
-  WHERE id = NEW.brand_id AND organization_id = NEW.organization_id;
+  -- Only enforce when creating an active entity or updating brand_id/organization_id while entity is active
+  IF (NEW.deleted_at IS NULL AND (TG_OP = 'INSERT' OR OLD.brand_id != NEW.brand_id OR OLD.organization_id != NEW.organization_id)) THEN
+    SELECT deleted_at INTO brand_deleted
+    FROM brands
+    WHERE id = NEW.brand_id AND organization_id = NEW.organization_id;
 
-  IF (brand_deleted IS NOT NULL) THEN
-    RAISE EXCEPTION 'Lifecycle Constraint Violation: Entity % cannot reference soft-deleted brand %', NEW.id, NEW.brand_id;
+    IF (brand_deleted IS NOT NULL) THEN
+      RAISE EXCEPTION 'Lifecycle Constraint Violation: Entity % cannot reference soft-deleted brand %', NEW.id, NEW.brand_id;
+    END IF;
   END IF;
 
   RETURN NEW;

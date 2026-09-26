@@ -74,7 +74,7 @@ export const kgEntities = pgTable("kg_entities", {
 
 export const kgRelationships = pgTable("kg_relationships", {
   id: uuid("id").primaryKey().default(defaultUuid),
-  organizationId: uuid("organization_id").notNull(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
   sourceEntityId: uuid("source_entity_id").notNull(),
   targetEntityId: uuid("target_entity_id").notNull(),
   relationshipType: text("relationship_type").notNull(),
