@@ -3,20 +3,16 @@
 import React, { useState, useEffect, useTransition } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/Card";
+import { Button } from "@/components/Button";
+import { Badge } from "@/components/Badge";
+import { Input } from "@/components/Input";
 import {
-  Sparkles,
-  RefreshCw,
-  Award,
-  Link2,
   Tag,
   AlertTriangle,
   CheckCircle,
   Clock,
   Compass,
   FileText,
-  ChevronDown,
-  ChevronUp,
-  Bookmark,
   Plus,
   Play,
   Settings,
@@ -27,10 +23,8 @@ import {
 } from "lucide-react";
 import {
   createPromptDefinitionAction,
-  updatePromptDefinitionAction,
   getPromptDefinitionsAction,
   getPromptDetailsAction,
-  executePromptAction,
   executeModelComparisonAction,
   schedulePromptAction,
   unschedulePromptAction
@@ -96,42 +90,6 @@ export default function AeoPlaygroundPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Load brands on mount
-  useEffect(() => {
-    async function loadBrands() {
-      setIsLoading(true);
-      const res = await getBrandsAction();
-      if (res.success && (res as any).result && (res as any).result.length > 0) {
-        setBrands((res as any).result);
-        setSelectedBrandId((res as any).result[0].id);
-        loadDefinitions((res as any).result[0].id);
-      } else if (!res.success) {
-        setErrorMsg(isRtl ? "خطا در بارگذاری برندهای فعال" : "Failed to load tenant brands");
-        setIsLoading(false);
-      }
-    }
-    loadBrands();
-  }, [isRtl]);
-
-  // Load prompts library
-  const loadDefinitions = async (brandId: string) => {
-    setIsLoading(true);
-    setErrorMsg(null);
-    const res = await getPromptDefinitionsAction(brandId);
-    if (res.success && (res as any).result) {
-      setDefinitions((res as any).result);
-      if ((res as any).result.length > 0) {
-        handleSelectPrompt((res as any).result[0]);
-      } else {
-        setSelectedDef(null);
-        setPromptDetails(null);
-      }
-    } else {
-      setErrorMsg(isRtl ? "خطا در بارگذاری قالب‌های پرسش" : "Failed to load prompt templates");
-    }
-    setIsLoading(false);
-  };
-
   // Select a prompt template to view details
   const handleSelectPrompt = async (prompt: PromptDefinition) => {
     setSelectedDef(prompt);
@@ -148,14 +106,50 @@ export default function AeoPlaygroundPage() {
 
     // Fetch executions and schedule
     const res = await getPromptDetailsAction(prompt.id);
-    if (res.success && (res as any).result) {
-      setPromptDetails((res as any).result);
-      if ((res as any).result.schedule) {
-        setCronExpression((res as any).result.schedule.cronExpression);
-        setTimezone((res as any).result.schedule.timezone);
+    if ("result" in res && res.result) {
+      setPromptDetails(res.result);
+      if (res.result.schedule) {
+        setCronExpression(res.result.schedule.cronExpression);
+        setTimezone(res.result.schedule.timezone);
       }
     }
   };
+
+  // Load prompts library
+  const loadDefinitions = async (brandId: string) => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    const res = await getPromptDefinitionsAction(brandId);
+    if ("result" in res && res.result) {
+      setDefinitions(res.result);
+      if (res.result.length > 0) {
+        handleSelectPrompt(res.result[0]);
+      } else {
+        setSelectedDef(null);
+        setPromptDetails(null);
+      }
+    } else {
+      setErrorMsg(isRtl ? "خطا در بارگذاری قالب‌های پرسش" : "Failed to load prompt templates");
+    }
+    setIsLoading(false);
+  };
+
+  // Load brands on mount
+  useEffect(() => {
+    async function loadBrands() {
+      setIsLoading(true);
+      const res = await getBrandsAction();
+      if ("result" in res && res.result && res.result.length > 0) {
+        setBrands(res.result);
+        setSelectedBrandId(res.result[0].id);
+        loadDefinitions(res.result[0].id);
+      } else if (!res.success) {
+        setErrorMsg(isRtl ? "خطا در بارگذاری برندهای فعال" : "Failed to load tenant brands");
+        setIsLoading(false);
+      }
+    }
+    loadBrands();
+  }, [isRtl]);
 
   // Trigger single execution or comparison
   const runComparison = () => {
@@ -172,17 +166,19 @@ export default function AeoPlaygroundPage() {
         models: selectedModels
       });
 
-      if (res.success && (res as any).result) {
-        setComparisonResults((res as any).result);
+      if ("result" in res && res.result) {
+        setComparisonResults(res.result);
         setSuccessMsg(isRtl ? "پاسخ مدل‌ها با موفقیت دریافت و آنالیز شد." : "Model responses compiled and analyzed successfully.");
 
         // Reload details to refresh history list
         const detailsRes = await getPromptDetailsAction(selectedDef.id);
-        if (detailsRes.success && (detailsRes as any).result) {
-          setPromptDetails((detailsRes as any).result);
+        if ("result" in detailsRes && detailsRes.result) {
+          setPromptDetails(detailsRes.result);
         }
-      } else {
-        setErrorMsg((res as any).error || (isRtl ? "خطا در برقراری ارتباط با مدل‌ها." : "Error communicating with models."));
+      } else if ("error" in res && res.error) {
+        setErrorMsg(res.error);
+      } else if (!res.success) {
+        setErrorMsg(isRtl ? "خطا در برقراری ارتباط با مدل‌ها." : "Error communicating with models.");
       }
     });
   };
@@ -210,7 +206,6 @@ export default function AeoPlaygroundPage() {
 
     startTransition(async () => {
       const res = await createPromptDefinitionAction({
-        // brandId has been removed from schema or was invalid
         brandId: selectedBrandId,
         name: newPromptName,
         promptTemplate: newTemplate,
@@ -223,7 +218,7 @@ export default function AeoPlaygroundPage() {
         notes: newNotes
       });
 
-      if (res.success && (res as any).result) {
+      if ("result" in res && res.result) {
         setShowCreateModal(false);
         setSuccessMsg(isRtl ? "قالب جدید با موفقیت به کتابخانه اضافه شد." : "New template added to library.");
 
@@ -235,8 +230,10 @@ export default function AeoPlaygroundPage() {
 
         // Reload list
         loadDefinitions(selectedBrandId);
-      } else {
-        setErrorMsg((res as any).error || "Failed to create prompt template");
+      } else if ("error" in res && res.error) {
+        setErrorMsg(res.error);
+      } else if (!res.success) {
+        setErrorMsg("Failed to create prompt template");
       }
     });
   };
@@ -254,17 +251,19 @@ export default function AeoPlaygroundPage() {
         timezone
       });
 
-      if (res.success && (res as any).result) {
+      if ("result" in res && res.result) {
         setSuccessMsg(isRtl ? "زمان‌بندی پایش با موفقیت ذخیره شد." : "Schedule updated successfully.");
         setShowSchedulePanel(false);
 
         // Refresh details
         const detailsRes = await getPromptDetailsAction(selectedDef.id);
-        if (detailsRes.success && (detailsRes as any).result) {
-          setPromptDetails((detailsRes as any).result);
+        if ("result" in detailsRes && detailsRes.result) {
+          setPromptDetails(detailsRes.result);
         }
-      } else {
-        setErrorMsg((res as any).error || "Failed to save schedule");
+      } else if ("error" in res && res.error) {
+        setErrorMsg(res.error);
+      } else if (!res.success) {
+        setErrorMsg("Failed to save schedule");
       }
     });
   };
@@ -282,11 +281,13 @@ export default function AeoPlaygroundPage() {
 
         // Refresh details
         const detailsRes = await getPromptDetailsAction(selectedDef.id);
-        if (detailsRes.success && (detailsRes as any).result) {
-          setPromptDetails((detailsRes as any).result);
+        if ("result" in detailsRes && detailsRes.result) {
+          setPromptDetails(detailsRes.result);
         }
-      } else {
-        setErrorMsg((res as any).error || "Failed to disable schedule");
+      } else if ("error" in res && res.error) {
+        setErrorMsg(res.error);
+      } else if (!res.success) {
+        setErrorMsg("Failed to disable schedule");
       }
     });
   };
@@ -311,15 +312,15 @@ export default function AeoPlaygroundPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in text-start pb-10">
+    <div className="space-y-6 animate-fade-in text-start pbe-10">
       {/* Header Panel */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--border)] pb-5">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--border)] pbe-5">
         <div>
           <h1 className="text-2xl font-black text-[var(--text-primary)] font-display flex items-center gap-2.5">
             <Layers className="text-[var(--sky-blue-500)]" size={24} />
             <span>{isRtl ? "استودیو هوشمند پرامپت (Prompt Intelligence)" : "Prompt Intelligence Studio"}</span>
           </h1>
-          <p className="text-xs text-[var(--text-secondary)] mt-1.5 max-w-2xl leading-relaxed">
+          <p className="text-xs text-[var(--text-secondary)] mbs-1.5 max-w-2xl leading-relaxed">
             {isRtl
               ? "ابزار پیشرفته مدیریت، قالب‌سازی متغیرها، مقایسه همزمان پاسخ مدل‌های هوشمند و ردیابی رتبه‌بندی کلامی برند شما در برابر رقبا."
               : "Enterprise prompt laboratory to parameterize templates, compare semantic models, schedule cron audits, and trace brand-vs-competitor ranks."}
@@ -332,7 +333,7 @@ export default function AeoPlaygroundPage() {
             <select
               value={selectedBrandId}
               onChange={(e) => handleBrandChange(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)] focus:outline-none font-semibold"
+              className="px-3 py-1.5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)] focus:outline-none font-semibold"
               disabled={isLoading || isPending}
             >
               {brands.map((b) => (
@@ -343,25 +344,27 @@ export default function AeoPlaygroundPage() {
             </select>
           </div>
 
-          <button
+          <Button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--sky-blue-500)] hover:bg-[var(--sky-blue-600)] text-white text-xs font-black rounded-lg cursor-pointer"
+            variant="primary"
+            size="sm"
+            className="text-xs font-black"
           >
             <Plus size={14} />
             <span>{isRtl ? "خلق قالب پرسش" : "Create Template"}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
       {errorMsg && (
-        <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg text-xs text-red-600 flex items-center gap-2 font-semibold">
+        <div className="p-3 bg-[var(--color-error-bg)] border border-[color-mix(in_srgb,var(--color-error)_30%,transparent)] rounded-lg text-xs text-[var(--color-error)] flex items-center gap-2 font-semibold">
           <AlertTriangle size={16} />
           <span>{errorMsg}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 rounded-lg text-xs text-emerald-600 flex items-center gap-2 font-semibold animate-pulse">
+        <div className="p-3 bg-[var(--color-success-bg)] border border-[color-mix(in_srgb,var(--color-success)_30%,transparent)] rounded-lg text-xs text-[var(--color-success)] flex items-center gap-2 font-semibold animate-pulse">
           <CheckCircle size={16} />
           <span>{successMsg}</span>
         </div>
@@ -373,7 +376,7 @@ export default function AeoPlaygroundPage() {
         {/* Left Library list */}
         <div className="space-y-4 lg:col-span-1">
           <Card className="border border-[var(--border)] bg-[var(--card)] rounded-xl">
-            <CardHeader className="border-b border-[var(--border)]/50 pb-3.5">
+            <CardHeader className="border-b border-[var(--border)]/50 pbe-3.5">
               <CardTitle className="text-xs font-black text-[var(--text-primary)] uppercase tracking-wider">
                 {isRtl ? "کتابخانه پرامپت‌های برند" : "Prompt Library"}
               </CardTitle>
@@ -426,7 +429,7 @@ export default function AeoPlaygroundPage() {
 
               {/* Template details card */}
               <Card className="border border-[var(--border)] bg-[var(--card)] rounded-xl">
-                <CardHeader className="border-b border-[var(--border)]/50 pb-4 flex flex-row justify-between items-start">
+                <CardHeader className="border-b border-[var(--border)]/50 pbe-4 flex flex-row justify-between items-start">
                   <div>
                     <CardTitle className="text-sm font-black text-[var(--text-primary)]">
                       {selectedDef.name}
@@ -439,22 +442,24 @@ export default function AeoPlaygroundPage() {
                   {/* Scheduled state badge */}
                   <div className="flex items-center gap-2">
                     {promptDetails?.schedule?.enabled ? (
-                      <span className="px-2 py-0.5 text-[9px] font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-500 rounded-full border border-emerald-200">
+                      <Badge variant="success" className="text-[9px] font-bold px-2 py-0.5">
                         {isRtl ? "فعال در زمان‌بندی" : "Scheduled"}
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className="px-2 py-0.5 text-[9px] font-bold bg-[var(--border)] text-[var(--text-muted)] rounded-full border border-[var(--border)]">
+                      <Badge variant="neutral" className="text-[9px] font-bold px-2 py-0.5">
                         {isRtl ? "بدون زمان‌بندی" : "On-Demand"}
-                      </span>
+                      </Badge>
                     )}
 
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setShowSchedulePanel(!showSchedulePanel)}
-                      className="p-1 rounded hover:bg-[var(--border)]/50 text-[var(--text-secondary)] cursor-pointer"
+                      className="p-1 h-auto cursor-pointer"
                       title={isRtl ? "تنظیم زمان‌بندی" : "Configure Schedule"}
                     >
                       <Settings size={14} />
-                    </button>
+                    </Button>
                   </div>
                 </CardHeader>
 
@@ -468,46 +473,47 @@ export default function AeoPlaygroundPage() {
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1 block">
-                            {isRtl ? "عبارت کرون (Cron Expression)" : "Cron Expression"}
-                          </label>
-                          <input
+                          <Input
+                            label={isRtl ? "عبارت کرون (Cron Expression)" : "Cron Expression"}
                             type="text"
                             value={cronExpression}
                             onChange={(e) => setCronExpression(e.target.value)}
                             placeholder="e.g. 0 0 * * *"
-                            className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)]"
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1 block">
+                          <label className="text-sm font-medium text-[var(--text-secondary)] mbe-1.5 block">
                             {isRtl ? "منطقه زمانی" : "Timezone"}
                           </label>
                           <select
                             value={timezone}
                             onChange={(e) => setTimezone(e.target.value)}
-                            className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)] font-semibold"
+                            className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] text-sm text-[var(--text-primary)] font-semibold"
                           >
                             <option value="Asia/Tehran">Asia/Tehran</option>
                             <option value="UTC">UTC</option>
                           </select>
                         </div>
                       </div>
-                      <div className="flex gap-2 justify-end pt-1">
+                      <div className="flex gap-2 justify-end pbs-1">
                         {promptDetails?.schedule?.enabled && (
-                          <button
+                          <Button
                             onClick={handleDisableSchedule}
-                            className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-black text-[10px] cursor-pointer"
+                            variant="danger"
+                            size="sm"
+                            className="text-[10px] font-black"
                           >
                             {isRtl ? "توقف پایش" : "Disable Schedule"}
-                          </button>
+                          </Button>
                         )}
-                        <button
+                        <Button
                           onClick={handleSaveSchedule}
-                          className="px-3 py-1.5 bg-[var(--sky-blue-500)] hover:bg-[var(--sky-blue-600)] text-white rounded-lg font-black text-[10px] cursor-pointer"
+                          variant="primary"
+                          size="sm"
+                          className="text-[10px] font-black"
                         >
                           {isRtl ? "ذخیره زمان‌بندی" : "Save Schedule"}
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -532,16 +538,12 @@ export default function AeoPlaygroundPage() {
                       </span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {selectedDef.variables.map((v) => (
-                          <div key={v.name} className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] flex justify-between">
-                              <span>{v.name}</span>
-                              <span className="text-[8px] italic capitalize">{v.description}</span>
-                            </label>
-                            <input
+                          <div key={v.name}>
+                            <Input
+                              label={v.name}
                               type="text"
                               value={variableValues[v.name] || ""}
                               onChange={(e) => setVariableValues({ ...variableValues, [v.name]: e.target.value })}
-                              className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)] font-medium"
                               required
                             />
                           </div>
@@ -552,14 +554,14 @@ export default function AeoPlaygroundPage() {
 
                   {/* Competitors list show */}
                   {selectedDef.competitors.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5 pt-1 text-start">
-                      <span className="font-bold text-[var(--text-muted)] mr-1">
+                    <div className="flex flex-wrap items-center gap-1.5 pbs-1 text-start">
+                      <span className="font-bold text-[var(--text-muted)] me-1">
                         {isRtl ? "رقبای تنظیم شده:" : "Target Competitors:"}
                       </span>
                       {selectedDef.competitors.map((c, idx) => (
-                        <span key={idx} className="px-2 py-0.5 text-[10px] bg-[var(--border)]/50 border border-[var(--border)] rounded text-[var(--text-secondary)] font-semibold">
+                        <Badge key={idx} variant="neutral" className="text-[10px] font-semibold">
                           {c}
-                        </span>
+                        </Badge>
                       ))}
                     </div>
                   )}
@@ -568,7 +570,7 @@ export default function AeoPlaygroundPage() {
 
               {/* Model Comparison settings & execution */}
               <Card className="border border-[var(--border)] bg-[var(--card)] rounded-xl">
-                <CardHeader className="border-b border-[var(--border)]/50 pb-3">
+                <CardHeader className="border-b border-[var(--border)]/50 pbe-3">
                   <CardTitle className="text-xs font-black text-[var(--text-primary)] uppercase tracking-wider flex items-center gap-2">
                     <Compass size={14} className="text-[var(--sky-blue-500)]" />
                     <span>{isRtl ? "مقایسه همزمان مدل‌ها" : "Model Comparison Matrix"}</span>
@@ -580,24 +582,28 @@ export default function AeoPlaygroundPage() {
                       {isRtl ? "انتخاب مدل‌ها:" : "Select Models:"}
                     </span>
                     {["sonar-medium", "gemini-1.5-flash", "gemini-1.5-pro"].map((m) => (
-                      <button
+                      <Button
                         key={m}
                         onClick={() => toggleModel(m)}
-                        className={`px-3 py-1.5 text-[10px] font-black rounded-lg border transition-all cursor-pointer ${selectedModels.includes(m) ? "bg-[var(--sky-blue-500)]/10 text-[var(--sky-blue-500)] border-[var(--sky-blue-500)]" : "bg-[var(--card)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--text-muted)]"}`}
+                        variant={selectedModels.includes(m) ? "outline" : "ghost"}
+                        size="sm"
+                        className={`text-[10px] font-black ${selectedModels.includes(m) ? "border-[var(--sky-blue-500)] text-[var(--sky-blue-500)]" : ""}`}
                       >
                         {m}
-                      </button>
+                      </Button>
                     ))}
                   </div>
 
-                  <button
+                  <Button
                     onClick={runComparison}
                     disabled={isPending || selectedModels.length === 0}
-                    className="w-full flex items-center justify-center gap-2 py-2 bg-[var(--sky-blue-500)] hover:bg-[var(--sky-blue-600)] text-white text-xs font-black rounded-lg shadow cursor-pointer transition-all disabled:opacity-50"
+                    variant="primary"
+                    size="md"
+                    className="w-full text-xs font-black"
                   >
                     <Play size={14} className={isPending ? "animate-spin" : ""} />
                     <span>{isRtl ? "اجرای مقایسه همزمان" : "Execute Model Comparison"}</span>
-                  </button>
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -640,8 +646,8 @@ export default function AeoPlaygroundPage() {
                                           {pos.presence === "ranked" ? `${isRtl ? "رتبه " : "Rank "}${pos.numericPosition}` : pos.presence}
                                         </span>
                                       </div>
-                                      <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed italic mt-1.5 border-t border-[var(--border)]/10 pt-1.5 font-mono">
-                                        "{pos.evidenceExcerpt}"
+                                      <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed italic mbs-1.5 border-t border-[var(--border)]/10 pbs-1.5 font-mono">
+                                        &quot;{pos.evidenceExcerpt}&quot;
                                       </p>
                                     </div>
                                   ))}
@@ -683,34 +689,31 @@ export default function AeoPlaygroundPage() {
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <Card className="w-full max-w-xl border border-[var(--border)] bg-[var(--card)] rounded-xl shadow-xl overflow-hidden animate-scale-in">
-            <CardHeader className="border-b border-[var(--border)]/50 pb-4">
+            <CardHeader className="border-b border-[var(--border)]/50 pbe-4">
               <CardTitle className="text-sm font-black text-[var(--text-primary)]">
                 {isRtl ? "تعریف قالب پرسش جدید" : "Create Prompt Template"}
               </CardTitle>
             </CardHeader>
             <form onSubmit={handleCreateTemplate} className="p-5 space-y-4 text-xs">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] block">
-                    {isRtl ? "نام قالب" : "Template Title"}
-                  </label>
-                  <input
+                <div>
+                  <Input
+                    label={isRtl ? "نام قالب" : "Template Title"}
                     type="text"
                     value={newPromptName}
                     onChange={(e) => setNewPromptName(e.target.value)}
                     placeholder="e.g. سهم صدای برند کلی"
-                    className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)]"
                     required
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] block">
+                <div>
+                  <label className="text-sm font-medium text-[var(--text-secondary)] mbe-1.5 block">
                     {isRtl ? "زبان" : "Locale"}
                   </label>
                   <select
                     value={newLocale}
                     onChange={(e) => setNewLocale(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)] font-semibold"
+                    className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] text-sm text-[var(--text-primary)] font-semibold"
                   >
                     <option value="fa">فارسی (fa)</option>
                     <option value="en">English (en)</option>
@@ -718,8 +721,8 @@ export default function AeoPlaygroundPage() {
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] block">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-[var(--text-secondary)] block">
                   {isRtl ? "قالب پرامپت (به همراه متغیرها در آکولاد)" : "Prompt Template text"}
                 </label>
                 <textarea
@@ -727,20 +730,20 @@ export default function AeoPlaygroundPage() {
                   onChange={(e) => setNewTemplate(e.target.value)}
                   placeholder="e.g. معرفی کامل برند {brand} چیست؟"
                   rows={3}
-                  className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)] font-mono"
+                  className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] text-sm text-[var(--text-primary)] font-mono"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] block">
+                <div>
+                  <label className="text-sm font-medium text-[var(--text-secondary)] mbe-1.5 block">
                     {isRtl ? "دسته‌بندی (Category)" : "Category"}
                   </label>
                   <select
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value as PromptCategory)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)] font-semibold"
+                    className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] text-sm text-[var(--text-primary)] font-semibold"
                   >
                     <option value="Brand Discovery">Brand Discovery</option>
                     <option value="Product/Service Discovery">Product/Service Discovery</option>
@@ -750,14 +753,14 @@ export default function AeoPlaygroundPage() {
                     <option value="Problem/Solution">Problem/Solution</option>
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] block">
+                <div>
+                  <label className="text-sm font-medium text-[var(--text-secondary)] mbe-1.5 block">
                     {isRtl ? "هدف خریدار (Intent)" : "Intent"}
                   </label>
                   <select
                     value={newIntent}
                     onChange={(e) => setNewIntent(e.target.value as PromptIntentType)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)] font-semibold"
+                    className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] text-sm text-[var(--text-primary)] font-semibold"
                   >
                     <option value="Discovery">Discovery</option>
                     <option value="Comparison">Comparison</option>
@@ -769,60 +772,53 @@ export default function AeoPlaygroundPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] block">
-                    {isRtl ? "تعریف متغیرها (فرمت: name=default)" : "Variables (format: name=default)"}
-                  </label>
-                  <input
+                <div>
+                  <Input
+                    label={isRtl ? "تعریف متغیرها (فرمت: name=default)" : "Variables (format: name=default)"}
                     type="text"
                     value={newVars}
                     onChange={(e) => setNewVars(e.target.value)}
                     placeholder="e.g. brand=رشا گستر, location=تهران"
-                    className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)] font-mono"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] block">
-                    {isRtl ? "رقبای پایش (با کاما جدا کنید)" : "Competitors (comma separated)"}
-                  </label>
-                  <input
+                <div>
+                  <Input
+                    label={isRtl ? "رقبای پایش (با کاما جدا کنید)" : "Competitors (comma separated)"}
                     type="text"
                     value={newCompetitors}
                     onChange={(e) => setNewCompetitors(e.target.value)}
                     placeholder="e.g. CompetitorA, CompetitorB"
-                    className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)]"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold text-[var(--text-muted)] block">
-                  {isRtl ? "یادداشت‌ها" : "Notes"}
-                </label>
-                <input
+              <div>
+                <Input
+                  label={isRtl ? "یادداشت‌ها" : "Notes"}
                   type="text"
                   value={newNotes}
                   onChange={(e) => setNewNotes(e.target.value)}
                   placeholder="..."
-                  className="w-full px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--text-primary)]"
                 />
               </div>
 
-              <div className="flex gap-2 justify-end pt-3 border-t border-[var(--border)]/50">
-                <button
+              <div className="flex gap-2 justify-end pbs-3 border-t border-[var(--border)]/50">
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-[var(--border)] text-[var(--text-secondary)] rounded-lg font-black transition-all cursor-pointer hover:bg-[var(--border)]/80"
                 >
                   {isRtl ? "انصراف" : "Cancel"}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={isPending}
-                  className="px-4 py-2 bg-[var(--sky-blue-500)] text-white rounded-lg font-black transition-all cursor-pointer hover:bg-[var(--sky-blue-600)]"
+                  variant="primary"
+                  size="sm"
                 >
                   {isRtl ? "افزودن به کتابخانه" : "Add Template"}
-                </button>
+                </Button>
               </div>
             </form>
           </Card>
